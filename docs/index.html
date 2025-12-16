@@ -7,7 +7,7 @@
 
 <style>
 :root{
-  --bg:#f4f5f7;
+  --bg:#f4f6f8;
   --card:#ffffff;
   --primary:#1976d2;
   --ok:#1b5e20;
@@ -26,7 +26,56 @@ body{
   padding:8px;
 }
 
-/* ===== TOP ===== */
+/* ===== LOGIN ===== */
+.login-screen{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.login-box{
+  width:100%;
+  max-width:360px;
+  background:var(--card);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+  text-align:center;
+}
+
+.login-box h3{margin:0 0 6px}
+.login-box p{font-size:13px;color:var(--muted)}
+
+.login-box input{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+.login-box button{
+  width:100%;
+  margin-top:14px;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:var(--primary);
+  color:#fff;
+  font-size:15px;
+}
+
+#loginError{
+  margin-top:10px;
+  font-size:13px;
+  color:var(--warn);
+}
+
+/* ===== APP ===== */
+#appScreen{display:none}
+
+/* TOP */
 .top-bar{
   max-width:430px;
   margin:0 auto 6px;
@@ -41,10 +90,9 @@ body{
   padding:6px 10px;
   background:var(--card);
   box-shadow:0 1px 4px rgba(0,0,0,.12);
-  cursor:pointer;
 }
 
-/* ===== FILTER ===== */
+/* FILTER */
 .filter-wrap,#results{
   max-width:430px;
   margin:0 auto 8px;
@@ -70,7 +118,6 @@ body{
   border:none;
   border-radius:6px;
   padding:4px 8px;
-  cursor:pointer;
 }
 
 .filter-row{
@@ -89,57 +136,35 @@ body{
   background:#fafafa;
 }
 
-@media (max-width:480px){
+@media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
 }
 
-/* ===== ITEM ===== */
+/* ITEM */
 .item{
   background:var(--card);
   border-radius:12px;
   padding:9px;
   margin-bottom:7px;
   box-shadow:0 3px 8px rgba(0,0,0,.05);
-  cursor:pointer;
 }
 
 .part-row{
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
 
-.part{
-  font-weight:700;
-  color:var(--primary);
-}
-
+.part{font-weight:700;color:var(--primary)}
 .part.ok{color:var(--ok)}
 .part.warn{color:var(--warn)}
 
-.location{
-  font-size:12px;
-  color:var(--muted);
-}
+.location{font-size:12px;color:var(--muted)}
+.name{font-size:13px;margin-top:2px}
+.meta{font-size:12px;color:var(--muted)}
+.status{font-size:12px;margin-top:4px}
 
-.name{
-  font-size:13px;
-  margin-top:2px;
-}
-
-.meta{
-  font-size:12px;
-  margin-top:4px;
-  color:var(--muted);
-}
-
-.status{
-  font-size:12px;
-  margin-top:4px;
-}
-
-/* ===== DETAIL ===== */
+/* DETAIL */
 .detail-overlay{
   position:fixed;
   inset:0;
@@ -147,7 +172,6 @@ body{
   display:flex;
   justify-content:center;
   align-items:flex-end;
-  z-index:999;
 }
 
 .detail-card{
@@ -170,20 +194,10 @@ body{
   font-size:18px;
 }
 
-.detail-label{
-  font-size:12px;
-  color:var(--muted);
-  margin-top:6px;
-}
-
-.detail-value{
-  font-size:14px;
-}
-
+.detail-label{font-size:12px;color:var(--muted)}
 .detail-qty-box{
   display:flex;
   gap:8px;
-  margin-top:4px;
 }
 
 .detail-qty-box button{
@@ -200,8 +214,8 @@ body{
 }
 
 .detail-save{
-  margin-top:10px;
   width:100%;
+  margin-top:10px;
   padding:10px;
   border:none;
   border-radius:10px;
@@ -213,16 +227,30 @@ body{
 
 <body>
 
-<div class="top-bar">
-  <div class="top-title">جرد المخزون</div>
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <h3>تسجيل الدخول</h3>
+    <p>أدخل اسم المستخدم والرقم السري</p>
+    <input id="loginUser" placeholder="اسم المستخدم">
+    <input id="loginPass" type="password" placeholder="الرقم السري">
+    <button onclick="login()">دخول</button>
+    <div id="loginError"></div>
+  </div>
 </div>
 
-<!-- SEARCH -->
+<!-- APP -->
+<div id="appScreen">
+
+<div class="top-bar">
+  <div class="top-title">جرد المخزون</div>
+  <button class="icon-btn" onclick="logout()">خروج</button>
+</div>
+
 <div class="filter-wrap">
   <div class="filter-card">
-
     <div class="filter-header">
-      <strong style="font-size:13px">البحث المتقدم</strong>
+      <strong>البحث المتقدم</strong>
       <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
     </div>
 
@@ -232,7 +260,7 @@ body{
     </div>
 
     <div class="filter-row">
-      <input id="nStarts" class="filter-input" placeholder="اسم الصنف يبدأ">
+      <input id="nStarts" class="filter-input" placeholder="اسم يبدأ">
       <input id="nContains" class="filter-input" placeholder="يحتوي">
     </div>
 
@@ -240,28 +268,56 @@ body{
       <input id="locFrom" class="filter-input" placeholder="الموقع من">
       <input id="locTo" class="filter-input" placeholder="إلى">
     </div>
-
   </div>
 </div>
 
-<!-- RESULTS -->
 <div id="results"></div>
 
-<script>
-const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
-let ALL_DATA = [];
+</div>
 
-/* تحميل */
+<script>
+const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
+let ALL_DATA=[];
+
+/* LOGIN */
+function login(){
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      name:loginUser.value,
+      pass:loginPass.value
+    })
+  }).then(r=>r.json()).then(res=>{
+    if(!res.ok){
+      loginError.textContent=res.error;
+      return;
+    }
+    loginScreen.style.display="none";
+    appScreen.style.display="block";
+    loadData();
+  });
+}
+
+function logout(){
+  location.reload();
+}
+
+/* DATA */
 function loadData(){
   fetch(API).then(r=>r.json()).then(d=>{
-    ALL_DATA = d;
+    ALL_DATA=d;
     runSearch();
   });
 }
 
-/* البحث */
 document.querySelectorAll(".filter-input")
   .forEach(i=>i.addEventListener("input",runSearch));
+
+function clearFilters(){
+  document.querySelectorAll(".filter-input").forEach(i=>i.value="");
+  render(ALL_DATA);
+}
 
 function runSearch(){
   const res=[];
@@ -273,9 +329,9 @@ function runSearch(){
   const lT=locTo.value.toLowerCase();
 
   for(const r of ALL_DATA){
-    const p=String(r.part||"").toLowerCase();
-    const n=String(r.name||"").toLowerCase();
-    const l=String(r.location||"").toLowerCase();
+    const p=(r.part||"").toLowerCase();
+    const n=(r.name||"").toLowerCase();
+    const l=(r.location||"").toLowerCase();
 
     if(pC&&!p.includes(pC))continue;
     if(pE&&!p.endsWith(pE))continue;
@@ -289,101 +345,29 @@ function runSearch(){
   render(res);
 }
 
-/* مسح */
-function clearFilters(){
-  document.querySelectorAll(".filter-input").forEach(i=>i.value="");
-  render(ALL_DATA);
-}
-
-/* عرض */
 function render(data){
-  if(!data.length){
-    results.innerHTML="<div class='meta'>لا توجد نتائج</div>";
-    return;
-  }
-
   results.innerHTML=data.map(r=>{
-    const counted=r.lastCountedAt;
-    const changed=counted && Number(r.qty)!==Number(r.lastCountQty);
-
-    let cls="part";
-    let status="";
-
-    if(counted&&!changed){
-      cls+=" ok";
-      status="✓ تم الجرد";
+    let cls="part",status="";
+    if(r.lastCountedAt){
+      if(Number(r.qty)===Number(r.lastCountQty)){
+        cls+=" ok"; status="✓ تم الجرد";
+      }else{
+        cls+=" warn";
+        status=`⚠ كان ${r.lastCountQty} ← الآن ${r.qty}`;
+      }
     }
-    if(counted&&changed){
-      cls+=" warn";
-      status=`⚠ تم الجرد (كان ${r.lastCountQty} ← الآن ${r.qty})`;
-    }
-
-    return `
-    <div class="item" onclick="openDetail('${r.part}')">
+    return`
+    <div class="item">
       <div class="part-row">
         <div class="${cls}">${r.part}</div>
         <div class="location">${r.location||""}</div>
       </div>
       <div class="name">${r.name||""}</div>
-      <div class="meta">الكمية المتوفرة: <b>${r.qty}</b></div>
+      <div class="meta">الكمية: <b>${r.qty}</b></div>
       ${status?`<div class="status">${status}</div>`:""}
     </div>`;
   }).join("");
 }
-
-/* تفاصيل + ملاحظات */
-function openDetail(part){
-  const r=ALL_DATA.find(x=>String(x.part)===String(part));
-  if(!r)return;
-
-  const ov=document.createElement("div");
-  ov.className="detail-overlay";
-  ov.innerHTML=`
-  <div class="detail-card">
-    <div class="detail-header">
-      <span>تفاصيل الجرد</span>
-      <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
-    </div>
-
-    <div class="detail-label">رقم الصنف</div>
-    <div class="detail-value">${r.part}</div>
-
-    <div class="detail-label">كمية الجرد</div>
-    <div class="detail-qty-box">
-      <button onclick="chg(-1)">−</button>
-      <input id="cq" type="number" value="${r.countedQty||0}">
-      <button onclick="chg(1)">+</button>
-    </div>
-
-    <div class="detail-label">ملاحظات الجرد</div>
-    <textarea id="note" style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px">${r.note||""}</textarea>
-
-    <button class="detail-save" onclick="save('${r.part}',${r.qty})">حفظ</button>
-  </div>`;
-  document.body.appendChild(ov);
-}
-
-function chg(d){
-  cq.value=Math.max(0,(+cq.value||0)+d);
-}
-
-function save(p,sq){
-  fetch(API,{
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:new URLSearchParams({
-      part:p,
-      systemQty:sq,
-      countedQty:cq.value,
-      note:note.value
-    })
-  });
-  document.querySelector(".detail-overlay").remove();
-  loadData();
-}
-
-/* بدء */
-loadData();
 </script>
 
 </body>
