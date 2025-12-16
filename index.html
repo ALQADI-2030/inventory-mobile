@@ -6,226 +6,150 @@
 <title>جرد المخزون</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Tahoma, Arial;
-  background: #f4f6f8;
-}
+  body {
+    font-family: system-ui, -apple-system;
+    background: #f2f4f7;
+    margin: 0;
+    padding: 12px;
+  }
 
-.container {
-  max-width: 480px;
-  margin: auto;
-  padding: 12px;
-}
+  h1 {
+    text-align: center;
+    margin-bottom: 16px;
+  }
 
-h2 {
-  text-align: center;
-  margin-bottom: 12px;
-}
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  }
 
-/* صندوق البحث */
-.search-box {
-  background: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
-}
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
 
-.row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
+  input {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+  }
 
-.row input {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
+  input:focus {
+    outline: none;
+    border-color: #007bff;
+  }
 
-.clear-btn {
-  width: 100%;
-  padding: 12px;
-  font-size: 15px;
-  border-radius: 8px;
-  border: none;
-  background: #e53935;
-  color: #fff;
-  cursor: pointer;
-  margin-top: 6px;
-}
+  .clear-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: none;
+    background: #e53935;
+    color: #fff;
+  }
 
-/* النتائج */
-.results {
-  margin-top: 15px;
-}
+  .results {
+    margin-top: 16px;
+  }
 
-.item {
-  background: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
-}
+  .item {
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.06);
+  }
 
-.code {
-  font-weight: bold;
-  font-size: 16px;
-}
+  .item strong {
+    font-size: 17px;
+    display: block;
+  }
 
-.desc {
-  margin: 4px 0;
-  color: #555;
-}
-
-.meta {
-  font-size: 13px;
-  color: #777;
-  display: flex;
-  justify-content: space-between;
-}
-
-.edit-btn {
-  margin-top: 8px;
-  width: 100%;
-  padding: 10px;
-  background: #43a047;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.load-more {
-  margin: 10px 0;
-  width: 100%;
-  padding: 12px;
-  background: #555;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  cursor: pointer;
-  display: none;
-}
+  .item small {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+  }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>جرد المخزون</h2>
+<h1>جرد المخزون</h1>
 
-  <!-- البحث -->
-  <div class="search-box">
-    <!-- رقم الصنف / باركود -->
-    <div class="row">
-      <input id="codeStart" placeholder="رقم الصنف يبدأ بـ">
-      <input id="codeEnd" placeholder="رقم الصنف ينتهي بـ">
-    </div>
+<div class="card">
 
-    <!-- اسم الصنف -->
-    <div class="row">
-      <input id="nameStart" placeholder="اسم الصنف يبدأ بـ">
-      <input id="nameHas" placeholder="اسم الصنف يحتوي على">
-    </div>
-
-    <!-- الموقع -->
-    <div class="row">
-      <input id="locFrom" placeholder="الموقع من">
-      <input id="locTo" placeholder="الموقع إلى">
-    </div>
-
-    <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
+  <!-- رقم الصنف -->
+  <div class="row">
+    <input id="partContains" placeholder="رقم الصنف يحتوي على">
+    <input id="partEnds" placeholder="رقم الصنف ينتهي بـ">
   </div>
 
-  <!-- النتائج -->
-  <div class="results" id="results"></div>
-  <button class="load-more" id="loadMore" onclick="loadMore()">المزيد</button>
+  <!-- اسم الصنف -->
+  <div class="row">
+    <input id="nameStarts" placeholder="اسم الصنف يبدأ بـ">
+    <input id="nameContains" placeholder="اسم الصنف يحتوي على">
+  </div>
+
+  <!-- الموقع -->
+  <div class="row">
+    <input id="locFrom" placeholder="الموقع من">
+    <input id="locTo" placeholder="الموقع إلى">
+  </div>
+
+  <button class="clear-btn" onclick="clearAll()">مسح الكل</button>
 </div>
 
+<div class="results" id="results"></div>
+
 <script>
-// ===== بيانات تجريبية (تمثل المخزون) =====
-const DATA = Array.from({length: 180}, (_, i) => ({
-  code: "81170-0X" + (100 + i),
-  name: "فلتر زيت كامري",
-  qty: Math.floor(Math.random() * 20),
-  loc: "A-" + (i % 30 + 1)
-}));
+const API =
+  "PUT_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
 
-let filtered = [];
-let shown = 0;
-const PAGE = 50;
-let debounceTimer = null;
+const inputs = document.querySelectorAll("input");
+inputs.forEach(i => i.addEventListener("input", search));
 
-// قراءة قيمة الحقول
-function val(id) {
-  return document.getElementById(id).value.trim();
+function search() {
+  const params = {
+    partContains: partContains.value.trim(),
+    partEnds: partEnds.value.trim(),
+    nameStarts: nameStarts.value.trim(),
+    nameContains: nameContains.value.trim(),
+    locFrom: locFrom.value.trim(),
+    locTo: locTo.value.trim()
+  };
+
+  fetch(API + "?" + new URLSearchParams(params))
+    .then(r => r.json())
+    .then(showResults)
+    .catch(() => results.innerHTML = "");
 }
 
-// تحقق AND صارم
-function match(item) {
-  if (val('codeStart') && !item.code.startsWith(val('codeStart'))) return false;
-  if (val('codeEnd') && !item.code.endsWith(val('codeEnd'))) return false;
-
-  if (val('nameStart') && !item.name.startsWith(val('nameStart'))) return false;
-  if (val('nameHas') && !item.name.includes(val('nameHas'))) return false;
-
-  if (val('locFrom') && item.loc < val('locFrom')) return false;
-  if (val('locTo') && item.loc > val('locTo')) return false;
-
-  return true;
-}
-
-// بحث تلقائي مع debounce
-function autoSearch() {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    filtered = DATA.filter(match);
-    shown = 0;
-    document.getElementById('results').innerHTML = "";
-    loadMore();
-  }, 300);
-}
-
-// عرض النتائج تدريجيًا
-function loadMore() {
-  const box = document.getElementById('results');
-  const slice = filtered.slice(shown, shown + PAGE);
-
-  slice.forEach(it => {
-    box.innerHTML += `
+function showResults(data) {
+  results.innerHTML = "";
+  data.slice(0, 50).forEach(i => {
+    results.innerHTML += `
       <div class="item">
-        <div class="code">${it.code}</div>
-        <div class="desc">${it.name}</div>
-        <div class="meta">
-          <span>الكمية: ${it.qty}</span>
-          <span>الموقع: ${it.loc}</span>
-        </div>
-        <button class="edit-btn">تعديل</button>
-      </div>
-    `;
+        <strong>${i.part}</strong>
+        <small>${i.name}</small>
+        <small>الكمية: ${i.qty} | الموقع: ${i.location}</small>
+      </div>`;
   });
-
-  shown += PAGE;
-  document.getElementById('loadMore').style.display =
-    shown < filtered.length ? 'block' : 'none';
 }
 
-// مسح الكل
 function clearAll() {
-  document.querySelectorAll('input').forEach(i => i.value = "");
-  document.getElementById('results').innerHTML = "";
-  document.getElementById('loadMore').style.display = "none";
+  inputs.forEach(i => i.value = "");
+  results.innerHTML = "";
 }
-
-// ربط البحث التلقائي بكل الخانات
-document.querySelectorAll('input').forEach(input => {
-  input.addEventListener('input', autoSearch);
-});
 </script>
 
 </body>
