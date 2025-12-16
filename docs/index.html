@@ -264,27 +264,30 @@ document.querySelectorAll(".filter-input")
 
 function runSearch(){
   let res=[];
-  const pC=pContains.value.toLowerCase();
-  const pE=pEnds.value.toLowerCase();
-  const nS=nStarts.value.toLowerCase();
-  const nC=nContains.value.toLowerCase();
-  const lF=locFrom.value.toLowerCase();
-  const lT=locTo.value.toLowerCase();
+  const pC = pContains.value.toLowerCase();
+  const pE = pEnds.value.toLowerCase();
+  const nS = nStarts.value.toLowerCase();
+  const nC = nContains.value.toLowerCase();
+  const lF = locFrom.value.toLowerCase();
+  const lT = locTo.value.toLowerCase();
 
   for(const r of ALL_DATA){
-    const p=(r.part||"").toLowerCase();
-    const n=(r.name||"").toLowerCase();
-    const l=(r.location||"").toLowerCase();
-    if(pC&&!p.includes(pC))continue;
-    if(pE&&!p.endsWith(pE))continue;
-    if(nS&&!n.startsWith(nS))continue;
-    if(nC&&!n.includes(nC))continue;
-    if(lF&&l<lF)continue;
-    if(lT&&l>lT)continue;
+    const p = String(r.part || "").toLowerCase();
+    const n = String(r.name || "").toLowerCase();
+    const l = String(r.location || "").toLowerCase();
+
+    if(pC && !p.includes(pC)) continue;
+    if(pE && !p.endsWith(pE)) continue;
+    if(nS && !n.startsWith(nS)) continue;
+    if(nC && !n.includes(nC)) continue;
+    if(lF && l < lF) continue;
+    if(lT && l > lT) continue;
+
     res.push(r);
   }
   render(res);
 }
+
 
 /* RENDER */
 function render(data){
