@@ -6,151 +6,150 @@
 <title>جرد المخزون</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Tahoma, Arial;
-  background: #f4f6f8;
+body{
+  font-family: system-ui;
+  background:#f2f4f7;
+  margin:0;
+  padding:12px
 }
-
-.container {
-  max-width: 480px;
-  margin: auto;
-  padding: 12px;
+h1{text-align:center;margin-bottom:14px}
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,.08)
 }
-
-h2 {
-  text-align: center;
-  margin-bottom: 12px;
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:10px
 }
-
-.search-box {
-  background: #fff;
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+input{
+  padding:14px;
+  font-size:16px;
+  border-radius:10px;
+  border:1px solid #ddd
 }
-
-.row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
+.results{margin-top:16px}
+.item{
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06)
 }
-
-.row input {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.part{font-weight:700;font-size:17px}
+.meta{color:#555;margin-top:4px}
+.clear{
+  width:100%;
+  padding:14px;
+  background:#e53935;
+  color:#fff;
+  border:none;
+  border-radius:12px;
+  font-size:16px
 }
-
-.buttons {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-button {
-  flex: 1;
-  padding: 12px;
-  font-size: 15px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.search-btn {
-  background: #1976d2;
-  color: #fff;
-}
-
-.clear-btn {
-  background: #e53935;
-  color: #fff;
-}
-
-/* النتائج */
-.results {
-  margin-top: 15px;
-}
-
-.item {
-  background: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
-}
-
-.item .code {
-  font-weight: bold;
-  font-size: 16px;
-}
-
-.item .desc {
-  margin: 4px 0;
-  color: #555;
-}
-
-.item .meta {
-  font-size: 13px;
-  color: #777;
-  display: flex;
-  justify-content: space-between;
-}
-
-.edit-btn {
-  margin-top: 8px;
-  width: 100%;
-  background: #43a047;
-  color: #fff;
+.loading{
+  text-align:center;
+  color:#777;
+  padding:10px
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>جرد المخزون</h2>
+<h1>جرد المخزون</h1>
 
-  <div class="search-box">
-    <!-- رقم الصنف -->
-    <div class="row">
-      <input placeholder="رقم الصنف يبدأ بـ">
-      <input placeholder="رقم الصنف ينتهي بـ">
-    </div>
-
-    <!-- اسم الصنف -->
-    <div class="row">
-      <input placeholder="اسم الصنف يبدأ بـ">
-      <input placeholder="اسم الصنف يحتوي على">
-    </div>
-
-    <!-- الموقع -->
-    <div class="row">
-      <input placeholder="الموقع من">
-      <input placeholder="الموقع إلى">
-    </div>
-
-    <div class="buttons">
-      <button class="search-btn">بحث</button>
-      <button class="clear-btn">مسح</button>
-    </div>
+<div class="card">
+  <div class="row">
+    <input id="pContains" placeholder="رقم الصنف يحتوي على">
+    <input id="pEnds" placeholder="رقم الصنف ينتهي بـ">
   </div>
-
-  <!-- نتائج تجريبية -->
-  <div class="results">
-    <div class="item">
-      <div class="code">81170-0X020</div>
-      <div class="desc">فلتر زيت كامري</div>
-      <div class="meta">
-        <span>الكمية: 12</span>
-        <span>الموقع: A-12</span>
-      </div>
-      <button class="edit-btn">تعديل</button>
-    </div>
+  <div class="row">
+    <input id="nStarts" placeholder="اسم الصنف يبدأ بـ">
+    <input id="nContains" placeholder="اسم الصنف يحتوي على">
   </div>
+  <div class="row">
+    <input id="locFrom" placeholder="الموقع من">
+    <input id="locTo" placeholder="الموقع إلى">
+  </div>
+  <button class="clear" onclick="clearAll()">مسح الكل</button>
 </div>
+
+<div class="results" id="results"></div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
+
+let timer = null;
+let isFetching = false;
+let lastQuery = "";
+
+const inputs = document.querySelectorAll("input");
+inputs.forEach(i => i.addEventListener("input", debounce));
+
+function debounce(){
+  clearTimeout(timer);
+  timer = setTimeout(search, 500);
+}
+
+function search(){
+  if (isFetching) return;
+
+  const params = {
+    pContains: pContains.value.trim(),
+    pEnds: pEnds.value.trim(),
+    nStarts: nStarts.value.trim(),
+    nContains: nContains.value.trim(),
+    locFrom: locFrom.value.trim(),
+    locTo: locTo.value.trim()
+  };
+
+  if (Object.values(params).every(v => v === "")) {
+    results.innerHTML = "";
+    return;
+  }
+
+  const qs = new URLSearchParams(params).toString();
+  if (qs === lastQuery) return;
+  lastQuery = qs;
+
+  isFetching = true;
+  results.innerHTML = "<div class='loading'>جاري البحث...</div>";
+
+  fetch(API + "?" + qs)
+    .then(r => r.json())
+    .then(show)
+    .catch(() => results.innerHTML = "خطأ في الاتصال")
+    .finally(() => isFetching = false);
+}
+
+function show(data){
+  results.innerHTML = "";
+  if (!data.length){
+    results.innerHTML = "<div class='loading'>لا توجد نتائج</div>";
+    return;
+  }
+
+  data.forEach(r=>{
+    results.innerHTML += `
+      <div class="item">
+        <div class="part">${r.part}</div>
+        <div>${r.name}</div>
+        <div class="meta">الكمية: ${r.qty} | الموقع: ${r.location}</div>
+      </div>
+    `;
+  });
+}
+
+function clearAll(){
+  inputs.forEach(i=>i.value="");
+  results.innerHTML="";
+  lastQuery="";
+}
+</script>
 
 </body>
 </html>
