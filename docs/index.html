@@ -227,8 +227,8 @@ body{
 <div class="top-bar">
   <div class="top-title">بحث المخزون</div>
   <div class="top-actions">
-    <button class="icon-btn" title="تحديث" onclick="refreshData()">⟳</button>
-    <button class="icon-btn" title="مسح" onclick="clearAll()">✕</button>
+    <button class="icon-btn" title="تحديث من الشيت" onclick="refreshData()">⟳</button>
+    <button class="icon-btn" title="مسح البحث" onclick="clearAll()">✕</button>
   </div>
 </div>
 
@@ -260,19 +260,24 @@ const MAX_RESULTS = 100;
 
 let ALL_DATA = [];
 
-/* تحميل البيانات */
+/* تحميل البيانات: من الكاش فقط، وإذا ما فيه كاش يروح للشيت مرة واحدة */
 function loadData(){
   const cached = localStorage.getItem(CACHE_KEY);
   if(cached){
     try{
       ALL_DATA = JSON.parse(cached);
       runSearch();
-    }catch(e){ ALL_DATA = []; }
+      return; // لا نحدّث من السيرفر طالما فيه بيانات
+    }catch(e){
+      ALL_DATA = [];
+    }
   }
-  refreshData();
+  // أول مرة فقط
+  refreshData(true);
 }
 
-function refreshData(){
+/* تحديث من الشيت (تستخدمها نادرًا) */
+function refreshData(isFirstLoad = false){
   fetch(API)
     .then(r=>r.json())
     .then(data=>{
@@ -280,8 +285,11 @@ function refreshData(){
       ALL_DATA = data;
       localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       runSearch();
+      if(!isFirstLoad) alert("تم تحديث البيانات من الشيت.");
     })
-    .catch(()=>{});
+    .catch(()=>{
+      if(!isFirstLoad) alert("فشل تحديث البيانات من الشيت");
+    });
 }
 
 /* جرد أوف لاين */
@@ -306,7 +314,7 @@ document.querySelectorAll(".filter-input").forEach(i=>{
 let timer=null;
 function debounce(){
   clearTimeout(timer);
-  timer=setTimeout(runSearch,400);
+  timer=setTimeout(runSearch,700); // مهلة أطول مع 9K صف
 }
 
 function runSearch(){
@@ -373,7 +381,6 @@ function render(data){
     const systemQty = Number(r.qty) || 0;
     const countedQty = counted !== null ? counted : 0;
     const isCounted = counted !== null;
-
     const partClass = isCounted ? "part part-counted" : "part";
 
     html += `
