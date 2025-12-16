@@ -10,6 +10,7 @@
   --bg:#f4f5f7;
   --card:#ffffff;
   --primary:#1976d2;
+  --green:#1b5e20;
   --text:#222;
   --muted:#777;
   --border:#e0e0e0;
@@ -101,6 +102,9 @@ body{
   font-size:14px;
   color:var(--primary);
 }
+.part-counted{
+  color:var(--green);
+}
 .edit-btn{
   width:26px;
   height:26px;
@@ -127,6 +131,11 @@ body{
 }
 .meta-right{ text-align:right; }
 .meta-left{ text-align:left; }
+.meta-second{
+  margin-top:2px;
+  font-size:12px;
+  color:var(--muted);
+}
 
 /* رسالة */
 .msg{
@@ -330,9 +339,7 @@ function runSearch(){
     res.push(r);
   }
 
-  // فرز حسب نوع البحث
   if (lF || lT) {
-    // بحث بالموقع → فرز بالموقع
     res.sort((a,b)=>{
       const la = (a.location||"").toString().toLowerCase();
       const lb = (b.location||"").toString().toLowerCase();
@@ -341,7 +348,6 @@ function runSearch(){
       return 0;
     });
   } else if (pC || pE) {
-    // بحث برقم الصنف → فرز برقم الصنف
     res.sort((a,b)=>{
       const pa = (a.part||"").toString().toLowerCase();
       const pb = (b.part||"").toString().toLowerCase();
@@ -364,19 +370,26 @@ function render(data){
   let html = "";
   data.forEach(r=>{
     const counted = getLastCount(r.part);
-    const showQty = counted!==null ? counted : 0;
+    const systemQty = Number(r.qty) || 0;
+    const countedQty = counted !== null ? counted : 0;
+    const isCounted = counted !== null;
+
+    const partClass = isCounted ? "part part-counted" : "part";
 
     html += `
       <div class="item" onclick="openDetail('${r.part}')">
         <div class="part-row">
-          <div class="part">${r.part || ""}</div>
+          <div class="${partClass}">${r.part || ""}</div>
           <button class="edit-btn"
             onclick="event.stopPropagation(); openDetail('${r.part}')">✎</button>
         </div>
         <div class="name">${r.name || ""}</div>
         <div class="meta-line">
-          <span class="meta-right">الكمية: <b>${showQty}</b></span>
+          <span class="meta-right">كمية النظام: <b>${systemQty}</b></span>
           <span class="meta-left">الموقع: ${r.location || "-"}</span>
+        </div>
+        <div class="meta-second">
+          كمية الجرد الحالية: <b>${countedQty}</b>
         </div>
       </div>
     `;
@@ -411,7 +424,7 @@ function openDetail(part){
         <div class="detail-label">الموقع</div>
         <div class="detail-value">${item.location || "-"}</div>
 
-        <div class="detail-label">الكمية في النظام</div>
+        <div class="detail-label">كمية النظام</div>
         <div class="detail-value">${item.qty ?? ""}</div>
 
         <div class="detail-label">كمية الجرد الحالية</div>
