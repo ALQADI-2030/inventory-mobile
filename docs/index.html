@@ -64,13 +64,11 @@ body{
   padding:6px;
   box-shadow:0 2px 6px rgba(0,0,0,.05);
 }
-
 .filter-row{
   display:flex;
   gap:4px;
   margin-bottom:4px;
 }
-
 .filter-input{
   flex:1;
   padding:6px 7px;
@@ -86,7 +84,6 @@ body{
   margin:0 auto 8px auto;
   padding-bottom:8px;
 }
-
 .item{
   background:var(--card);
   border-radius:12px;
@@ -246,6 +243,7 @@ body{
 <div id="results"></div>
 
 <script>
+/* إعدادات */
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 const CACHE_KEY = "inventory_cache_v1";
 const COUNT_KEY = "count_log_v1";
@@ -260,7 +258,7 @@ function loadData(){
     try{
       ALL_DATA = JSON.parse(cached);
       runSearch();
-    }catch(e){ ALL_DATA=[]; }
+    }catch(e){ ALL_DATA = []; }
   }
   refreshData();
 }
@@ -277,7 +275,7 @@ function refreshData(){
     .catch(()=>{});
 }
 
-/* جرد أوف لاين */
+/* جرد أوف لاين (للاستخدام المحلي والرسائل) */
 function saveCount(part, qty){
   const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
   log.push({ part, qty:Number(qty), time:new Date().toISOString() });
@@ -345,7 +343,7 @@ function render(data){
   let html = "";
   data.forEach(r=>{
     const counted = getLastCount(r.part);
-    const showQty = counted!==null ? counted : r.qty;
+    const showQty = counted!==null ? counted : 0; // يبدأ من صفر
 
     html += `
       <div class="item" onclick="openDetail('${r.part}')">
@@ -356,7 +354,7 @@ function render(data){
         </div>
         <div class="name">${r.name || ""}</div>
         <div class="meta-line">
-          <span class="meta-right">الكمية: <b>${showQty ?? ""}</b></span>
+          <span class="meta-right">الكمية: <b>${showQty}</b></span>
           <span class="meta-left">الموقع: ${r.location || "-"}</span>
         </div>
       </div>
@@ -365,13 +363,13 @@ function render(data){
   el.innerHTML = html;
 }
 
-/* تفاصيل الصنف */
+/* تفاصيل الصنف + ملاحظات */
 function openDetail(part){
   const item = ALL_DATA.find(r => String(r.part) === String(part));
   if(!item) return;
 
   const counted = getLastCount(item.part);
-  const currentQty = counted!==null ? counted : item.qty;
+  const currentQty = counted!==null ? counted : 0;
 
   const overlay = document.createElement("div");
   overlay.className = "detail-overlay";
@@ -392,24 +390,50 @@ function openDetail(part){
         <div class="detail-label">الموقع</div>
         <div class="detail-value">${item.location || "-"}</div>
 
-        <div class="detail-label">الكمية المجدولة</div>
+        <div class="detail-label">الكمية في النظام</div>
         <div class="detail-value">${item.qty ?? ""}</div>
 
         <div class="detail-label">كمية الجرد الحالية</div>
         <div class="detail-qty-box">
-          <button onclick="changeDetailQty(-1, '${item.part}')">−</button>
-          <input id="detailQty" type="number" value="${currentQty ?? 0}">
-          <button onclick="changeDetailQty(1, '${item.part}')">+</button>
+          <button onclick="changeDetailQty(-1)">−</button>
+          <input id="detailQty" type="number" value="${currentQty}">
+          <button onclick="changeDetailQty(1)">+</button>
         </div>
+
+        <div class="detail-label">ملاحظات الجرد</div>
+        <textarea id="detailNote"
+          style="width:100%;min-height:60px;margin-top:4px;
+                 border-radius:9px;border:1px solid var(--border);
+                 padding:6px;font-size:13px;"></textarea>
+
+        <div id="detailInfo"
+             style="margin-top:6px;font-size:12px;color:var(--muted);"></div>
       </div>
       <button class="detail-save"
-        onclick="saveDetailQty('${item.part}')">حفظ الجرد</button>
+        onclick="saveDetailQty('${item.part}', '${(item.name||"").replace(/'/g,\"\\'\")}', ${Number(item.qty)||0})">
+        حفظ الجرد
+      </button>
     </div>
   `;
   document.body.appendChild(overlay);
+
+  checkPreviousCount(item.part);
 }
 
-function changeDetailQty(delta, part){
+/* فحص آخر جرد لنفس الصنف (محلياً) */
+function checkPreviousCount(part){
+  const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
+  if(!log.length) return;
+  const last = [...log].reverse().find(l => l.part === part);
+  if(!last) return;
+  const info = document.getElementById("detailInfo");
+  if(info){
+    info.textContent = `تم جرد هذا الصنف سابقاً، آخر كمية: ${last.qty}`;
+  }
+}
+
+/* تغيير الكمية داخل نافذة التفاصيل */
+function changeDetailQty(delta){
   const input = document.getElementById("detailQty");
   if(!input) return;
   let v = Number(input.value)||0;
@@ -418,12 +442,41 @@ function changeDetailQty(delta, part){
   input.value = v;
 }
 
-function saveDetailQty(part){
-  const input = document.getElementById("detailQty");
-  if(!input) return;
-  let v = Number(input.value)||0;
+/* حفظ الجرد (محلي + إرسال لـ Apps Script) */
+function saveDetailQty(part, itemName, systemQty){
+  const qtyInput  = document.getElementById("detailQty");
+  const noteInput = document.getElementById("detailNote");
+  if(!qtyInput) return;
+
+  let v = Number(qtyInput.value)||0;
   if(v<0) v=0;
+  const note = noteInput ? noteInput.value.trim() : "";
+
+  // حفظ محلي
   saveCount(part, v);
+
+  // إرسال للسيرفر (يتحقق من صلاحية الـ Admin في Apps Script)
+  fetch(API, {
+    method:"POST",
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      part: part,
+      itemName: itemName,
+      systemQty: systemQty,
+      countedQty: v,
+      note: note
+    }).toString()
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(!res.ok){
+      alert(res.error || "فشل حفظ الجرد (تحقق من الصلاحيات)");
+      return;
+    }
+    alert("تم حفظ الجرد باسم: " + (res.user?.name || ""));
+  })
+  .catch(()=>alert("خطأ في الاتصال"));
+
   document.querySelector(".detail-overlay")?.remove();
   runSearch();
 }
