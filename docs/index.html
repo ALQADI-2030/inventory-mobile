@@ -79,6 +79,31 @@ body{
   background:#fafafa;
 }
 
+/* شريط التحميل */
+.loader-wrap{
+  max-width:430px;
+  margin:0 auto 6px auto;
+}
+.loader-bar{
+  height:4px;
+  width:100%;
+  background:#e0e0e0;
+  border-radius:4px;
+  overflow:hidden;
+}
+.loader-fill{
+  height:100%;
+  width:0%;
+  background:var(--primary);
+  transition:width .2s linear;
+}
+.loader-text{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+  text-align:center;
+}
+
 /* النتائج */
 #results{
   max-width:430px;
@@ -227,9 +252,17 @@ body{
 <div class="top-bar">
   <div class="top-title">بحث المخزون</div>
   <div class="top-actions">
-    <button class="icon-btn" title="تحديث من الشيت" onclick="refreshData()">⟳</button>
+    <!-- زر التحديث سيُخفى لغير الأدمن من الجافاسكربت -->
+    <button id="btnRefresh" class="icon-btn" title="تحديث من الشيت" onclick="handleRefreshClick()">⟳</button>
     <button class="icon-btn" title="مسح البحث" onclick="clearAll()">✕</button>
   </div>
+</div>
+
+<div class="loader-wrap" id="loaderWrap" style="display:none;">
+  <div class="loader-bar">
+    <div class="loader-fill" id="loaderFill"></div>
+  </div>
+  <div class="loader-text" id="loaderText">جاري تحميل البيانات...</div>
 </div>
 
 <div class="filter-wrap">
@@ -258,38 +291,95 @@ const CACHE_KEY = "inventory_cache_v1";
 const COUNT_KEY = "count_log_v1";
 const MAX_RESULTS = 100;
 
-let ALL_DATA = [];
+// فلَغ بسيط للأدمن (تقدر تغيره أو تستخرجه من UserProperties لاحقاً)
+const IS_ADMIN = true; // على أجهزة الموظفين خلّيه false
 
-/* تحميل البيانات: من الكاش فقط، وإذا ما فيه كاش يروح للشيت مرة واحدة */
+let ALL_DATA = [];
+let isRefreshing = false;
+
+/* عرض/إخفاء زر التحديث حسب الصلاحية */
+(function setupAdminUI(){
+  const btn = document.getElementById("btnRefresh");
+  if(!IS_ADMIN){
+    btn.style.display = "none";
+  }
+})();
+
+/* تحميل البيانات مرة واحدة من الكاش أو من الشيت */
 function loadData(){
   const cached = localStorage.getItem(CACHE_KEY);
   if(cached){
     try{
       ALL_DATA = JSON.parse(cached);
       runSearch();
-      return; // لا نحدّث من السيرفر طالما فيه بيانات
+      return;
     }catch(e){
       ALL_DATA = [];
     }
   }
-  // أول مرة فقط
+  // أول مرة فقط: سحب من الشيت
   refreshData(true);
 }
 
-/* تحديث من الشيت (تستخدمها نادرًا) */
-function refreshData(isFirstLoad = false){
-  fetch(API)
-    .then(r=>r.json())
-    .then(data=>{
-      if(!Array.isArray(data)) return;
+/* واجهة زر التحديث */
+function handleRefreshClick(){
+  if(!IS_ADMIN){
+    alert("هذا الخيار متاح للمشرف فقط.");
+    return;
+  }
+  if(isRefreshing) return;
+  refreshData(false);
+}
+
+/* شريط التحميل */
+function showLoader(){
+  document.getElementById("loaderWrap").style.display = "block";
+  document.getElementById("loaderFill").style.width = "0%";
+  document.getElementById("loaderText").textContent = "جاري تحميل البيانات...";
+}
+function updateLoaderProgress(p){
+  document.getElementById("loaderFill").style.width = p + "%";
+  document.getElementById("loaderText").textContent =
+    "جاري تحميل البيانات... " + p + "%";
+}
+function hideLoader(){
+  document.getElementById("loaderWrap").style.display = "none";
+}
+
+/* تحديث من الشيت */
+async function refreshData(isFirstLoad = false){
+  try{
+    isRefreshing = true;
+    showLoader();
+    updateLoaderProgress(5);
+
+    const start = Date.now();
+    const resp = await fetch(API);
+    updateLoaderProgress(40);
+
+    const data = await resp.json();
+    updateLoaderProgress(80);
+
+    if(Array.isArray(data)){
       ALL_DATA = data;
       localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       runSearch();
-      if(!isFirstLoad) alert("تم تحديث البيانات من الشيت.");
-    })
-    .catch(()=>{
-      if(!isFirstLoad) alert("فشل تحديث البيانات من الشيت");
-    });
+    }
+
+    const elapsed = Date.now() - start;
+    // تقريب النسبة النهائية حسب الوقت (فقط إحساس للمستخدم)
+    updateLoaderProgress(100);
+    if(!isFirstLoad){
+      alert("تم تحديث البيانات من الشيت.\nالوقت المستغرق: " + (elapsed/1000).toFixed(1) + " ثانية");
+    }
+  }catch(e){
+    if(!isFirstLoad){
+      alert("فشل تحديث البيانات من الشيت");
+    }
+  }finally{
+    isRefreshing = false;
+    setTimeout(hideLoader, 400);
+  }
 }
 
 /* جرد أوف لاين */
@@ -314,7 +404,7 @@ document.querySelectorAll(".filter-input").forEach(i=>{
 let timer=null;
 function debounce(){
   clearTimeout(timer);
-  timer=setTimeout(runSearch,700); // مهلة أطول مع 9K صف
+  timer=setTimeout(runSearch,700);
 }
 
 function runSearch(){
