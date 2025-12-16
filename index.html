@@ -6,80 +6,58 @@
 <title>جرد المخزون</title>
 
 <style>
-  body {
-    font-family: system-ui, -apple-system;
-    background: #f2f4f7;
-    margin: 0;
-    padding: 12px;
-  }
+body {
+  font-family: system-ui, -apple-system;
+  background: #f2f4f7;
+  margin: 0;
+  padding: 12px;
+}
+h1 { text-align: center; margin-bottom: 16px; }
 
-  h1 {
-    text-align: center;
-    margin-bottom: 16px;
-  }
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
 
-  .card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 14px;
-    box-shadow: 0 6px 16px rgba(0,0,0,.08);
-  }
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
+input {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
 
-  input {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    box-sizing: border-box;
-  }
+.clear-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: none;
+  background: #e53935;
+  color: #fff;
+}
 
-  input:focus {
-    outline: none;
-    border-color: #007bff;
-  }
+.results { margin-top: 16px; }
 
-  .clear-btn {
-    margin-top: 10px;
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    border-radius: 12px;
-    border: none;
-    background: #e53935;
-    color: #fff;
-    cursor: pointer;
-  }
-
-  .results {
-    margin-top: 16px;
-  }
-
-  .item {
-    background: #fff;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,.06);
-  }
-
-  .item strong {
-    font-size: 17px;
-    display: block;
-  }
-
-  .item small {
-    color: #666;
-    display: block;
-    margin-top: 4px;
-  }
+.item {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.06);
+}
+.item strong { font-size: 17px; display: block; }
+.item small { color: #666; display: block; margin-top: 4px; }
 </style>
 </head>
 
@@ -88,20 +66,16 @@
 <h1>جرد المخزون</h1>
 
 <div class="card">
-
-  <!-- رقم الصنف -->
   <div class="row">
-    <input id="partContains" placeholder="رقم الصنف يحتوي على">
-    <input id="partEnds" placeholder="رقم الصنف ينتهي بـ">
+    <input id="pContains" placeholder="رقم الصنف يحتوي على">
+    <input id="pEnds" placeholder="رقم الصنف ينتهي بـ">
   </div>
 
-  <!-- اسم الصنف -->
   <div class="row">
-    <input id="nameStarts" placeholder="اسم الصنف يبدأ بـ">
-    <input id="nameContains" placeholder="اسم الصنف يحتوي على">
+    <input id="nStarts" placeholder="اسم الصنف يبدأ بـ">
+    <input id="nContains" placeholder="اسم الصنف يحتوي على">
   </div>
 
-  <!-- الموقع -->
   <div class="row">
     <input id="locFrom" placeholder="الموقع من">
     <input id="locTo" placeholder="الموقع إلى">
@@ -113,59 +87,55 @@
 <div class="results" id="results"></div>
 
 <script>
-// 🔴 ضع رابط Apps Script الصحيح هنا
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
-// ربط الحقول
-const partContains = document.getElementById("partContains");
-const partEnds     = document.getElementById("partEnds");
-const nameStarts   = document.getElementById("nameStarts");
-const nameContains = document.getElementById("nameContains");
-const locFrom      = document.getElementById("locFrom");
-const locTo        = document.getElementById("locTo");
-const results      = document.getElementById("results");
+// تعريف العناصر (كان هذا ناقص!)
+const pContains = document.getElementById("pContains");
+const pEnds     = document.getElementById("pEnds");
+const nStarts   = document.getElementById("nStarts");
+const nContains = document.getElementById("nContains");
+const locFrom   = document.getElementById("locFrom");
+const locTo     = document.getElementById("locTo");
+const results   = document.getElementById("results");
 
 const inputs = document.querySelectorAll("input");
 let timer = null;
 
-// بحث تلقائي
 inputs.forEach(i => i.addEventListener("input", debounceSearch));
 
 function debounceSearch() {
   clearTimeout(timer);
-  timer = setTimeout(runSearch, 350);
+  timer = setTimeout(runSearch, 400);
 }
 
 function runSearch() {
   const params = {
-    pContains: partContains.value.trim(),
-    pEnds: partEnds.value.trim(),
-    nStarts: nameStarts.value.trim(),
-    nContains: nameContains.value.trim(),
+    pContains: pContains.value.trim(),
+    pEnds: pEnds.value.trim(),
+    nStarts: nStarts.value.trim(),
+    nContains: nContains.value.trim(),
     locFrom: locFrom.value.trim(),
     locTo: locTo.value.trim()
   };
 
-  // لا تبحث إذا كل الحقول فاضية
   if (Object.values(params).every(v => v === "")) {
     results.innerHTML = "";
     return;
   }
 
-  const qs = new URLSearchParams(params).toString();
-
-  fetch(API + "?" + qs)
+  fetch(API + "?" + new URLSearchParams(params))
     .then(r => r.json())
     .then(showResults)
-    .catch(() => {
-      results.innerHTML = "<div class='item'>خطأ في الاتصال</div>";
+    .catch(err => {
+      console.error(err);
+      results.innerHTML = "<div class='item'>خطأ في جلب البيانات</div>";
     });
 }
 
 function showResults(data) {
   results.innerHTML = "";
 
-  if (!data || !data.length) {
+  if (!Array.isArray(data) || !data.length) {
     results.innerHTML = "<div class='item'>لا توجد نتائج</div>";
     return;
   }
@@ -175,7 +145,7 @@ function showResults(data) {
       <div class="item">
         <strong>${r.part}</strong>
         <small>${r.name}</small>
-        <small>الكمية: ${r.qty} | الموقع: ${r.location}</small>
+        <small>الكمية: ${r.qty} — الموقع: ${r.location}</small>
       </div>
     `;
   });
