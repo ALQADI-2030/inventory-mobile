@@ -2,86 +2,57 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>جرد المخزون</title>
 
 <style>
 :root{
-  --bg:#f6f7f9;
-  --card:#ffffff;
-  --primary:#1e88e5;
-  --ok:#2e7d32;
-  --warn:#d32f2f;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --border:#e5e7eb;
-}
-
-*{
-  box-sizing:border-box;
+  --bg:#f4f5f7;
+  --card:#fff;
+  --primary:#1976d2;
+  --ok:#1b5e20;
+  --warn:#c62828;
+  --muted:#777;
+  --border:#e0e0e0;
 }
 
 body{
   margin:0;
-  font-family: system-ui, -apple-system;
+  font-family:system-ui,-apple-system;
   background:var(--bg);
-  color:var(--text);
 }
 
-/* ===== TOP ===== */
 .top-bar{
-  position:sticky;
-  top:0;
-  background:var(--bg);
-  padding:10px 14px;
+  max-width:430px;
+  margin:10px auto;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  z-index:10;
 }
 
-.top-title{
-  font-weight:700;
-  font-size:15px;
-}
-
-.top-btn{
-  border:none;
-  background:var(--card);
-  border-radius:10px;
-  padding:6px 10px;
-  font-size:13px;
-  box-shadow:0 2px 6px rgba(0,0,0,.08);
-}
-
-/* ===== CONTAINER ===== */
 .container{
-  max-width:480px;
+  max-width:430px;
   margin:auto;
-  padding:8px 10px 20px;
+  padding:6px;
 }
 
-/* ===== SEARCH ===== */
 .search{
   width:100%;
-  padding:12px;
-  border-radius:14px;
+  padding:10px;
+  border-radius:10px;
   border:1px solid var(--border);
-  font-size:14px;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 
-/* ===== ITEM CARD ===== */
 .item{
   background:var(--card);
-  border-radius:18px;
+  border-radius:14px;
   padding:12px;
-  margin-bottom:10px;
-  box-shadow:0 4px 12px rgba(0,0,0,.06);
+  margin-bottom:8px;
+  box-shadow:0 3px 8px rgba(0,0,0,.06);
 }
 
-/* header */
-.item-header{
+.row{
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -90,66 +61,44 @@ body{
 .part{
   font-weight:700;
   color:var(--primary);
-  font-size:14px;
 }
 
 .location{
   font-size:12px;
-  color:var(--muted);
-  display:flex;
-  align-items:center;
-  gap:4px;
+  color:#555;
 }
 
-/* body */
 .name{
-  margin-top:4px;
-  font-size:13px;
-  line-height:1.4;
+  margin:4px 0;
 }
 
 .qty{
-  margin-top:8px;
-  font-size:14px;
+  margin-top:6px;
   font-weight:600;
 }
 
-/* status */
 .status{
-  margin-top:4px;
   font-size:12px;
-  display:flex;
-  align-items:center;
-  gap:4px;
+  margin-top:4px;
 }
 
-/* note */
 .note-box{
-  margin-top:10px;
+  margin-top:8px;
 }
 
 .note-box textarea{
   width:100%;
-  min-height:48px;
-  border-radius:12px;
+  border-radius:8px;
   border:1px solid var(--border);
-  padding:8px;
+  padding:6px;
   font-size:13px;
-  background:#fafafa;
+  resize:none;
 }
 
 .note-hint{
   font-size:11px;
   color:var(--muted);
-  margin-top:3px;
-}
-
-/* empty */
-.empty{
-  text-align:center;
-  color:var(--muted);
-  margin-top:30px;
-  font-size:14px;
+  margin-top:2px;
 }
 </style>
 </head>
@@ -157,12 +106,12 @@ body{
 <body>
 
 <div class="top-bar">
-  <div class="top-title">📦 جرد المخزون</div>
-  <button class="top-btn" onclick="loadData()">🔄 تحديث</button>
+  <strong>جرد المخزون</strong>
+  <button onclick="loadData()">تحديث</button>
 </div>
 
 <div class="container">
-  <input id="search" class="search" placeholder="🔍 بحث برقم الصنف أو الاسم">
+  <input id="search" class="search" placeholder="بحث برقم الصنف أو الاسم">
   <div id="results"></div>
 </div>
 
@@ -170,7 +119,7 @@ body{
 const API = "ضع_رابط_الاب_سكريبت_هنا";
 let ALL_DATA = [];
 
-/* تحميل */
+/* تحميل البيانات */
 function loadData(){
   fetch(API)
     .then(r=>r.json())
@@ -180,7 +129,7 @@ function loadData(){
     });
 }
 
-/* بحث */
+/* البحث */
 search.addEventListener("input",()=>{
   const q = search.value.trim().toLowerCase();
   const f = ALL_DATA.filter(r =>
@@ -190,10 +139,10 @@ search.addEventListener("input",()=>{
   render(f);
 });
 
-/* رسم */
+/* الرسم */
 function render(data){
   if(!data.length){
-    results.innerHTML = "<div class='empty'>لا توجد نتائج</div>";
+    results.innerHTML = "<div style='text-align:center;color:#777'>لا نتائج</div>";
     return;
   }
 
@@ -201,33 +150,36 @@ function render(data){
     const counted = r.lastCountedAt;
     const changed = counted && Number(r.qty) !== Number(r.lastCountQty);
 
-    let statusHtml = "";
+    let status = "";
+    let color = "";
+
     if(counted && !changed){
-      statusHtml = `<div class="status" style="color:var(--ok)">✅ تم الجرد</div>`;
+      status = "✓ تم الجرد";
+      color = "var(--ok)";
     }
+
     if(counted && changed){
-      statusHtml = `
-        <div class="status" style="color:var(--warn)">
-          🔴 تم الجرد ( ${r.lastCountQty} ← ${r.qty} )
-        </div>`;
+      status = `⚠ تم الجرد (كان ${r.lastCountQty} ← الآن ${r.qty})`;
+      color = "var(--warn)";
     }
 
     return `
     <div class="item">
-      <div class="item-header">
+      <div class="row">
         <div class="part">${r.part}</div>
-        <div class="location">📍 ${r.location || "-"}</div>
+        <div class="location">${r.location || ""}</div>
       </div>
 
       <div class="name">${r.name}</div>
 
-      <div class="qty">📦 الكمية المتوفرة: ${r.qty}</div>
+      <div class="qty">الكمية المتوفرة: ${r.qty}</div>
 
-      ${statusHtml}
+      ${status ? `<div class="status" style="color:${color}">${status}</div>` : ""}
 
       <div class="note-box">
         <textarea
-          placeholder="📝 ملاحظة الجارد (اختياري)"
+          rows="2"
+          placeholder="ملاحظة الجارد (اختياري)"
           onblur="saveNote('${r.part}', this.value)"
         >${r.note || ""}</textarea>
         <div class="note-hint">تُحفظ تلقائيًا وتظهر للجميع</div>
@@ -237,7 +189,7 @@ function render(data){
   }).join("");
 }
 
-/* حفظ ملاحظة */
+/* حفظ الملاحظة */
 function saveNote(part, note){
   fetch(API,{
     method:"POST",
@@ -250,6 +202,7 @@ function saveNote(part, note){
   });
 }
 
+/* تشغيل أولي */
 loadData();
 </script>
 
