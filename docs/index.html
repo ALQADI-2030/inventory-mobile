@@ -13,6 +13,7 @@ body{
   padding:12px
 }
 h1{text-align:center;margin-bottom:12px}
+
 .card{
   background:#fff;
   border-radius:16px;
@@ -20,18 +21,21 @@ h1{text-align:center;margin-bottom:12px}
   box-shadow:0 6px 16px rgba(0,0,0,.08);
   margin-bottom:12px
 }
+
 .row{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
   margin-bottom:10px
 }
+
 input{
   padding:14px;
   font-size:16px;
   border-radius:10px;
   border:1px solid #ddd
 }
+
 button{
   padding:14px;
   border:none;
@@ -39,8 +43,9 @@ button{
   font-size:16px;
   width:100%
 }
-.clear{background:#e53935;color:#fff}
+
 .refresh{background:#1e88e5;color:#fff;margin-bottom:10px}
+.clear{background:#e53935;color:#fff}
 
 .item{
   background:#fff;
@@ -49,6 +54,7 @@ button{
   margin-bottom:10px;
   box-shadow:0 4px 10px rgba(0,0,0,.06)
 }
+
 .part{font-weight:700;font-size:17px}
 .meta{color:#555;margin-top:4px}
 
@@ -103,7 +109,7 @@ const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6
 const CACHE_KEY = "inventory_cache_v1";
 const COUNT_KEY = "count_log_v1";
 
-/* ========= التخزين ========= */
+/* ========= البيانات ========= */
 let ALL_DATA = [];
 
 /* ========= تحميل البيانات ========= */
@@ -155,7 +161,7 @@ function debounce(){
 }
 
 function runSearch(){
-  if(!ALL_DATA.length){ return; }
+  if(!ALL_DATA.length) return;
 
   const pC = pContains.value.toLowerCase();
   const pE = pEnds.value.toLowerCase();
@@ -164,7 +170,7 @@ function runSearch(){
   const lF = locFrom.value.toLowerCase();
   const lT = locTo.value.toLowerCase();
 
-  let res = ALL_DATA.filter(r=>{
+  const res = ALL_DATA.filter(r=>{
     const part = (r.part||"").toLowerCase();
     const name = (r.name||"").toLowerCase();
     const loc  = (r.location||"").toLowerCase();
@@ -176,7 +182,7 @@ function runSearch(){
     if(lF && loc < lF) return false;
     if(lT && loc > lT) return false;
     return true;
-  }).slice(0,50);
+  });
 
   render(res);
 }
@@ -216,7 +222,8 @@ function render(data){
 
 /* ========= تعديل الكمية ========= */
 function adjust(part, qty){
-  if(qty<0) qty=0;
+  qty = Number(qty);
+  if(isNaN(qty) || qty<0) qty=0;
   saveCount(part, qty);
   runSearch();
 }
