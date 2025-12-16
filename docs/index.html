@@ -7,85 +7,137 @@
 
 <style>
 body{
-  font-family: system-ui;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
   background:#f2f4f7;
   margin:0;
-  padding:12px
+  padding:8px;
 }
-h1{text-align:center;margin-bottom:12px}
 
+/* شريط علوي صغير */
+.top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+.top-title{
+  font-size:16px;
+  font-weight:600;
+  color:#333;
+}
+.top-actions{
+  display:flex;
+  gap:6px;
+}
+.icon-btn{
+  width:34px;
+  height:34px;
+  border:none;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+  color:#333;
+}
+
+/* كرت الفلترة صغير */
 .card{
   background:#fff;
-  border-radius:16px;
-  padding:14px;
-  box-shadow:0 6px 16px rgba(0,0,0,.08);
-  margin-bottom:12px
+  border-radius:14px;
+  padding:8px;
+  box-shadow:0 3px 8px rgba(0,0,0,.06);
+  margin-bottom:8px;
 }
 
 .row{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:10px
+  gap:6px;
+  margin-bottom:6px;
 }
 
 input{
-  padding:14px;
-  font-size:16px;
-  border-radius:10px;
-  border:1px solid #ddd
+  padding:10px;
+  font-size:14px;
+  border-radius:8px;
+  border:1px solid #ddd;
 }
 
-button{
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  width:100%
+/* نتائج */
+#results{
+  padding-bottom:8px;
 }
-
-.refresh{background:#1e88e5;color:#fff;margin-bottom:10px}
-.clear{background:#e53935;color:#fff}
 
 .item{
   background:#fff;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:10px;
-  box-shadow:0 4px 10px rgba(0,0,0,.06)
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:8px;
+  box-shadow:0 3px 8px rgba(0,0,0,.05);
+}
+.part{
+  font-weight:700;
+  font-size:15px;
+}
+.name{
+  font-size:14px;
+  margin-top:2px;
+}
+.meta{
+  color:#555;
+  margin-top:4px;
+  font-size:13px;
 }
 
-.part{font-weight:700;font-size:17px}
-.meta{color:#555;margin-top:4px}
-
+/* صندوق الكمية */
 .qty-box{
   display:flex;
-  gap:8px;
-  margin-top:10px
+  gap:6px;
+  margin-top:8px;
 }
 .qty-box button{
-  width:48px;
-  font-size:20px;
-  background:#eee
+  width:38px;
+  font-size:18px;
+  border:none;
+  border-radius:10px;
+  background:#eee;
 }
 .qty-box input{
   flex:1;
   text-align:center;
-  font-size:18px
+  font-size:16px;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+/* رسالة بسيطة */
+.msg{
+  text-align:center;
+  padding:10px;
+  color:#666;
+  font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>جرد المخزون</h1>
+<div class="top-bar">
+  <div class="top-title">بحث المخزون</div>
+  <div class="top-actions">
+    <button class="icon-btn" title="تحديث" onclick="refreshData()">⟳</button>
+    <button class="icon-btn" title="مسح البحث" onclick="clearAll()">✕</button>
+  </div>
+</div>
 
 <div class="card">
-  <button class="refresh" onclick="refreshData()">🔄 تحديث البيانات</button>
-
   <div class="row">
     <input id="pContains" placeholder="رقم الصنف يحتوي على">
-    <input id="pEnds" placeholder="رقم الصنف ينتهي بـ">
+    <input id="pEnds" placeholder="ينتهي بـ">
   </div>
 
   <div class="row">
@@ -97,26 +149,30 @@ button{
     <input id="locFrom" placeholder="الموقع من">
     <input id="locTo" placeholder="الموقع إلى">
   </div>
-
-  <button class="clear" onclick="clearAll()">مسح الكل</button>
 </div>
 
 <div id="results"></div>
 
 <script>
-/* ========= الإعدادات ========= */
+/* ===== الإعدادات ===== */
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 const CACHE_KEY = "inventory_cache_v1";
 const COUNT_KEY = "count_log_v1";
+const MAX_RESULTS = 100;
 
-/* ========= البيانات ========= */
+/* ===== البيانات ===== */
 let ALL_DATA = [];
 
-/* ========= تحميل البيانات ========= */
+/* ===== تحميل البيانات ===== */
 function loadData(){
   const cached = localStorage.getItem(CACHE_KEY);
   if(cached){
-    ALL_DATA = JSON.parse(cached);
+    try{
+      ALL_DATA = JSON.parse(cached);
+      runSearch();
+    }catch(e){
+      ALL_DATA = [];
+    }
   }
   refreshData();
 }
@@ -125,102 +181,107 @@ function refreshData(){
   fetch(API)
     .then(r=>r.json())
     .then(data=>{
+      if(!Array.isArray(data)) return;
       ALL_DATA = data;
       localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       runSearch();
     })
-    .catch(()=>{ /* أوف لاين */ });
+    .catch(()=>{/* أوفلاين */});
 }
 
-/* ========= الجرد أوف لاين ========= */
+/* ===== الجرد أوف لاين ===== */
 function saveCount(part, qty){
   const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
-  log.push({
-    part,
-    qty:Number(qty),
-    time:new Date().toISOString()
-  });
+  log.push({ part, qty:Number(qty), time:new Date().toISOString() });
   localStorage.setItem(COUNT_KEY, JSON.stringify(log));
 }
 
 function getLastCount(part){
   const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
-  const last = log.filter(l=>l.part===part).slice(-1)[0];
-  return last ? last.qty : null;
+  for(let i=log.length-1;i>=0;i--){
+    if(log[i].part===part) return log[i].qty;
+  }
+  return null;
 }
 
-/* ========= البحث ========= */
-document.querySelectorAll("input").forEach(i=>{
+/* ===== البحث ===== */
+document.querySelectorAll(".card input").forEach(i=>{
   i.addEventListener("input", debounce);
 });
 
 let timer=null;
 function debounce(){
   clearTimeout(timer);
-  timer=setTimeout(runSearch,300);
+  timer=setTimeout(runSearch,400);
 }
 
 function runSearch(){
-  if(!ALL_DATA.length) return;
+  if(!ALL_DATA.length){
+    document.getElementById("results").innerHTML =
+      "<div class='msg'>جاري تحميل البيانات...</div>";
+    return;
+  }
 
-  const pC = pContains.value.toLowerCase();
-  const pE = pEnds.value.toLowerCase();
-  const nS = nStarts.value.toLowerCase();
-  const nC = nContains.value.toLowerCase();
-  const lF = locFrom.value.toLowerCase();
-  const lT = locTo.value.toLowerCase();
+  const pC = pContains.value.trim().toLowerCase();
+  const pE = pEnds.value.trim().toLowerCase();
+  const nS = nStarts.value.trim().toLowerCase();
+  const nC = nContains.value.trim().toLowerCase();
+  const lF = locFrom.value.trim().toLowerCase();
+  const lT = locTo.value.trim().toLowerCase();
 
-  const res = ALL_DATA.filter(r=>{
+  const res = [];
+  for(const r of ALL_DATA){
     const part = (r.part||"").toLowerCase();
     const name = (r.name||"").toLowerCase();
     const loc  = (r.location||"").toLowerCase();
 
-    if(pC && !part.includes(pC)) return false;
-    if(pE && !part.endsWith(pE)) return false;
-    if(nS && !name.startsWith(nS)) return false;
-    if(nC && !name.includes(nC)) return false;
-    if(lF && loc < lF) return false;
-    if(lT && loc > lT) return false;
-    return true;
-  });
+    if(pC && !part.includes(pC)) continue;
+    if(pE && !part.endsWith(pE)) continue;
+    if(nS && !name.startsWith(nS)) continue;
+    if(nC && !name.includes(nC)) continue;
+    if(lF && loc < lF) continue;
+    if(lT && loc > lT) continue;
+
+    res.push(r);
+    if(res.length>=MAX_RESULTS) break; // حد النتائج للجوال
+  }
 
   render(res);
 }
 
-/* ========= العرض ========= */
+/* ===== العرض ===== */
 function render(data){
   const el = document.getElementById("results");
-  el.innerHTML="";
-
   if(!data.length){
-    el.innerHTML="<div class='item'>لا توجد نتائج</div>";
+    el.innerHTML = "<div class='msg'>لا توجد نتائج</div>";
     return;
   }
 
+  let html = "";
   data.forEach(r=>{
     const counted = getLastCount(r.part);
     const showQty = counted!==null ? counted : r.qty;
 
-    el.innerHTML += `
+    html += `
       <div class="item">
-        <div class="part">${r.part}</div>
-        <div>${r.name}</div>
+        <div class="part">${r.part || ""}</div>
+        <div class="name">${r.name || ""}</div>
         <div class="meta">
-          الكمية: <b>${showQty}</b> | الموقع: ${r.location}
+          الكمية: <b>${showQty ?? ""}</b> | الموقع: ${r.location || ""}
         </div>
-
         <div class="qty-box">
-          <button onclick="adjust('${r.part}', ${showQty-1})">−</button>
-          <input value="${showQty}" 
-            onblur="adjust('${r.part}', this.value)">
-          <button onclick="adjust('${r.part}', ${showQty+1})">+</button>
+          <button onclick="adjust('${r.part}', ${Number(showQty||0)-1})">−</button>
+          <input value="${showQty ?? 0}" 
+                 onblur="adjust('${r.part}', this.value)">
+          <button onclick="adjust('${r.part}', ${Number(showQty||0)+1})">+</button>
         </div>
       </div>
     `;
   });
+  el.innerHTML = html;
 }
 
-/* ========= تعديل الكمية ========= */
+/* ===== تعديل الكمية ===== */
 function adjust(part, qty){
   qty = Number(qty);
   if(isNaN(qty) || qty<0) qty=0;
@@ -228,10 +289,10 @@ function adjust(part, qty){
   runSearch();
 }
 
-/* ========= أدوات ========= */
+/* ===== أدوات ===== */
 function clearAll(){
-  document.querySelectorAll("input").forEach(i=>i.value="");
-  document.getElementById("results").innerHTML="";
+  document.querySelectorAll(".card input").forEach(i=>i.value="");
+  document.getElementById("results").innerHTML = "";
 }
 
 loadData();
