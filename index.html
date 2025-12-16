@@ -112,23 +112,37 @@
 <div class="results" id="results"></div>
 
 <script>
-const API =
-  "https://script.google.com/macros/s/AKfycbyRo3YjQHPjSLOcNfQiJpa5epBE1KO7WIK8dSa37EgvdgOrzpwXCbpYZaoLeYdZpaqm/exec";
+const API = "https://script.google.com/macros/s/AKfycbyRo3YjQHPjSLOcNfQiJpa5epBE1KO7WIK8dSa37EgvdgOrzpwXCbpYZaoLeYdZpaqm/exec";
 
 const inputs = document.querySelectorAll("input");
-inputs.forEach(i => i.addEventListener("input", search));
+let timer = null;
 
-function search() {
+inputs.forEach(i => i.addEventListener("input", debounceSearch));
+
+function debounceSearch() {
+  clearTimeout(timer);
+  timer = setTimeout(runSearch, 400);
+}
+
+function runSearch() {
   const params = {
-    partContains: partContains.value.trim(),
-    partEnds: partEnds.value.trim(),
-    nameStarts: nameStarts.value.trim(),
-    nameContains: nameContains.value.trim(),
+    pContains: pContains.value.trim(),
+    pEnds: pEnds.value.trim(),
+    nStarts: nStarts.value.trim(),
+    nContains: nContains.value.trim(),
     locFrom: locFrom.value.trim(),
     locTo: locTo.value.trim()
   };
 
-  fetch(API + "?" + new URLSearchParams(params))
+  // ❌ لا تبحث إذا كل الخانات فاضية
+  if (Object.values(params).every(v => v === "")) {
+    results.innerHTML = "";
+    return;
+  }
+
+  const qs = new URLSearchParams(params).toString();
+
+  fetch(API + "?" + qs)
     .then(r => r.json())
     .then(showResults)
     .catch(() => results.innerHTML = "");
@@ -136,13 +150,22 @@ function search() {
 
 function showResults(data) {
   results.innerHTML = "";
-  data.slice(0, 50).forEach(i => {
+
+  if (!data.length) {
+    results.innerHTML = "<div class='card'>لا توجد نتائج</div>";
+    return;
+  }
+
+  data.forEach(r => {
     results.innerHTML += `
-      <div class="item">
-        <strong>${i.part}</strong>
-        <small>${i.name}</small>
-        <small>الكمية: ${i.qty} | الموقع: ${i.location}</small>
-      </div>`;
+      <div class="result">
+        <div class="part">${r.part}</div>
+        <div class="name">${r.name}</div>
+        <div class="meta">
+          الكمية: ${r.qty} | الموقع: ${r.location}
+        </div>
+      </div>
+    `;
   });
 }
 
