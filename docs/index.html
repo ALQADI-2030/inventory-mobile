@@ -374,19 +374,20 @@ function render(data){
 
   <!-- زر التعديل -->
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
-    <button
-      onclick="openDetail('${r.part}')"
-      style="
-        border:none;
-        background:#1976d2;
-        color:#fff;
-        font-size:12px;
-        padding:6px 12px;
-        border-radius:8px;
-        cursor:pointer
-      ">
-      ✏️ تعديل
-    </button>
+   <button
+  onclick="openDetail(${JSON.stringify(r.part)})"
+  style="
+    border:none;
+    background:#1976d2;
+    color:#fff;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer
+  ">
+  ✏️ تعديل
+</button>
+
   </div>
 </div>
 `;
