@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>جرد المخزون</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Tahoma, Arial;
+  background: #f4f6f8;
+}
+
+.container {
+  max-width: 480px;
+  margin: auto;
+  padding: 12px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.search-box {
+  background: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.row input {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+button {
+  flex: 1;
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.search-btn {
+  background: #1976d2;
+  color: #fff;
+}
+
+.clear-btn {
+  background: #e53935;
+  color: #fff;
+}
+
+/* النتائج */
+.results {
+  margin-top: 15px;
+}
+
+.item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+.item .code {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.item .desc {
+  margin: 4px 0;
+  color: #555;
+}
+
+.item .meta {
+  font-size: 13px;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+}
+
+.edit-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: #43a047;
+  color: #fff;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>جرد المخزون</h2>
+
+  <div class="search-box">
+    <!-- رقم الصنف -->
+    <div class="row">
+      <input placeholder="رقم الصنف يبدأ بـ">
+      <input placeholder="رقم الصنف ينتهي بـ">
+    </div>
+
+    <!-- اسم الصنف -->
+    <div class="row">
+      <input placeholder="اسم الصنف يبدأ بـ">
+      <input placeholder="اسم الصنف يحتوي على">
+    </div>
+
+    <!-- الموقع -->
+    <div class="row">
+      <input placeholder="الموقع من">
+      <input placeholder="الموقع إلى">
+    </div>
+
+    <div class="buttons">
+      <button class="search-btn">بحث</button>
+      <button class="clear-btn">مسح</button>
+    </div>
+  </div>
+
+  <!-- نتائج تجريبية -->
+  <div class="results">
+    <div class="item">
+      <div class="code">81170-0X020</div>
+      <div class="desc">فلتر زيت كامري</div>
+      <div class="meta">
+        <span>الكمية: 12</span>
+        <span>الموقع: A-12</span>
+      </div>
+      <button class="edit-btn">تعديل</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
