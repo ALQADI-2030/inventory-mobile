@@ -10,7 +10,6 @@
   --bg:#f4f5f7;
   --card:#ffffff;
   --primary:#1976d2;
-  --accent:#ffb300;
   --text:#222;
   --muted:#777;
   --border:#e0e0e0;
@@ -25,10 +24,11 @@ body{
 
 /* شريط علوي */
 .top-bar{
+  max-width:430px;
+  margin:0 auto 6px auto;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:6px;
 }
 .top-title{
   font-size:15px;
@@ -40,26 +40,29 @@ body{
   gap:6px;
 }
 .icon-btn{
-  width:32px;
-  height:32px;
+  width:30px;
+  height:30px;
   border:none;
-  border-radius:9px;
+  border-radius:8px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:17px;
+  font-size:16px;
   background:var(--card);
   box-shadow:0 1px 4px rgba(0,0,0,.12);
   color:var(--text);
 }
 
-/* كرت الفلترة مضغوط يمين */
+/* كرت الفلترة – عرض مناسب للجوال */
+.filter-wrap{
+  max-width:430px;
+  margin:0 auto 8px auto;
+}
 .filter-card{
   background:var(--card);
   border-radius:12px;
   padding:6px;
   box-shadow:0 2px 6px rgba(0,0,0,.05);
-  margin-bottom:8px;
 }
 
 .filter-row{
@@ -70,71 +73,145 @@ body{
 
 .filter-input{
   flex:1;
-  padding:7px 8px;
-  font-size:13px;
-  border-radius:9px;
+  padding:6px 7px;
+  font-size:12px;
+  border-radius:8px;
   border:1px solid var(--border);
   background:#fafafa;
 }
 
 /* النتائج */
 #results{
+  max-width:430px;
+  margin:0 auto 8px auto;
   padding-bottom:8px;
 }
 
 .item{
   background:var(--card);
   border-radius:12px;
-  padding:10px;
-  margin-bottom:8px;
+  padding:9px;
+  margin-bottom:7px;
   box-shadow:0 3px 8px rgba(0,0,0,.05);
+}
+.part-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 .part{
   font-weight:700;
-  font-size:15px;
+  font-size:14px;
   color:var(--primary);
 }
-.name{
+.edit-btn{
+  width:26px;
+  height:26px;
+  border:none;
+  border-radius:7px;
+  background:#f1f3f4;
   font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--text);
+}
+.name{
+  font-size:13px;
   margin-top:2px;
   color:var(--text);
 }
-.meta{
-  color:var(--muted);
-  margin-top:4px;
-  font-size:13px;
-}
-
-/* صندوق الكمية */
-.qty-box{
+.meta-line{
   display:flex;
-  gap:6px;
-  margin-top:8px;
+  justify-content:space-between;
+  margin-top:4px;
+  font-size:12px;
+  color:var(--muted);
 }
-.qty-box button{
-  width:38px;
-  font-size:18px;
-  border:none;
-  border-radius:10px;
-  background:#f1f3f4;
-  color:var(--text);
-}
-.qty-box input{
-  flex:1;
-  text-align:center;
-  font-size:16px;
-  padding:7px;
-  border-radius:9px;
-  border:1px solid var(--border);
-  background:#fcfcfc;
-}
+.meta-right{ text-align:right; }
+.meta-left{ text-align:left; }
 
 /* رسالة */
 .msg{
   text-align:center;
   padding:10px;
   color:var(--muted);
+  font-size:13px;
+}
+
+/* نافذة التفاصيل */
+.detail-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:999;
+}
+.detail-card{
+  width:100%;
+  max-width:430px;
+  background:var(--card);
+  border-radius:16px 16px 0 0;
+  padding:12px;
+  box-shadow:0 -3px 12px rgba(0,0,0,.3);
+}
+.detail-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  font-weight:600;
+}
+.detail-close{
+  border:none;
+  background:none;
+  font-size:18px;
+}
+.detail-body{
+  max-height:60vh;
+  overflow-y:auto;
+}
+.detail-label{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+.detail-value{
   font-size:14px;
+  color:var(--text);
+  margin-top:2px;
+}
+.detail-qty-box{
+  display:flex;
+  gap:8px;
+  margin-top:4px;
+}
+.detail-qty-box button{
+  width:40px;
+  font-size:20px;
+  border:none;
+  border-radius:10px;
+  background:#f1f3f4;
+}
+.detail-qty-box input{
+  flex:1;
+  text-align:center;
+  font-size:16px;
+  padding:7px;
+  border-radius:9px;
+  border:1px solid var(--border);
+}
+.detail-save{
+  margin-top:10px;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
+  font-size:15px;
 }
 </style>
 </head>
@@ -145,22 +222,24 @@ body{
   <div class="top-title">بحث المخزون</div>
   <div class="top-actions">
     <button class="icon-btn" title="تحديث" onclick="refreshData()">⟳</button>
-    <button class="icon-btn" title="مسح البحث" onclick="clearAll()">✕</button>
+    <button class="icon-btn" title="مسح" onclick="clearAll()">✕</button>
   </div>
 </div>
 
-<div class="filter-card">
-  <div class="filter-row">
-    <input class="filter-input" id="pContains" placeholder="رقم الصنف يحتوي على">
-    <input class="filter-input" id="pEnds"     placeholder="ينتهي بـ">
-  </div>
-  <div class="filter-row">
-    <input class="filter-input" id="nStarts"   placeholder="اسم الصنف يبدأ بـ">
-    <input class="filter-input" id="nContains" placeholder="يحتوي على">
-  </div>
-  <div class="filter-row">
-    <input class="filter-input" id="locFrom"   placeholder="الموقع من">
-    <input class="filter-input" id="locTo"     placeholder="إلى">
+<div class="filter-wrap">
+  <div class="filter-card">
+    <div class="filter-row">
+      <input class="filter-input" id="pContains" placeholder="رقم الصنف يحتوي على">
+      <input class="filter-input" id="pEnds"     placeholder="ينتهي بـ">
+    </div>
+    <div class="filter-row">
+      <input class="filter-input" id="nStarts"   placeholder="اسم الصنف يبدأ بـ">
+      <input class="filter-input" id="nContains" placeholder="يحتوي على">
+    </div>
+    <div class="filter-row">
+      <input class="filter-input" id="locFrom"   placeholder="الموقع من">
+      <input class="filter-input" id="locTo"     placeholder="إلى">
+    </div>
   </div>
 </div>
 
@@ -174,6 +253,7 @@ const MAX_RESULTS = 100;
 
 let ALL_DATA = [];
 
+/* تحميل البيانات */
 function loadData(){
   const cached = localStorage.getItem(CACHE_KEY);
   if(cached){
@@ -197,6 +277,7 @@ function refreshData(){
     .catch(()=>{});
 }
 
+/* جرد أوف لاين */
 function saveCount(part, qty){
   const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
   log.push({ part, qty:Number(qty), time:new Date().toISOString() });
@@ -210,6 +291,7 @@ function getLastCount(part){
   return null;
 }
 
+/* البحث */
 document.querySelectorAll(".filter-input").forEach(i=>{
   i.addEventListener("input", debounce);
 });
@@ -253,6 +335,7 @@ function runSearch(){
   render(res);
 }
 
+/* عرض النتائج */
 function render(data){
   const el = document.getElementById("results");
   if(!data.length){
@@ -265,17 +348,16 @@ function render(data){
     const showQty = counted!==null ? counted : r.qty;
 
     html += `
-      <div class="item">
-        <div class="part">${r.part || ""}</div>
-        <div class="name">${r.name || ""}</div>
-        <div class="meta">
-          الكمية: <b>${showQty ?? ""}</b> | الموقع: ${r.location || ""}
+      <div class="item" onclick="openDetail('${r.part}')">
+        <div class="part-row">
+          <div class="part">${r.part || ""}</div>
+          <button class="edit-btn"
+            onclick="event.stopPropagation(); openDetail('${r.part}')">✎</button>
         </div>
-        <div class="qty-box">
-          <button onclick="adjust('${r.part}', ${Number(showQty||0)-1})">−</button>
-          <input value="${showQty ?? 0}"
-                 onblur="adjust('${r.part}', this.value)">
-          <button onclick="adjust('${r.part}', ${Number(showQty||0)+1})">+</button>
+        <div class="name">${r.name || ""}</div>
+        <div class="meta-line">
+          <span class="meta-right">الكمية: <b>${showQty ?? ""}</b></span>
+          <span class="meta-left">الموقع: ${r.location || "-"}</span>
         </div>
       </div>
     `;
@@ -283,13 +365,70 @@ function render(data){
   el.innerHTML = html;
 }
 
-function adjust(part, qty){
-  qty = Number(qty);
-  if(isNaN(qty) || qty<0) qty=0;
-  saveCount(part, qty);
+/* تفاصيل الصنف */
+function openDetail(part){
+  const item = ALL_DATA.find(r => String(r.part) === String(part));
+  if(!item) return;
+
+  const counted = getLastCount(item.part);
+  const currentQty = counted!==null ? counted : item.qty;
+
+  const overlay = document.createElement("div");
+  overlay.className = "detail-overlay";
+  overlay.innerHTML = `
+    <div class="detail-card">
+      <div class="detail-header">
+        <span>تفاصيل الصنف</span>
+        <button class="detail-close"
+          onclick="this.closest('.detail-overlay').remove()">✕</button>
+      </div>
+      <div class="detail-body">
+        <div class="detail-label">رقم الصنف</div>
+        <div class="detail-value">${item.part || ""}</div>
+
+        <div class="detail-label">اسم الصنف</div>
+        <div class="detail-value">${item.name || ""}</div>
+
+        <div class="detail-label">الموقع</div>
+        <div class="detail-value">${item.location || "-"}</div>
+
+        <div class="detail-label">الكمية المجدولة</div>
+        <div class="detail-value">${item.qty ?? ""}</div>
+
+        <div class="detail-label">كمية الجرد الحالية</div>
+        <div class="detail-qty-box">
+          <button onclick="changeDetailQty(-1, '${item.part}')">−</button>
+          <input id="detailQty" type="number" value="${currentQty ?? 0}">
+          <button onclick="changeDetailQty(1, '${item.part}')">+</button>
+        </div>
+      </div>
+      <button class="detail-save"
+        onclick="saveDetailQty('${item.part}')">حفظ الجرد</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function changeDetailQty(delta, part){
+  const input = document.getElementById("detailQty");
+  if(!input) return;
+  let v = Number(input.value)||0;
+  v += delta;
+  if(v<0) v=0;
+  input.value = v;
+}
+
+function saveDetailQty(part){
+  const input = document.getElementById("detailQty");
+  if(!input) return;
+  let v = Number(input.value)||0;
+  if(v<0) v=0;
+  saveCount(part, v);
+  document.querySelector(".detail-overlay")?.remove();
   runSearch();
 }
 
+/* أدوات */
 function clearAll(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
   document.getElementById("results").innerHTML = "";
