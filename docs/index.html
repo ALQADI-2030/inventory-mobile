@@ -2,345 +2,256 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>جرد المخزون</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1976d2">
 
 <style>
 :root{
-  --bg:#f4f5f7;
-  --card:#fff;
-  --primary:#1976d2;
-  --green:#1b5e20;
-  --danger:#c62828;
-  --text:#222;
-  --muted:#777;
-  --border:#e0e0e0;
+  --bg:#f6f7f9;
+  --card:#ffffff;
+  --primary:#1e88e5;
+  --ok:#2e7d32;
+  --warn:#d32f2f;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --border:#e5e7eb;
 }
+
+*{
+  box-sizing:border-box;
+}
+
 body{
-  font-family:system-ui,-apple-system,BlinkMacSystemFont;
-  background:var(--bg);
   margin:0;
-  padding:8px;
+  font-family: system-ui, -apple-system;
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* ===== LOGIN ===== */
-.login-screen{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.login-box{
-  width:100%;
-  max-width:360px;
-  background:var(--card);
-  border-radius:14px;
-  padding:20px;
-  box-shadow:0 6px 20px rgba(0,0,0,.15);
-  text-align:center;
-}
-.login-title{font-size:18px;font-weight:700}
-.login-sub{font-size:13px;color:var(--muted);margin:6px 0 16px}
-.login-input{
-  width:100%;
-  padding:10px;
-  margin-bottom:10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-}
-.login-btn{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:var(--primary);
-  color:#fff;
-  font-size:15px;
-  cursor:pointer;
-}
-.login-error{
-  color:var(--danger);
-  font-size:13px;
-  margin-top:10px;
-  display:none;
-}
-
-/* ===== APP ===== */
-#appScreen{display:none}
+/* ===== TOP ===== */
 .top-bar{
-  max-width:430px;
-  margin:0 auto 6px;
+  position:sticky;
+  top:0;
+  background:var(--bg);
+  padding:10px 14px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  z-index:10;
 }
-.top-title{font-size:15px;font-weight:600}
-.icon-btn{
+
+.top-title{
+  font-weight:700;
+  font-size:15px;
+}
+
+.top-btn{
   border:none;
-  border-radius:8px;
+  background:var(--card);
+  border-radius:10px;
   padding:6px 10px;
-  background:var(--card);
-  box-shadow:0 1px 4px rgba(0,0,0,.12);
-  cursor:pointer;
+  font-size:13px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
 }
 
-.filter-wrap,#results{
-  max-width:430px;
-  margin:0 auto 8px;
+/* ===== CONTAINER ===== */
+.container{
+  max-width:480px;
+  margin:auto;
+  padding:8px 10px 20px;
 }
-.filter-card{
-  background:var(--card);
-  border-radius:12px;
-  padding:6px;
-  box-shadow:0 2px 6px rgba(0,0,0,.05);
-}
-.filter-row{
-  display:flex;
-  gap:4px;
-  margin-bottom:4px;
-}
-.filter-input{
-  flex:1;
-  padding:6px;
-  border-radius:8px;
+
+/* ===== SEARCH ===== */
+.search{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
   border:1px solid var(--border);
+  font-size:14px;
+  margin-bottom:10px;
 }
 
+/* ===== ITEM CARD ===== */
 .item{
   background:var(--card);
-  border-radius:12px;
-  padding:9px;
-  margin-bottom:7px;
-  box-shadow:0 3px 8px rgba(0,0,0,.05);
-  cursor:pointer;
+  border-radius:18px;
+  padding:12px;
+  margin-bottom:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);
 }
-.part-row{
+
+/* header */
+.item-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
-.part{font-weight:700;color:var(--primary)}
-.part-counted{color:var(--green)}
-.edit-btn{
-  width:26px;height:26px;
-  border:none;border-radius:7px;
-  background:#f1f3f4;
-  cursor:pointer;
+
+.part{
+  font-weight:700;
+  color:var(--primary);
+  font-size:14px;
 }
-.name{font-size:13px;margin-top:2px}
-.meta-line{
-  display:flex;
-  justify-content:space-between;
+
+.location{
   font-size:12px;
   color:var(--muted);
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+/* body */
+.name{
   margin-top:4px;
+  font-size:13px;
+  line-height:1.4;
 }
 
-.msg{text-align:center;color:var(--muted);padding:12px}
-
-/* ===== DETAIL ===== */
-.detail-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.35);
-  display:flex;
-  justify-content:center;
-  align-items:flex-end;
-  z-index:999;
-}
-.detail-card{
-  width:100%;max-width:430px;
-  background:var(--card);
-  border-radius:16px 16px 0 0;
-  padding:12px;
-}
-.detail-header{
-  display:flex;
-  justify-content:space-between;
+.qty{
+  margin-top:8px;
+  font-size:14px;
   font-weight:600;
 }
-.detail-close{border:none;background:none;font-size:18px}
-.detail-label{font-size:12px;color:var(--muted);margin-top:6px}
-.detail-value{font-size:14px}
-.detail-qty-box{
-  display:flex;gap:8px;margin-top:4px;
+
+/* status */
+.status{
+  margin-top:4px;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  gap:4px;
 }
-.detail-qty-box button{
-  width:40px;font-size:20px;border:none;border-radius:10px;
+
+/* note */
+.note-box{
+  margin-top:10px;
 }
-.detail-qty-box input{
-  flex:1;text-align:center;font-size:16px;
+
+.note-box textarea{
+  width:100%;
+  min-height:48px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  padding:8px;
+  font-size:13px;
+  background:#fafafa;
 }
-.detail-save{
-  margin-top:10px;width:100%;
-  padding:10px;border:none;border-radius:10px;
-  background:var(--primary);color:#fff;
+
+.note-hint{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:3px;
+}
+
+/* empty */
+.empty{
+  text-align:center;
+  color:var(--muted);
+  margin-top:30px;
+  font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginScreen" class="login-screen">
-  <div class="login-box">
-    <div class="login-title">تسجيل الدخول</div>
-    <div class="login-sub">أدخل اسم المستخدم والرقم السري</div>
-    <input id="loginUser" class="login-input" placeholder="اسم المستخدم">
-    <input id="loginPass" type="password" class="login-input" placeholder="الرقم السري">
-    <button class="login-btn" onclick="login()">دخول</button>
-    <div id="loginError" class="login-error"></div>
-  </div>
+<div class="top-bar">
+  <div class="top-title">📦 جرد المخزون</div>
+  <button class="top-btn" onclick="loadData()">🔄 تحديث</button>
 </div>
 
-<!-- APP -->
-<div id="appScreen">
-
-  <div class="top-bar">
-    <div class="top-title">جرد المخزون</div>
-    <button class="icon-btn" onclick="logout()">خروج</button>
-  </div>
-
-  <!-- SEARCH -->
-  <div class="filter-wrap">
-    <div class="filter-card">
-      <div class="filter-row">
-        <input id="pContains" class="filter-input" placeholder="رقم الصنف يحتوي">
-        <input id="pEnds" class="filter-input" placeholder="ينتهي بـ">
-      </div>
-      <div class="filter-row">
-        <input id="nStarts" class="filter-input" placeholder="اسم الصنف يبدأ">
-        <input id="nContains" class="filter-input" placeholder="يحتوي">
-      </div>
-      <div class="filter-row">
-        <input id="locFrom" class="filter-input" placeholder="الموقع من">
-        <input id="locTo" class="filter-input" placeholder="إلى">
-      </div>
-    </div>
-  </div>
-
+<div class="container">
+  <input id="search" class="search" placeholder="🔍 بحث برقم الصنف أو الاسم">
   <div id="results"></div>
 </div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
-let ALL_DATA=[];
+const API = "ضع_رابط_الاب_سكريبت_هنا";
+let ALL_DATA = [];
 
-/* LOGIN */
-function login(){
-  const u=loginUser.value.trim();
-  const p=loginPass.value.trim();
-  if(!u||!p){showErr("أدخل البيانات");return;}
-  fetch(API,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-  body:new URLSearchParams({name:u,pass:p})})
-  .then(r=>r.json()).then(res=>{
-    if(!res.ok){showErr(res.error);return;}
-    localStorage.setItem("user","1");
-    loginScreen.style.display="none";
-    appScreen.style.display="block";
-    loadData();
-  }).catch(()=>showErr("فشل الاتصال"));
-}
-function showErr(m){loginError.textContent=m;loginError.style.display="block"}
-function logout(){localStorage.clear();location.reload()}
-
-/* SESSION */
-if(localStorage.getItem("user")){
-  loginScreen.style.display="none";
-  appScreen.style.display="block";
-  loadData();
-}
-
-/* DATA */
+/* تحميل */
 function loadData(){
-  fetch(API).then(r=>r.json()).then(d=>{
-    ALL_DATA=d;runSearch();
-  });
-}
-document.querySelectorAll(".filter-input")
-.forEach(i=>i.addEventListener("input",runSearch));
-
-function runSearch(){
-  let res=[];
-  const pC = pContains.value.toLowerCase();
-  const pE = pEnds.value.toLowerCase();
-  const nS = nStarts.value.toLowerCase();
-  const nC = nContains.value.toLowerCase();
-  const lF = locFrom.value.toLowerCase();
-  const lT = locTo.value.toLowerCase();
-
-  for(const r of ALL_DATA){
-    const p = String(r.part || "").toLowerCase();
-    const n = String(r.name || "").toLowerCase();
-    const l = String(r.location || "").toLowerCase();
-
-    if(pC && !p.includes(pC)) continue;
-    if(pE && !p.endsWith(pE)) continue;
-    if(nS && !n.startsWith(nS)) continue;
-    if(nC && !n.includes(nC)) continue;
-    if(lF && l < lF) continue;
-    if(lT && l > lT) continue;
-
-    res.push(r);
-  }
-  render(res);
+  fetch(API)
+    .then(r=>r.json())
+    .then(d=>{
+      ALL_DATA = d;
+      render(d);
+    });
 }
 
+/* بحث */
+search.addEventListener("input",()=>{
+  const q = search.value.trim().toLowerCase();
+  const f = ALL_DATA.filter(r =>
+    String(r.part).includes(q) ||
+    String(r.name).toLowerCase().includes(q)
+  );
+  render(f);
+});
 
-/* RENDER */
+/* رسم */
 function render(data){
-  if(!data.length){results.innerHTML="<div class='msg'>لا نتائج</div>";return;}
-  results.innerHTML=data.map(r=>{
-    const pc=r.countedQty>0?"part part-counted":"part";
-    return`
-    <div class="item" onclick="openDetail('${r.part}')">
-      <div class="part-row">
-        <div class="${pc}">${r.part}</div>
-        <button class="edit-btn" onclick="event.stopPropagation();openDetail('${r.part}')">✎</button>
+  if(!data.length){
+    results.innerHTML = "<div class='empty'>لا توجد نتائج</div>";
+    return;
+  }
+
+  results.innerHTML = data.map(r=>{
+    const counted = r.lastCountedAt;
+    const changed = counted && Number(r.qty) !== Number(r.lastCountQty);
+
+    let statusHtml = "";
+    if(counted && !changed){
+      statusHtml = `<div class="status" style="color:var(--ok)">✅ تم الجرد</div>`;
+    }
+    if(counted && changed){
+      statusHtml = `
+        <div class="status" style="color:var(--warn)">
+          🔴 تم الجرد ( ${r.lastCountQty} ← ${r.qty} )
+        </div>`;
+    }
+
+    return `
+    <div class="item">
+      <div class="item-header">
+        <div class="part">${r.part}</div>
+        <div class="location">📍 ${r.location || "-"}</div>
       </div>
+
       <div class="name">${r.name}</div>
-      <div class="meta-line">
-        <span>الكمية: ${r.qty}</span>
-        <span>${r.location||""}</span>
+
+      <div class="qty">📦 الكمية المتوفرة: ${r.qty}</div>
+
+      ${statusHtml}
+
+      <div class="note-box">
+        <textarea
+          placeholder="📝 ملاحظة الجارد (اختياري)"
+          onblur="saveNote('${r.part}', this.value)"
+        >${r.note || ""}</textarea>
+        <div class="note-hint">تُحفظ تلقائيًا وتظهر للجميع</div>
       </div>
-    </div>`;
+    </div>
+    `;
   }).join("");
 }
 
-/* DETAIL */
-function openDetail(part){
-  const r=ALL_DATA.find(x=>x.part==part);
-  if(!r)return;
-  const o=document.createElement("div");
-  o.className="detail-overlay";
-  o.innerHTML=`
-  <div class="detail-card">
-    <div class="detail-header">
-      <span>تفاصيل</span>
-      <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
-    </div>
-    <div class="detail-label">رقم الصنف</div>
-    <div class="detail-value">${r.part}</div>
-    <div class="detail-label">اسم الصنف</div>
-    <div class="detail-value">${r.name}</div>
-    <div class="detail-label">كمية الجرد</div>
-    <div class="detail-qty-box">
-      <button onclick="chg(-1)">−</button>
-      <input id="cq" type="number" value="${r.countedQty||0}">
-      <button onclick="chg(1)">+</button>
-    </div>
-    <button class="detail-save" onclick="save('${r.part}',${r.qty})">حفظ</button>
-  </div>`;
-  document.body.appendChild(o);
+/* حفظ ملاحظة */
+function saveNote(part, note){
+  fetch(API,{
+    method:"POST",
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+    body:new URLSearchParams({
+      action:"saveNote",
+      part:part,
+      note:note
+    })
+  });
 }
-function chg(d){cq.value=Math.max(0,(+cq.value||0)+d)}
-function save(p,sq){
-  fetch(API,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
-  body:new URLSearchParams({part:p,systemQty:sq,countedQty:cq.value})});
-  document.querySelector(".detail-overlay").remove();
-}
+
+loadData();
 </script>
+
 </body>
 </html>
