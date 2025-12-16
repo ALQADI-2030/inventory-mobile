@@ -1,210 +1,214 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>جرد المخزون</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>جرد المخزون</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1976d2">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="جرد المخزون">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1976d2">
 
-  <style>
-    :root{
-      --bg:#f4f5f7;
-      --card:#fff;
-      --primary:#1976d2;
-      --danger:#c62828;
-      --text:#222;
-      --muted:#777;
-      --border:#e0e0e0;
-    }
+<style>
+:root{
+  --bg:#f4f5f7;
+  --card:#fff;
+  --primary:#1976d2;
+  --danger:#c62828;
+  --text:#222;
+  --muted:#777;
+  --border:#e0e0e0;
+}
 
-    body{
-      font-family:system-ui,-apple-system,BlinkMacSystemFont;
-      background:var(--bg);
-      margin:0;
-      padding:8px;
-    }
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  background:var(--bg);
+}
 
-    /* ===== LOGIN ===== */
-    .login-screen{
-      max-width:360px;
-      margin:90px auto;
-      background:var(--card);
-      border-radius:16px;
-      padding:22px;
-      box-shadow:0 8px 24px rgba(0,0,0,.15);
-      text-align:center;
-    }
+/* ===== LOGIN ===== */
+.login-wrap{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
 
-    .login-title{
-      font-size:18px;
-      font-weight:700;
-      margin-bottom:6px;
-    }
+.login-card{
+  width:340px;
+  background:var(--card);
+  border-radius:14px;
+  padding:22px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+  text-align:center;
+}
 
-    .login-sub{
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:18px;
-    }
+.login-title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:6px;
+}
 
-    .login-btn{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:12px;
-      background:var(--primary);
-      color:#fff;
-      font-size:15px;
-      cursor:pointer;
-    }
+.login-sub{
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:18px;
+}
 
-    .login-error{
-      margin-top:12px;
-      font-size:13px;
-      color:var(--danger);
-      display:none;
-    }
+.login-input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  font-size:14px;
+}
 
-    /* ===== APP ===== */
-    .top-bar{
-      max-width:430px;
-      margin:0 auto 6px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
+.login-btn{
+  width:100%;
+  padding:11px;
+  border:none;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
 
-    .top-title{
-      font-size:15px;
-      font-weight:600;
-    }
+.login-error{
+  margin-top:12px;
+  font-size:13px;
+  color:var(--danger);
+  display:none;
+}
 
-    .icon-btn{
-      width:30px;
-      height:30px;
-      border:none;
-      border-radius:8px;
-      background:var(--card);
-      box-shadow:0 1px 4px rgba(0,0,0,.12);
-      cursor:pointer;
-    }
+/* ===== APP ===== */
+#appScreen{
+  display:none;
+  padding:8px;
+}
 
-    .filter-wrap,
-    #results{
-      max-width:430px;
-      margin:0 auto 8px;
-    }
+.top-bar{
+  max-width:430px;
+  margin:0 auto 8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    .filter-card{
-      background:var(--card);
-      border-radius:12px;
-      padding:6px;
-      box-shadow:0 2px 6px rgba(0,0,0,.05);
-    }
+.top-title{
+  font-size:15px;
+  font-weight:700;
+}
 
-    .filter-input{
-      width:100%;
-      padding:8px;
-      border-radius:8px;
-      border:1px solid var(--border);
-    }
+.icon-btn{
+  width:32px;
+  height:32px;
+  border:none;
+  border-radius:8px;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.15);
+  cursor:pointer;
+}
 
-    .item{
-      background:var(--card);
-      border-radius:12px;
-      padding:10px;
-      margin-bottom:7px;
-      box-shadow:0 3px 8px rgba(0,0,0,.05);
-    }
+#results{
+  max-width:430px;
+  margin:0 auto;
+}
 
-    .part{
-      font-weight:700;
-      color:var(--primary);
-    }
+.item{
+  background:#fff;
+  border-radius:12px;
+  padding:10px;
+  margin-bottom:8px;
+  box-shadow:0 3px 8px rgba(0,0,0,.06);
+}
 
-    .msg{
-      text-align:center;
-      color:var(--muted);
-      padding:14px;
-    }
-  </style>
+.part{
+  font-weight:700;
+  color:var(--primary);
+}
+
+.msg{
+  text-align:center;
+  color:var(--muted);
+  padding:14px;
+}
+</style>
 </head>
 
 <body>
 
-<!-- ================== LOGIN ================== -->
-<div id="loginScreen" class="login-screen">
-  <div class="login-title">تسجيل الدخول</div>
-  <div class="login-sub">يجب أن يكون بريدك مسجّل في النظام</div>
-  <button class="login-btn" onclick="login()">دخول</button>
-  <div id="loginError" class="login-error">
-    المستخدم غير مسموح له بالدخول
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-title">تسجيل الدخول</div>
+    <div class="login-sub">أدخل اسم المستخدم والرقم السري</div>
+
+    <input id="loginUser" class="login-input" placeholder="اسم المستخدم">
+    <input id="loginPass" type="password" class="login-input" placeholder="الرقم السري">
+
+    <button class="login-btn" onclick="login()">دخول</button>
+
+    <div id="loginError" class="login-error"></div>
   </div>
 </div>
 
-<!-- ================== APP ================== -->
-<div id="appScreen" style="display:none;">
-
+<!-- ================= APP ================= -->
+<div id="appScreen">
   <div class="top-bar">
     <div class="top-title">جرد المخزون</div>
     <button class="icon-btn" onclick="loadData()">⟳</button>
   </div>
 
-  <div class="filter-wrap">
-    <div class="filter-card">
-      <input id="search" class="filter-input"
-             placeholder="ابحث برقم الصنف أو الاسم"
-             oninput="runSearch()">
-    </div>
-  </div>
-
   <div id="results"></div>
-
 </div>
 
 <script>
 /* ===== CONFIG ===== */
-const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
-
-let ALL_DATA = [];
+const API = "PUT_YOUR_APPS_SCRIPT_URL_HERE";
 
 /* ===== LOGIN ===== */
 function login(){
-  fetch(API + "?action=login")
-    .then(r => r.json())
-    .then(res => {
+  const u = loginUser.value.trim();
+  const p = loginPass.value.trim();
+
+  if(!u || !p){
+    showError("يرجى إدخال اسم المستخدم والرقم السري");
+    return;
+  }
+
+  fetch(`${API}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`)
+    .then(r=>r.json())
+    .then(res=>{
       if(!res.ok){
-        showLoginError();
+        showError(res.error || "بيانات الدخول غير صحيحة");
         return;
       }
-      document.getElementById("loginScreen").style.display = "none";
-      document.getElementById("appScreen").style.display = "block";
+
+      localStorage.setItem("user", JSON.stringify(res.user));
+      loginScreen.style.display="none";
+      appScreen.style.display="block";
       loadData();
     })
-    .catch(showLoginError);
+    .catch(()=>showError("فشل الاتصال بالسيرفر"));
 }
 
-function showLoginError(){
-  document.getElementById("loginError").style.display = "block";
+function showError(msg){
+  const e = document.getElementById("loginError");
+  e.textContent = msg;
+  e.style.display = "block";
 }
 
 /* ===== LOAD DATA ===== */
 function loadData(){
   fetch(API)
-    .then(r => r.json())
-    .then(d => {
+    .then(r=>r.json())
+    .then(d=>{
       if(!Array.isArray(d)){
         results.innerHTML = "<div class='msg'>فشل تحميل البيانات</div>";
         return;
       }
-      ALL_DATA = d;
       render(d);
     })
     .catch(()=>{
@@ -212,26 +216,10 @@ function loadData(){
     });
 }
 
-/* ===== SEARCH ===== */
-function runSearch(){
-  const q = search.value.trim().toLowerCase();
-  if(!q){
-    render(ALL_DATA);
-    return;
-  }
-
-  const f = ALL_DATA.filter(r =>
-    String(r.part||"").toLowerCase().includes(q) ||
-    String(r.name||"").toLowerCase().includes(q)
-  );
-
-  render(f);
-}
-
 /* ===== RENDER ===== */
 function render(data){
   if(!data.length){
-    results.innerHTML = "<div class='msg'>لا توجد نتائج</div>";
+    results.innerHTML = "<div class='msg'>لا توجد بيانات</div>";
     return;
   }
 
@@ -245,7 +233,6 @@ function render(data){
       </div>
     `;
   });
-
   results.innerHTML = h;
 }
 </script>
