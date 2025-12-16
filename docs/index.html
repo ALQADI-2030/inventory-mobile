@@ -3,146 +3,210 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>جرد المخزون</title>
 
 <style>
 :root{
   --bg:#f4f5f7;
-  --card:#fff;
+  --card:#ffffff;
   --primary:#1976d2;
   --ok:#1b5e20;
   --warn:#c62828;
+  --text:#222;
   --muted:#777;
   --border:#e0e0e0;
 }
 
-/* جسم الصفحة */
+*{box-sizing:border-box}
+
 body{
   margin:0;
-  font-family:system-ui,-apple-system,blinkmacsystemfont,"Segoe UI",sans-serif;
+  font-family:system-ui,-apple-system;
   background:var(--bg);
-  -webkit-font-smoothing:antialiased;
+  padding:8px;
 }
 
-/* الشريط العلوي */
+/* ===== TOP ===== */
 .top-bar{
-  max-width:480px;          /* توسيع بسيط مع بقاءه مناسب للجوال */
-  margin:10px auto 4px;
-  padding:0 8px;
+  max-width:430px;
+  margin:0 auto 6px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-sizing:border-box;
 }
-
-.top-bar strong{
-  font-size:17px;
-}
-
-.top-bar button{
+.top-title{font-weight:700;font-size:15px}
+.icon-btn{
+  border:none;
+  border-radius:8px;
   padding:6px 10px;
-  font-size:13px;
-  border-radius:999px;
-  border:1px solid var(--primary);
-  background:var(--primary);
-  color:#fff;
+  background:var(--card);
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+  cursor:pointer;
 }
 
-/* الحاوية العامة */
-.container{
-  max-width:480px;         /* مناسب لمعظم جوالات اليوم 360‑430 تقريبًا */
-  margin:0 auto 12px;
-  padding:0 8px 6px;
-  box-sizing:border-box;
+/* ===== FILTER ===== */
+.filter-wrap,#results{
+  max-width:430px;
+  margin:0 auto 8px;
 }
 
-/* مربع البحث */
-.search{
-  width:100%;
-  padding:9px 11px;
+.filter-card{
+  background:var(--card);
   border-radius:12px;
-  border:1px solid var(--border);
-  margin-bottom:8px;
-  font-size:14px;
-  box-sizing:border-box;
+  padding:6px;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
 }
 
-/* بطاقة الصنف */
+.filter-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:4px;
+}
+
+.clear-btn{
+  font-size:12px;
+  background:#f1f3f4;
+  border:none;
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+
+.filter-row{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+}
+
+.filter-input{
+  flex:1;
+  min-width:0;
+  padding:7px 8px;
+  font-size:12px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:#fafafa;
+}
+
+@media (max-width:480px){
+  .filter-row{flex-wrap:wrap}
+  .filter-input{flex:1 1 48%}
+}
+
+/* ===== ITEM ===== */
 .item{
   background:var(--card);
-  border-radius:14px;
-  padding:10px 11px;
-  margin-bottom:8px;
+  border-radius:12px;
+  padding:9px;
+  margin-bottom:7px;
   box-shadow:0 3px 8px rgba(0,0,0,.05);
+  cursor:pointer;
 }
 
-/* صف علوي داخل البطاقة */
-.row{
+.part-row{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:4px;
 }
 
 .part{
   font-weight:700;
   color:var(--primary);
-  font-size:14px;
-  word-break:break-all;
 }
 
+.part.ok{color:var(--ok)}
+.part.warn{color:var(--warn)}
+
 .location{
-  font-size:11px;
-  color:#555;
-  text-align:left;
+  font-size:12px;
+  color:var(--muted);
 }
 
 .name{
-  margin:4px 0;
   font-size:13px;
-}
-
-/* الكمية */
-.qty{
-  margin-top:4px;
-  font-weight:600;
-  font-size:13px;
-}
-
-/* حالة الجرد */
-.status{
-  font-size:12px;
-  margin-top:3px;
-}
-
-/* ملاحظات الجارد */
-.note-box{
-  margin-top:6px;
-}
-
-.note-box textarea{
-  width:100%;
-  border-radius:8px;
-  border:1px solid var(--border);
-  padding:6px;
-  font-size:13px;
-  resize:none;
-  box-sizing:border-box;
-}
-
-.note-hint{
-  font-size:11px;
-  color:var(--muted);
   margin-top:2px;
 }
 
-/* تحسين بسيط للشاشات الأوسع (تابلت صغير مثلاً) */
-@media (min-width:600px){
-  .top-bar,
-  .container{
-    max-width:520px;
-  }
+.meta{
+  font-size:12px;
+  margin-top:4px;
+  color:var(--muted);
+}
+
+.status{
+  font-size:12px;
+  margin-top:4px;
+}
+
+/* ===== DETAIL ===== */
+.detail-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.35);
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:999;
+}
+
+.detail-card{
+  width:100%;
+  max-width:430px;
+  background:var(--card);
+  border-radius:16px 16px 0 0;
+  padding:12px;
+}
+
+.detail-header{
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+}
+
+.detail-close{
+  border:none;
+  background:none;
+  font-size:18px;
+}
+
+.detail-label{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+.detail-value{
+  font-size:14px;
+}
+
+.detail-qty-box{
+  display:flex;
+  gap:8px;
+  margin-top:4px;
+}
+
+.detail-qty-box button{
+  width:40px;
+  border:none;
+  border-radius:10px;
+  font-size:20px;
+}
+
+.detail-qty-box input{
+  flex:1;
+  text-align:center;
+  font-size:16px;
+}
+
+.detail-save{
+  margin-top:10px;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
 }
 </style>
 </head>
@@ -150,115 +214,175 @@ body{
 <body>
 
 <div class="top-bar">
-  <strong>جرد المخزون</strong>
-  <button onclick="loadData()">تحديث</button>
+  <div class="top-title">جرد المخزون</div>
 </div>
 
-<div class="container">
-  <input id="search" class="search" placeholder="بحث برقم الصنف أو الاسم">
-  <div id="results"></div>
+<!-- SEARCH -->
+<div class="filter-wrap">
+  <div class="filter-card">
+
+    <div class="filter-header">
+      <strong style="font-size:13px">البحث المتقدم</strong>
+      <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
+    </div>
+
+    <div class="filter-row">
+      <input id="pContains" class="filter-input" placeholder="رقم الصنف يحتوي">
+      <input id="pEnds" class="filter-input" placeholder="ينتهي بـ">
+    </div>
+
+    <div class="filter-row">
+      <input id="nStarts" class="filter-input" placeholder="اسم الصنف يبدأ">
+      <input id="nContains" class="filter-input" placeholder="يحتوي">
+    </div>
+
+    <div class="filter-row">
+      <input id="locFrom" class="filter-input" placeholder="الموقع من">
+      <input id="locTo" class="filter-input" placeholder="إلى">
+    </div>
+
+  </div>
 </div>
+
+<!-- RESULTS -->
+<div id="results"></div>
 
 <script>
-const API = "ضع_رابط_الاب_سكريبت_هنا";
+const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 let ALL_DATA = [];
 
-/* تحميل البيانات */
+/* تحميل */
 function loadData(){
-  fetch(API)
-    .then(r => r.json())
-    .then(d =>{
-      ALL_DATA = d;
-      render(d);
-    })
-    .catch(err => {
-      console.error(err);
-      results.innerHTML = "<div style='text-align:center;color:#777'>تعذر تحميل البيانات</div>";
-    });
+  fetch(API).then(r=>r.json()).then(d=>{
+    ALL_DATA = d;
+    runSearch();
+  });
 }
 
 /* البحث */
-const searchInput = document.getElementById("search");
-const results = document.getElementById("results");
+document.querySelectorAll(".filter-input")
+  .forEach(i=>i.addEventListener("input",runSearch));
 
-searchInput.addEventListener("input", () => {
-  const q = searchInput.value.trim().toLowerCase();
-  if(!q){
-    render(ALL_DATA);
-    return;
+function runSearch(){
+  const res=[];
+  const pC=pContains.value.toLowerCase();
+  const pE=pEnds.value.toLowerCase();
+  const nS=nStarts.value.toLowerCase();
+  const nC=nContains.value.toLowerCase();
+  const lF=locFrom.value.toLowerCase();
+  const lT=locTo.value.toLowerCase();
+
+  for(const r of ALL_DATA){
+    const p=String(r.part||"").toLowerCase();
+    const n=String(r.name||"").toLowerCase();
+    const l=String(r.location||"").toLowerCase();
+
+    if(pC&&!p.includes(pC))continue;
+    if(pE&&!p.endsWith(pE))continue;
+    if(nS&&!n.startsWith(nS))continue;
+    if(nC&&!n.includes(nC))continue;
+    if(lF&&l<lF)continue;
+    if(lT&&l>lT)continue;
+
+    res.push(r);
   }
-  const f = ALL_DATA.filter(r =>
-    String(r.part || "").toLowerCase().includes(q) ||
-    String(r.name || "").toLowerCase().includes(q)
-  );
-  render(f);
-});
+  render(res);
+}
 
-/* الرسم */
+/* مسح */
+function clearFilters(){
+  document.querySelectorAll(".filter-input").forEach(i=>i.value="");
+  render(ALL_DATA);
+}
+
+/* عرض */
 function render(data){
-  if(!data || !data.length){
-    results.innerHTML = "<div style='text-align:center;color:#777;padding:20px 0'>لا نتائج</div>";
+  if(!data.length){
+    results.innerHTML="<div class='meta'>لا توجد نتائج</div>";
     return;
   }
 
-  results.innerHTML = data.map(r =>{
-    const counted = r.lastCountedAt;
-    const changed = counted && Number(r.qty) !== Number(r.lastCountQty);
+  results.innerHTML=data.map(r=>{
+    const counted=r.lastCountedAt;
+    const changed=counted && Number(r.qty)!==Number(r.lastCountQty);
 
-    let status = "";
-    let color = "";
+    let cls="part";
+    let status="";
 
-    if(counted && !changed){
-      status = "✓ تم الجرد";
-      color = "var(--ok)";
+    if(counted&&!changed){
+      cls+=" ok";
+      status="✓ تم الجرد";
     }
-
-    if(counted && changed){
-      status = `⚠ تم الجرد (كان ${r.lastCountQty} ← الآن ${r.qty})`;
-      color = "var(--warn)";
+    if(counted&&changed){
+      cls+=" warn";
+      status=`⚠ تم الجرد (كان ${r.lastCountQty} ← الآن ${r.qty})`;
     }
 
     return `
-    <div class="item">
-      <div class="row">
-        <div class="part">${r.part || ""}</div>
-        <div class="location">${r.location || ""}</div>
+    <div class="item" onclick="openDetail('${r.part}')">
+      <div class="part-row">
+        <div class="${cls}">${r.part}</div>
+        <div class="location">${r.location||""}</div>
       </div>
-
-      <div class="name">${r.name || ""}</div>
-
-      <div class="qty">الكمية المتوفرة: ${r.qty ?? ""}</div>
-
-      ${status ? `<div class="status" style="color:${color}">${status}</div>` : ""}
-
-      <div class="note-box">
-        <textarea
-          rows="2"
-          placeholder="ملاحظة الجارد (اختياري)"
-          onblur="saveNote('${r.part}', this.value)"
-        >${r.note || ""}</textarea>
-        <div class="note-hint">تُحفظ تلقائيًا وتظهر للجميع</div>
-      </div>
-    </div>
-    `;
+      <div class="name">${r.name||""}</div>
+      <div class="meta">الكمية المتوفرة: <b>${r.qty}</b></div>
+      ${status?`<div class="status">${status}</div>`:""}
+    </div>`;
   }).join("");
 }
 
-/* حفظ الملاحظة */
-function saveNote(part, note){
-  if(!part) return;
-  fetch(API,{
-    method:"POST",
-    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-    body:new URLSearchParams({
-      action:"saveNote",
-      part:part,
-      note:note
-    })
-  }).catch(console.error);
+/* تفاصيل + ملاحظات */
+function openDetail(part){
+  const r=ALL_DATA.find(x=>String(x.part)===String(part));
+  if(!r)return;
+
+  const ov=document.createElement("div");
+  ov.className="detail-overlay";
+  ov.innerHTML=`
+  <div class="detail-card">
+    <div class="detail-header">
+      <span>تفاصيل الجرد</span>
+      <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
+    </div>
+
+    <div class="detail-label">رقم الصنف</div>
+    <div class="detail-value">${r.part}</div>
+
+    <div class="detail-label">كمية الجرد</div>
+    <div class="detail-qty-box">
+      <button onclick="chg(-1)">−</button>
+      <input id="cq" type="number" value="${r.countedQty||0}">
+      <button onclick="chg(1)">+</button>
+    </div>
+
+    <div class="detail-label">ملاحظات الجرد</div>
+    <textarea id="note" style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px">${r.note||""}</textarea>
+
+    <button class="detail-save" onclick="save('${r.part}',${r.qty})">حفظ</button>
+  </div>`;
+  document.body.appendChild(ov);
 }
 
-/* تشغيل أولي */
+function chg(d){
+  cq.value=Math.max(0,(+cq.value||0)+d);
+}
+
+function save(p,sq){
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      part:p,
+      systemQty:sq,
+      countedQty:cq.value,
+      note:note.value
+    })
+  });
+  document.querySelector(".detail-overlay").remove();
+  loadData();
+}
+
+/* بدء */
 loadData();
 </script>
 
