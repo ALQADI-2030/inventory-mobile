@@ -328,9 +328,30 @@ function runSearch(){
     if(lT && loc > lT) continue;
 
     res.push(r);
-    if(res.length>=MAX_RESULTS) break;
   }
-  render(res);
+
+  // فرز حسب نوع البحث
+  if (lF || lT) {
+    // بحث بالموقع → فرز بالموقع
+    res.sort((a,b)=>{
+      const la = (a.location||"").toString().toLowerCase();
+      const lb = (b.location||"").toString().toLowerCase();
+      if (la < lb) return -1;
+      if (la > lb) return 1;
+      return 0;
+    });
+  } else if (pC || pE) {
+    // بحث برقم الصنف → فرز برقم الصنف
+    res.sort((a,b)=>{
+      const pa = (a.part||"").toString().toLowerCase();
+      const pb = (b.part||"").toString().toLowerCase();
+      if (pa < pb) return -1;
+      if (pa > pb) return 1;
+      return 0;
+    });
+  }
+
+  render(res.slice(0, MAX_RESULTS));
 }
 
 /* عرض النتائج */
