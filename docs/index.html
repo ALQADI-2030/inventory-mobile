@@ -470,12 +470,13 @@ function render(data){
     const isCounted = counted !== null;
     const partClass = isCounted ? "part part-counted" : "part";
 
+    const safePart = String(r.part || "").replace(/'/g,"\\'");
     html += `
-      <div class="item" onclick="openDetail('${String(r.part || "").replace(/'/g,"\\'")}')">
+      <div class="item" onclick="openDetail('${safePart}')">
         <div class="part-row">
           <div class="${partClass}">${r.part || ""}</div>
           <button class="edit-btn"
-            onclick="event.stopPropagation(); openDetail('${String(r.part || "").replace(/'/g,"\\'")}')">✎</button>
+            onclick="event.stopPropagation(); openDetail('${safePart}')">✎</button>
         </div>
         <div class="name">${r.name || ""}</div>
         <div class="meta-line">
@@ -501,6 +502,8 @@ function openDetail(part){
 
   const overlay = document.createElement("div");
   overlay.className = "detail-overlay";
+  const safePart = String(item.part || "").replace(/'/g,"\\'");
+  const safeName = String(item.name || "").replace(/'/g,"\\'");
   overlay.innerHTML = `
     <div class="detail-card">
       <div class="detail-header">
@@ -538,7 +541,7 @@ function openDetail(part){
              style="margin-top:6px;font-size:12px;color:var(--muted);"></div>
       </div>
       <button class="detail-save"
-        onclick="saveDetailQty('${String(item.part || "").replace(/'/g,"\\'")}', '${(item.name || "").replace(/'/g,"\\'")}', ${Number(item.qty)||0})">
+        onclick="saveDetailQty('${safePart}', '${safeName}', ${Number(item.qty)||0})">
         حفظ الجرد
       </button>
     </div>
@@ -618,3 +621,4 @@ loadData();
 
 </body>
 </html>
+
