@@ -12,12 +12,13 @@ body{
   margin:0;
   padding:12px
 }
-h1{text-align:center;margin-bottom:14px}
+h1{text-align:center;margin-bottom:12px}
 .card{
   background:#fff;
   border-radius:16px;
   padding:14px;
-  box-shadow:0 6px 16px rgba(0,0,0,.08)
+  box-shadow:0 6px 16px rgba(0,0,0,.08);
+  margin-bottom:12px
 }
 .row{
   display:grid;
@@ -31,7 +32,16 @@ input{
   border-radius:10px;
   border:1px solid #ddd
 }
-.results{margin-top:16px}
+button{
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  width:100%
+}
+.clear{background:#e53935;color:#fff}
+.refresh{background:#1e88e5;color:#fff;margin-bottom:10px}
+
 .item{
   background:#fff;
   border-radius:14px;
@@ -41,19 +51,21 @@ input{
 }
 .part{font-weight:700;font-size:17px}
 .meta{color:#555;margin-top:4px}
-.clear{
-  width:100%;
-  padding:14px;
-  background:#e53935;
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  font-size:16px
+
+.qty-box{
+  display:flex;
+  gap:8px;
+  margin-top:10px
 }
-.loading{
+.qty-box button{
+  width:48px;
+  font-size:20px;
+  background:#eee
+}
+.qty-box input{
+  flex:1;
   text-align:center;
-  color:#777;
-  padding:10px
+  font-size:18px
 }
 </style>
 </head>
@@ -63,93 +75,159 @@ input{
 <h1>جرد المخزون</h1>
 
 <div class="card">
+  <button class="refresh" onclick="refreshData()">🔄 تحديث البيانات</button>
+
   <div class="row">
     <input id="pContains" placeholder="رقم الصنف يحتوي على">
     <input id="pEnds" placeholder="رقم الصنف ينتهي بـ">
   </div>
+
   <div class="row">
     <input id="nStarts" placeholder="اسم الصنف يبدأ بـ">
     <input id="nContains" placeholder="اسم الصنف يحتوي على">
   </div>
+
   <div class="row">
     <input id="locFrom" placeholder="الموقع من">
     <input id="locTo" placeholder="الموقع إلى">
   </div>
+
   <button class="clear" onclick="clearAll()">مسح الكل</button>
 </div>
 
-<div class="results" id="results"></div>
+<div id="results"></div>
 
 <script>
-// ضع هنا رابط الـ exec للويب آب
+/* ========= الإعدادات ========= */
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
+const CACHE_KEY = "inventory_cache_v1";
+const COUNT_KEY = "count_log_v1";
 
-let timer = null;
-let isFetching = false;
-let lastQuery = "";
+/* ========= التخزين ========= */
+let ALL_DATA = [];
 
-const inputs = document.querySelectorAll("input");
-inputs.forEach(i => i.addEventListener("input", debounce));
+/* ========= تحميل البيانات ========= */
+function loadData(){
+  const cached = localStorage.getItem(CACHE_KEY);
+  if(cached){
+    ALL_DATA = JSON.parse(cached);
+  }
+  refreshData();
+}
 
+function refreshData(){
+  fetch(API)
+    .then(r=>r.json())
+    .then(data=>{
+      ALL_DATA = data;
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      runSearch();
+    })
+    .catch(()=>{ /* أوف لاين */ });
+}
+
+/* ========= الجرد أوف لاين ========= */
+function saveCount(part, qty){
+  const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
+  log.push({
+    part,
+    qty:Number(qty),
+    time:new Date().toISOString()
+  });
+  localStorage.setItem(COUNT_KEY, JSON.stringify(log));
+}
+
+function getLastCount(part){
+  const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
+  const last = log.filter(l=>l.part===part).slice(-1)[0];
+  return last ? last.qty : null;
+}
+
+/* ========= البحث ========= */
+document.querySelectorAll("input").forEach(i=>{
+  i.addEventListener("input", debounce);
+});
+
+let timer=null;
 function debounce(){
   clearTimeout(timer);
-  timer = setTimeout(search, 500);
+  timer=setTimeout(runSearch,300);
 }
 
-function search(){
-  if (isFetching) return;
+function runSearch(){
+  if(!ALL_DATA.length){ return; }
 
-  const params = {
-    pContains: pContains.value.trim(),
-    pEnds:     pEnds.value.trim(),
-    nStarts:   nStarts.value.trim(),
-    nContains: nContains.value.trim(),
-    locFrom:   locFrom.value.trim(),
-    locTo:     locTo.value.trim()
-  };
+  const pC = pContains.value.toLowerCase();
+  const pE = pEnds.value.toLowerCase();
+  const nS = nStarts.value.toLowerCase();
+  const nC = nContains.value.toLowerCase();
+  const lF = locFrom.value.toLowerCase();
+  const lT = locTo.value.toLowerCase();
 
-  if (Object.values(params).every(v => v === "")) {
-    results.innerHTML = "";
-    return;
-  }
+  let res = ALL_DATA.filter(r=>{
+    const part = (r.part||"").toLowerCase();
+    const name = (r.name||"").toLowerCase();
+    const loc  = (r.location||"").toLowerCase();
 
-  const qs = new URLSearchParams(params).toString();
-  if (qs === lastQuery) return;
-  lastQuery = qs;
+    if(pC && !part.includes(pC)) return false;
+    if(pE && !part.endsWith(pE)) return false;
+    if(nS && !name.startsWith(nS)) return false;
+    if(nC && !name.includes(nC)) return false;
+    if(lF && loc < lF) return false;
+    if(lT && loc > lT) return false;
+    return true;
+  }).slice(0,50);
 
-  isFetching = true;
-  results.innerHTML = "<div class='loading'>جاري البحث...</div>";
-
-  fetch(API + "?" + qs)
-    .then(r => r.json())
-    .then(show)
-    .catch(() => results.innerHTML = "<div class='loading'>خطأ في الاتصال</div>")
-    .finally(() => isFetching = false);
+  render(res);
 }
 
-function show(data){
-  results.innerHTML = "";
-  if (!Array.isArray(data) || !data.length){
-    results.innerHTML = "<div class='loading'>لا توجد نتائج</div>";
+/* ========= العرض ========= */
+function render(data){
+  const el = document.getElementById("results");
+  el.innerHTML="";
+
+  if(!data.length){
+    el.innerHTML="<div class='item'>لا توجد نتائج</div>";
     return;
   }
 
   data.forEach(r=>{
-    results.innerHTML += `
+    const counted = getLastCount(r.part);
+    const showQty = counted!==null ? counted : r.qty;
+
+    el.innerHTML += `
       <div class="item">
         <div class="part">${r.part}</div>
         <div>${r.name}</div>
-        <div class="meta">الكمية: ${r.qty} | الموقع: ${r.location}</div>
+        <div class="meta">
+          الكمية: <b>${showQty}</b> | الموقع: ${r.location}
+        </div>
+
+        <div class="qty-box">
+          <button onclick="adjust('${r.part}', ${showQty-1})">−</button>
+          <input value="${showQty}" 
+            onblur="adjust('${r.part}', this.value)">
+          <button onclick="adjust('${r.part}', ${showQty+1})">+</button>
+        </div>
       </div>
     `;
   });
 }
 
-function clearAll(){
-  inputs.forEach(i=>i.value="");
-  results.innerHTML="";
-  lastQuery="";
+/* ========= تعديل الكمية ========= */
+function adjust(part, qty){
+  if(qty<0) qty=0;
+  saveCount(part, qty);
+  runSearch();
 }
+
+/* ========= أدوات ========= */
+function clearAll(){
+  document.querySelectorAll("input").forEach(i=>i.value="");
+  document.getElementById("results").innerHTML="";
+}
+
+loadData();
 </script>
 
 </body>
