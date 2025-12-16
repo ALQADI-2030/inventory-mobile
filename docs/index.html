@@ -357,16 +357,40 @@ function render(data){
         status=`⚠ كان ${r.lastCountQty} ← الآن ${r.qty}`;
       }
     }
-    return`
-    <div class="item">
-      <div class="part-row">
-        <div class="${cls}">${r.part}</div>
-        <div class="location">${r.location||""}</div>
-      </div>
-      <div class="name">${r.name||""}</div>
-      <div class="meta">الكمية: <b>${r.qty}</b></div>
-      ${status?`<div class="status">${status}</div>`:""}
-    </div>`;
+   return `
+<div class="item">
+  <div class="part-row">
+    <div class="${cls}">${r.part}</div>
+    <div class="location">${r.location||""}</div>
+  </div>
+
+  <div class="name">${r.name||""}</div>
+
+  <div class="meta">
+    الكمية المتوفرة: <b>${r.qty}</b>
+  </div>
+
+  ${status?`<div class="status">${status}</div>`:""}
+
+  <!-- زر التعديل -->
+  <div style="display:flex;justify-content:flex-end;margin-top:6px">
+    <button
+      onclick="openDetail('${r.part}')"
+      style="
+        border:none;
+        background:#1976d2;
+        color:#fff;
+        font-size:12px;
+        padding:6px 12px;
+        border-radius:8px;
+        cursor:pointer
+      ">
+      ✏️ تعديل
+    </button>
+  </div>
+</div>
+`;
+
   }).join("");
 }
 </script>
