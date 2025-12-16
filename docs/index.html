@@ -52,6 +52,7 @@ body{
   background:var(--card);
   box-shadow:0 1px 4px rgba(0,0,0,.12);
   color:var(--text);
+  cursor:pointer;
 }
 
 /* كرت الفلترة */
@@ -116,6 +117,7 @@ body{
   padding:9px;
   margin-bottom:7px;
   box-shadow:0 3px 8px rgba(0,0,0,.05);
+  cursor:pointer;
 }
 .part-row{
   display:flex;
@@ -141,6 +143,7 @@ body{
   align-items:center;
   justify-content:center;
   color:var(--text);
+  cursor:pointer;
 }
 .name{
   font-size:13px;
@@ -199,6 +202,7 @@ body{
   border:none;
   background:none;
   font-size:18px;
+  cursor:pointer;
 }
 .detail-body{
   max-height:60vh;
@@ -225,6 +229,7 @@ body{
   border:none;
   border-radius:10px;
   background:#f1f3f4;
+  cursor:pointer;
 }
 .detail-qty-box input{
   flex:1;
@@ -243,6 +248,7 @@ body{
   background:var(--primary);
   color:#fff;
   font-size:15px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -250,7 +256,7 @@ body{
 <body>
 
 <div class="top-bar">
-  <div class="top-title">بحث المخزون</div>
+  <div class="top-title">جرد المخزون - مركزي</div>
   <div class="top-actions">
     <button id="btnRefresh" class="icon-btn" title="تحديث من الشيت" onclick="handleRefreshClick()">⟳</button>
     <button class="icon-btn" title="مسح البحث" onclick="clearAll()">✕</button>
@@ -286,8 +292,7 @@ body{
 <script>
 /* إعدادات */
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
-const CACHE_KEY = "inventory_cache_v1";
-const COUNT_KEY = "count_log_v1";
+const CACHE_KEY = "inventory_cache_v3";
 const MAX_RESULTS = 100;
 
 // غيّرها إلى false على أجهزة غير الأدمن
@@ -362,6 +367,8 @@ async function refreshData(isFirstLoad = false){
       ALL_DATA = data;
       localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       runSearch();
+    }else if(data && data.error){
+      alert("خطأ من السيرفر: " + data.error);
     }
 
     const elapsed = Date.now() - start;
@@ -377,20 +384,6 @@ async function refreshData(isFirstLoad = false){
     isRefreshing = false;
     setTimeout(hideLoader, 400);
   }
-}
-
-/* جرد أوف لاين */
-function saveCount(part, qty){
-  const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
-  log.push({ part, qty:Number(qty), time:new Date().toISOString() });
-  localStorage.setItem(COUNT_KEY, JSON.stringify(log));
-}
-function getLastCount(part){
-  const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
-  for(let i=log.length-1;i>=0;i--){
-    if(log[i].part===part) return log[i].qty;
-  }
-  return null;
 }
 
 /* البحث */
@@ -417,6 +410,12 @@ function runSearch(){
   const nC = nContains.value.trim().toLowerCase();
   const lF = locFrom.value.trim().toLowerCase();
   const lT = locTo.value.trim().toLowerCase();
+
+  // لو كل الحقول فاضية، لا نعرض شيء
+  if(!pC && !pE && !nS && !nC && !lF && !lT){
+    resEl.innerHTML = "<div class='msg'>اكتب جزءًا من الرقم أو الاسم أو الموقع للبحث</div>";
+    return;
+  }
 
   const res = [];
   for(const r of ALL_DATA){
@@ -459,166 +458,4 @@ function runSearch(){
 function render(data){
   const el = document.getElementById("results");
   if(!data.length){
-    el.innerHTML = "<div class='msg'>لا توجد نتائج</div>";
-    return;
-  }
-  let html = "";
-  data.forEach(r=>{
-    const counted = getLastCount(r.part);
-    const systemQty = Number(r.qty) || 0;
-    const countedQty = counted !== null ? counted : 0;
-    const isCounted = counted !== null;
-    const partClass = isCounted ? "part part-counted" : "part";
-
-    const safePart = String(r.part || "").replace(/'/g,"\\'");
-    html += `
-      <div class="item" onclick="openDetail('${safePart}')">
-        <div class="part-row">
-          <div class="${partClass}">${r.part || ""}</div>
-          <button class="edit-btn"
-            onclick="event.stopPropagation(); openDetail('${safePart}')">✎</button>
-        </div>
-        <div class="name">${r.name || ""}</div>
-        <div class="meta-line">
-          <span class="meta-right">كمية النظام: <b>${systemQty}</b></span>
-          <span class="meta-left">الموقع: ${r.location || "-"}</span>
-        </div>
-        <div class="meta-second">
-          كمية الجرد الحالية: <b>${countedQty}</b>
-        </div>
-      </div>
-    `;
-  });
-  el.innerHTML = html;
-}
-
-/* تفاصيل الصنف */
-function openDetail(part){
-  const item = ALL_DATA.find(r => String(r.part) === String(part));
-  if(!item) return;
-
-  const counted = getLastCount(item.part);
-  const currentQty = counted!==null ? counted : 0;
-
-  const overlay = document.createElement("div");
-  overlay.className = "detail-overlay";
-  const safePart = String(item.part || "").replace(/'/g,"\\'");
-  const safeName = String(item.name || "").replace(/'/g,"\\'");
-  overlay.innerHTML = `
-    <div class="detail-card">
-      <div class="detail-header">
-        <span>تفاصيل الصنف</span>
-        <button class="detail-close"
-          onclick="this.closest('.detail-overlay').remove()">✕</button>
-      </div>
-      <div class="detail-body">
-        <div class="detail-label">رقم الصنف</div>
-        <div class="detail-value">${item.part || ""}</div>
-
-        <div class="detail-label">اسم الصنف</div>
-        <div class="detail-value">${item.name || ""}</div>
-
-        <div class="detail-label">الموقع</div>
-        <div class="detail-value">${item.location || "-"}</div>
-
-        <div class="detail-label">كمية النظام</div>
-        <div class="detail-value">${item.qty ?? ""}</div>
-
-        <div class="detail-label">كمية الجرد الحالية</div>
-        <div class="detail-qty-box">
-          <button onclick="changeDetailQty(-1)">−</button>
-          <input id="detailQty" type="number" value="${currentQty}">
-          <button onclick="changeDetailQty(1)">+</button>
-        </div>
-
-        <div class="detail-label">ملاحظات الجرد</div>
-        <textarea id="detailNote"
-          style="width:100%;min-height:60px;margin-top:4px;
-                 border-radius:9px;border:1px solid var(--border);
-                 padding:6px;font-size:13px;"></textarea>
-
-        <div id="detailInfo"
-             style="margin-top:6px;font-size:12px;color:var(--muted);"></div>
-      </div>
-      <button class="detail-save"
-        onclick="saveDetailQty('${safePart}', '${safeName}', ${Number(item.qty)||0})">
-        حفظ الجرد
-      </button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  checkPreviousCount(item.part);
-}
-
-/* فحص آخر جرد لنفس الصنف (محلياً) */
-function checkPreviousCount(part){
-  const log = JSON.parse(localStorage.getItem(COUNT_KEY) || "[]");
-  if(!log.length) return;
-  const last = [...log].reverse().find(l => l.part === part);
-  if(!last) return;
-  const info = document.getElementById("detailInfo");
-  if(info){
-    info.textContent = `تم جرد هذا الصنف سابقاً، آخر كمية: ${last.qty}`;
-  }
-}
-
-/* تغيير الكمية داخل نافذة التفاصيل */
-function changeDetailQty(delta){
-  const input = document.getElementById("detailQty");
-  if(!input) return;
-  let v = Number(input.value)||0;
-  v += delta;
-  if(v<0) v=0;
-  input.value = v;
-}
-
-/* حفظ الجرد (محلي + إرسال للسيرفر) */
-function saveDetailQty(part, itemName, systemQty){
-  const qtyInput  = document.getElementById("detailQty");
-  const noteInput = document.getElementById("detailNote");
-  if(!qtyInput) return;
-
-  let v = Number(qtyInput.value)||0;
-  if(v<0) v=0;
-  const note = noteInput ? noteInput.value.trim() : "";
-
-  saveCount(part, v);
-
-  fetch(API, {
-    method:"POST",
-    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      part: part,
-      itemName: itemName,
-      systemQty: systemQty,
-      countedQty: v,
-      note: note
-    }).toString()
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(!res.ok){
-      alert(res.error || "فشل حفظ الجرد (تحقق من الصلاحيات)");
-      return;
-    }
-    alert("تم حفظ الجرد باسم: " + (res.user?.name || ""));
-  })
-  .catch(()=>alert("خطأ في الاتصال"));
-
-  document.querySelector(".detail-overlay")?.remove();
-  runSearch();
-}
-
-/* أدوات */
-function clearAll(){
-  document.querySelectorAll(".filter-input").forEach(i=>i.value="");
-  document.getElementById("results").innerHTML = "";
-}
-
-loadData();
-</script>
-
-</body>
-</html>
-
+    el.innerHTML = "<div class='msg'>لا
