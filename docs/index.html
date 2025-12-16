@@ -329,9 +329,10 @@ function runSearch(){
   const lT=locTo.value.toLowerCase();
 
   for(const r of ALL_DATA){
-    const p=(r.part||"").toLowerCase();
-    const n=(r.name||"").toLowerCase();
-    const l=(r.location||"").toLowerCase();
+  const p = String(r.part ?? "").toLowerCase();
+  const n = String(r.name ?? "").toLowerCase();
+  const l = String(r.location ?? "").toLowerCase();
+
 
     if(pC&&!p.includes(pC))continue;
     if(pE&&!p.endsWith(pE))continue;
