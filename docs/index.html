@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>جرد المخزون</title>
 
 <style>
@@ -16,74 +17,108 @@
   --border:#e0e0e0;
 }
 
+/* جسم الصفحة */
 body{
   margin:0;
-  font-family:system-ui,-apple-system;
+  font-family:system-ui,-apple-system,blinkmacsystemfont,"Segoe UI",sans-serif;
   background:var(--bg);
+  -webkit-font-smoothing:antialiased;
 }
 
+/* الشريط العلوي */
 .top-bar{
-  max-width:430px;
-  margin:10px auto;
+  max-width:480px;          /* توسيع بسيط مع بقاءه مناسب للجوال */
+  margin:10px auto 4px;
+  padding:0 8px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  box-sizing:border-box;
 }
 
+.top-bar strong{
+  font-size:17px;
+}
+
+.top-bar button{
+  padding:6px 10px;
+  font-size:13px;
+  border-radius:999px;
+  border:1px solid var(--primary);
+  background:var(--primary);
+  color:#fff;
+}
+
+/* الحاوية العامة */
 .container{
-  max-width:430px;
-  margin:auto;
-  padding:6px;
+  max-width:480px;         /* مناسب لمعظم جوالات اليوم 360‑430 تقريبًا */
+  margin:0 auto 12px;
+  padding:0 8px 6px;
+  box-sizing:border-box;
 }
 
+/* مربع البحث */
 .search{
   width:100%;
-  padding:10px;
-  border-radius:10px;
+  padding:9px 11px;
+  border-radius:12px;
   border:1px solid var(--border);
   margin-bottom:8px;
+  font-size:14px;
+  box-sizing:border-box;
 }
 
+/* بطاقة الصنف */
 .item{
   background:var(--card);
   border-radius:14px;
-  padding:12px;
+  padding:10px 11px;
   margin-bottom:8px;
-  box-shadow:0 3px 8px rgba(0,0,0,.06);
+  box-shadow:0 3px 8px rgba(0,0,0,.05);
 }
 
+/* صف علوي داخل البطاقة */
 .row{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:4px;
 }
 
 .part{
   font-weight:700;
   color:var(--primary);
+  font-size:14px;
+  word-break:break-all;
 }
 
 .location{
-  font-size:12px;
+  font-size:11px;
   color:#555;
+  text-align:left;
 }
 
 .name{
   margin:4px 0;
+  font-size:13px;
 }
 
+/* الكمية */
 .qty{
-  margin-top:6px;
+  margin-top:4px;
   font-weight:600;
+  font-size:13px;
 }
 
+/* حالة الجرد */
 .status{
   font-size:12px;
-  margin-top:4px;
+  margin-top:3px;
 }
 
+/* ملاحظات الجارد */
 .note-box{
-  margin-top:8px;
+  margin-top:6px;
 }
 
 .note-box textarea{
@@ -93,12 +128,21 @@ body{
   padding:6px;
   font-size:13px;
   resize:none;
+  box-sizing:border-box;
 }
 
 .note-hint{
   font-size:11px;
   color:var(--muted);
   margin-top:2px;
+}
+
+/* تحسين بسيط للشاشات الأوسع (تابلت صغير مثلاً) */
+@media (min-width:600px){
+  .top-bar,
+  .container{
+    max-width:520px;
+  }
 }
 </style>
 </head>
@@ -122,31 +166,42 @@ let ALL_DATA = [];
 /* تحميل البيانات */
 function loadData(){
   fetch(API)
-    .then(r=>r.json())
-    .then(d=>{
+    .then(r => r.json())
+    .then(d =>{
       ALL_DATA = d;
       render(d);
+    })
+    .catch(err => {
+      console.error(err);
+      results.innerHTML = "<div style='text-align:center;color:#777'>تعذر تحميل البيانات</div>";
     });
 }
 
 /* البحث */
-search.addEventListener("input",()=>{
-  const q = search.value.trim().toLowerCase();
+const searchInput = document.getElementById("search");
+const results = document.getElementById("results");
+
+searchInput.addEventListener("input", () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if(!q){
+    render(ALL_DATA);
+    return;
+  }
   const f = ALL_DATA.filter(r =>
-    String(r.part).includes(q) ||
-    String(r.name).toLowerCase().includes(q)
+    String(r.part || "").toLowerCase().includes(q) ||
+    String(r.name || "").toLowerCase().includes(q)
   );
   render(f);
 });
 
 /* الرسم */
 function render(data){
-  if(!data.length){
-    results.innerHTML = "<div style='text-align:center;color:#777'>لا نتائج</div>";
+  if(!data || !data.length){
+    results.innerHTML = "<div style='text-align:center;color:#777;padding:20px 0'>لا نتائج</div>";
     return;
   }
 
-  results.innerHTML = data.map(r=>{
+  results.innerHTML = data.map(r =>{
     const counted = r.lastCountedAt;
     const changed = counted && Number(r.qty) !== Number(r.lastCountQty);
 
@@ -166,13 +221,13 @@ function render(data){
     return `
     <div class="item">
       <div class="row">
-        <div class="part">${r.part}</div>
+        <div class="part">${r.part || ""}</div>
         <div class="location">${r.location || ""}</div>
       </div>
 
-      <div class="name">${r.name}</div>
+      <div class="name">${r.name || ""}</div>
 
-      <div class="qty">الكمية المتوفرة: ${r.qty}</div>
+      <div class="qty">الكمية المتوفرة: ${r.qty ?? ""}</div>
 
       ${status ? `<div class="status" style="color:${color}">${status}</div>` : ""}
 
@@ -191,6 +246,7 @@ function render(data){
 
 /* حفظ الملاحظة */
 function saveNote(part, note){
+  if(!part) return;
   fetch(API,{
     method:"POST",
     headers:{ "Content-Type":"application/x-www-form-urlencoded" },
@@ -199,7 +255,7 @@ function saveNote(part, note){
       part:part,
       note:note
     })
-  });
+  }).catch(console.error);
 }
 
 /* تشغيل أولي */
