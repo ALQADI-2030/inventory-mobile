@@ -322,6 +322,10 @@
 
   <!-- ================== JAVASCRIPT ================== -->
   <script>
+    /* ===== APP VERSION ===== */
+const APP_VERSION = "v2025-01-16-01";
+console.log("Inventory App Version:", APP_VERSION);
+
     /* ===== CONFIG ===== */
     const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
     const CACHE_KEY = "inv_v3";
@@ -494,7 +498,7 @@
             </div>
             <div class="name">${r.name||""}</div>
             <div class="meta-line">
-              <span class="meta-right">النظام: <b>${sq}</b></span>
+              <span class="meta-right">الكمية المتوفره: <b>${sq}</b></span>
               <span class="meta-left">الموقع: ${r.location||"-"}</span>
             </div>
             
