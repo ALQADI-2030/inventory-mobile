@@ -1,176 +1,201 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>جرد المخزون</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>جرد المخزون</title>
 
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1976d2">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1976d2">
 
-  <style>
-    :root{
-      --bg:#f4f5f7;
-      --card:#ffffff;
-      --primary:#1976d2;
-      --danger:#c62828;
-      --text:#222;
-      --muted:#777;
-      --border:#e0e0e0;
-    }
+<style>
+:root{
+  --bg:#f4f5f7;
+  --card:#fff;
+  --primary:#1976d2;
+  --green:#1b5e20;
+  --danger:#c62828;
+  --text:#222;
+  --muted:#777;
+  --border:#e0e0e0;
+}
+body{
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  background:var(--bg);
+  margin:0;
+  padding:8px;
+}
 
-    body{
-      font-family:system-ui,-apple-system,BlinkMacSystemFont;
-      background:var(--bg);
-      margin:0;
-      padding:0;
-    }
+/* ===== LOGIN ===== */
+.login-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.login-box{
+  width:100%;
+  max-width:360px;
+  background:var(--card);
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,.15);
+  text-align:center;
+}
+.login-title{font-size:18px;font-weight:700}
+.login-sub{font-size:13px;color:var(--muted);margin:6px 0 16px}
+.login-input{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
+.login-btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:var(--primary);
+  color:#fff;
+  font-size:15px;
+  cursor:pointer;
+}
+.login-error{
+  color:var(--danger);
+  font-size:13px;
+  margin-top:10px;
+  display:none;
+}
 
-    /* ===== LOGIN ===== */
-    .login-screen{
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
+/* ===== APP ===== */
+#appScreen{display:none}
+.top-bar{
+  max-width:430px;
+  margin:0 auto 6px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.top-title{font-size:15px;font-weight:600}
+.icon-btn{
+  border:none;
+  border-radius:8px;
+  padding:6px 10px;
+  background:var(--card);
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+  cursor:pointer;
+}
 
-    .login-box{
-      width:100%;
-      max-width:360px;
-      background:var(--card);
-      border-radius:14px;
-      padding:20px;
-      box-shadow:0 6px 20px rgba(0,0,0,.15);
-      text-align:center;
-    }
+.filter-wrap,#results{
+  max-width:430px;
+  margin:0 auto 8px;
+}
+.filter-card{
+  background:var(--card);
+  border-radius:12px;
+  padding:6px;
+  box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+.filter-row{
+  display:flex;
+  gap:4px;
+  margin-bottom:4px;
+}
+.filter-input{
+  flex:1;
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
 
-    .login-title{
-      font-size:18px;
-      font-weight:700;
-      margin-bottom:6px;
-    }
+.item{
+  background:var(--card);
+  border-radius:12px;
+  padding:9px;
+  margin-bottom:7px;
+  box-shadow:0 3px 8px rgba(0,0,0,.05);
+  cursor:pointer;
+}
+.part-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.part{font-weight:700;color:var(--primary)}
+.part-counted{color:var(--green)}
+.edit-btn{
+  width:26px;height:26px;
+  border:none;border-radius:7px;
+  background:#f1f3f4;
+  cursor:pointer;
+}
+.name{font-size:13px;margin-top:2px}
+.meta-line{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
 
-    .login-sub{
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:16px;
-    }
+.msg{text-align:center;color:var(--muted);padding:12px}
 
-    .login-input{
-      width:100%;
-      padding:10px;
-      margin-bottom:10px;
-      border-radius:8px;
-      border:1px solid var(--border);
-      font-size:14px;
-    }
-
-    .login-btn{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      background:var(--primary);
-      color:#fff;
-      font-size:15px;
-      cursor:pointer;
-    }
-
-    .login-error{
-      margin-top:10px;
-      font-size:13px;
-      color:var(--danger);
-      display:none;
-    }
-
-    /* ===== APP ===== */
-    #appScreen{
-      display:none;
-      padding:8px;
-    }
-
-    .top-bar{
-      max-width:430px;
-      margin:0 auto 8px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-
-    .top-title{
-      font-size:15px;
-      font-weight:600;
-    }
-
-    .icon-btn{
-      border:none;
-      border-radius:8px;
-      padding:6px 10px;
-      background:var(--card);
-      box-shadow:0 1px 4px rgba(0,0,0,.12);
-      cursor:pointer;
-    }
-
-    .filter-wrap,
-    #results{
-      max-width:430px;
-      margin:0 auto 8px;
-    }
-
-    .filter-card{
-      background:var(--card);
-      border-radius:12px;
-      padding:6px;
-      box-shadow:0 2px 6px rgba(0,0,0,.05);
-    }
-
-    .filter-input{
-      width:100%;
-      padding:8px;
-      border-radius:8px;
-      border:1px solid var(--border);
-    }
-
-    .item{
-      background:var(--card);
-      border-radius:12px;
-      padding:10px;
-      margin-bottom:6px;
-      box-shadow:0 3px 8px rgba(0,0,0,.05);
-    }
-
-    .part{
-      font-weight:700;
-      color:var(--primary);
-    }
-
-    .msg{
-      text-align:center;
-      color:var(--muted);
-      padding:12px;
-    }
-  </style>
+/* ===== DETAIL ===== */
+.detail-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.35);
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:999;
+}
+.detail-card{
+  width:100%;max-width:430px;
+  background:var(--card);
+  border-radius:16px 16px 0 0;
+  padding:12px;
+}
+.detail-header{
+  display:flex;
+  justify-content:space-between;
+  font-weight:600;
+}
+.detail-close{border:none;background:none;font-size:18px}
+.detail-label{font-size:12px;color:var(--muted);margin-top:6px}
+.detail-value{font-size:14px}
+.detail-qty-box{
+  display:flex;gap:8px;margin-top:4px;
+}
+.detail-qty-box button{
+  width:40px;font-size:20px;border:none;border-radius:10px;
+}
+.detail-qty-box input{
+  flex:1;text-align:center;font-size:16px;
+}
+.detail-save{
+  margin-top:10px;width:100%;
+  padding:10px;border:none;border-radius:10px;
+  background:var(--primary);color:#fff;
+}
+</style>
 </head>
 
 <body>
 
-<!-- ================== LOGIN ================== -->
+<!-- LOGIN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <div class="login-title">تسجيل الدخول</div>
     <div class="login-sub">أدخل اسم المستخدم والرقم السري</div>
-
     <input id="loginUser" class="login-input" placeholder="اسم المستخدم">
-    <input id="loginPass" class="login-input" type="password" placeholder="الرقم السري">
-
+    <input id="loginPass" type="password" class="login-input" placeholder="الرقم السري">
     <button class="login-btn" onclick="login()">دخول</button>
-
     <div id="loginError" class="login-error"></div>
   </div>
 </div>
 
-<!-- ================== APP ================== -->
+<!-- APP -->
 <div id="appScreen">
 
   <div class="top-bar">
@@ -178,115 +203,141 @@
     <button class="icon-btn" onclick="logout()">خروج</button>
   </div>
 
+  <!-- SEARCH -->
   <div class="filter-wrap">
     <div class="filter-card">
-      <input id="search" class="filter-input" placeholder="بحث برقم الصنف أو الاسم">
+      <div class="filter-row">
+        <input id="pContains" class="filter-input" placeholder="رقم الصنف يحتوي">
+        <input id="pEnds" class="filter-input" placeholder="ينتهي بـ">
+      </div>
+      <div class="filter-row">
+        <input id="nStarts" class="filter-input" placeholder="اسم الصنف يبدأ">
+        <input id="nContains" class="filter-input" placeholder="يحتوي">
+      </div>
+      <div class="filter-row">
+        <input id="locFrom" class="filter-input" placeholder="الموقع من">
+        <input id="locTo" class="filter-input" placeholder="إلى">
+      </div>
     </div>
   </div>
 
   <div id="results"></div>
-
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
+const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
+let ALL_DATA=[];
 
-let ALL_DATA = [];
-
-/* ================= LOGIN ================= */
+/* LOGIN */
 function login(){
-  const u = loginUser.value.trim();
-  const p = loginPass.value.trim();
-
-  if(!u || !p){
-    showError("أدخل اسم المستخدم والرقم السري");
-    return;
-  }
-
-  fetch(API,{
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:new URLSearchParams({ name:u, pass:p }).toString()
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(!res.ok){
-      showError(res.error || "بيانات الدخول غير صحيحة");
-      return;
-    }
-
-    localStorage.setItem("user", JSON.stringify(res.user));
+  const u=loginUser.value.trim();
+  const p=loginPass.value.trim();
+  if(!u||!p){showErr("أدخل البيانات");return;}
+  fetch(API,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+  body:new URLSearchParams({name:u,pass:p})})
+  .then(r=>r.json()).then(res=>{
+    if(!res.ok){showErr(res.error);return;}
+    localStorage.setItem("user","1");
     loginScreen.style.display="none";
     appScreen.style.display="block";
     loadData();
-  })
-  .catch(()=>showError("فشل الاتصال بالسيرفر"));
+  }).catch(()=>showErr("فشل الاتصال"));
+}
+function showErr(m){loginError.textContent=m;loginError.style.display="block"}
+function logout(){localStorage.clear();location.reload()}
+
+/* SESSION */
+if(localStorage.getItem("user")){
+  loginScreen.style.display="none";
+  appScreen.style.display="block";
+  loadData();
 }
 
-function showError(msg){
-  loginError.textContent = msg;
-  loginError.style.display = "block";
-}
-
-/* ================= SESSION ================= */
-(function(){
-  const u = localStorage.getItem("user");
-  if(u){
-    loginScreen.style.display="none";
-    appScreen.style.display="block";
-    loadData();
-  }
-})();
-
-function logout(){
-  localStorage.removeItem("user");
-  location.reload();
-}
-
-/* ================= DATA ================= */
+/* DATA */
 function loadData(){
-  fetch(API)
-    .then(r=>r.json())
-    .then(d=>{
-      if(!Array.isArray(d)){
-        results.innerHTML = "<div class='msg'>فشل تحميل البيانات</div>";
-        return;
-      }
-      ALL_DATA = d;
-      render(d);
-    });
+  fetch(API).then(r=>r.json()).then(d=>{
+    ALL_DATA=d;runSearch();
+  });
+}
+document.querySelectorAll(".filter-input")
+.forEach(i=>i.addEventListener("input",runSearch));
+
+function runSearch(){
+  let res=[];
+  const pC=pContains.value.toLowerCase();
+  const pE=pEnds.value.toLowerCase();
+  const nS=nStarts.value.toLowerCase();
+  const nC=nContains.value.toLowerCase();
+  const lF=locFrom.value.toLowerCase();
+  const lT=locTo.value.toLowerCase();
+
+  for(const r of ALL_DATA){
+    const p=(r.part||"").toLowerCase();
+    const n=(r.name||"").toLowerCase();
+    const l=(r.location||"").toLowerCase();
+    if(pC&&!p.includes(pC))continue;
+    if(pE&&!p.endsWith(pE))continue;
+    if(nS&&!n.startsWith(nS))continue;
+    if(nC&&!n.includes(nC))continue;
+    if(lF&&l<lF)continue;
+    if(lT&&l>lT)continue;
+    res.push(r);
+  }
+  render(res);
 }
 
-search.addEventListener("input", ()=>{
-  const q = search.value.trim().toLowerCase();
-  const f = ALL_DATA.filter(r =>
-    String(r.part).toLowerCase().includes(q) ||
-    String(r.name).toLowerCase().includes(q)
-  );
-  render(f);
-});
-
-/* ================= RENDER ================= */
+/* RENDER */
 function render(data){
-  if(!data.length){
-    results.innerHTML = "<div class='msg'>لا توجد نتائج</div>";
-    return;
-  }
-
-  let h="";
-  data.forEach(r=>{
-    h+=`
-      <div class="item">
-        <div class="part">${r.part}</div>
-        <div>${r.name}</div>
-        <div>الكمية المتوفرة: ${r.qty}</div>
+  if(!data.length){results.innerHTML="<div class='msg'>لا نتائج</div>";return;}
+  results.innerHTML=data.map(r=>{
+    const pc=r.countedQty>0?"part part-counted":"part";
+    return`
+    <div class="item" onclick="openDetail('${r.part}')">
+      <div class="part-row">
+        <div class="${pc}">${r.part}</div>
+        <button class="edit-btn" onclick="event.stopPropagation();openDetail('${r.part}')">✎</button>
       </div>
-    `;
-  });
-  results.innerHTML = h;
+      <div class="name">${r.name}</div>
+      <div class="meta-line">
+        <span>الكمية: ${r.qty}</span>
+        <span>${r.location||""}</span>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+/* DETAIL */
+function openDetail(part){
+  const r=ALL_DATA.find(x=>x.part==part);
+  if(!r)return;
+  const o=document.createElement("div");
+  o.className="detail-overlay";
+  o.innerHTML=`
+  <div class="detail-card">
+    <div class="detail-header">
+      <span>تفاصيل</span>
+      <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
+    </div>
+    <div class="detail-label">رقم الصنف</div>
+    <div class="detail-value">${r.part}</div>
+    <div class="detail-label">اسم الصنف</div>
+    <div class="detail-value">${r.name}</div>
+    <div class="detail-label">كمية الجرد</div>
+    <div class="detail-qty-box">
+      <button onclick="chg(-1)">−</button>
+      <input id="cq" type="number" value="${r.countedQty||0}">
+      <button onclick="chg(1)">+</button>
+    </div>
+    <button class="detail-save" onclick="save('${r.part}',${r.qty})">حفظ</button>
+  </div>`;
+  document.body.appendChild(o);
+}
+function chg(d){cq.value=Math.max(0,(+cq.value||0)+d)}
+function save(p,sq){
+  fetch(API,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},
+  body:new URLSearchParams({part:p,systemQty:sq,countedQty:cq.value})});
+  document.querySelector(".detail-overlay").remove();
 }
 </script>
-
 </body>
 </html>
