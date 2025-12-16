@@ -23,7 +23,6 @@ body{
   padding:8px;
 }
 
-/* شريط علوي */
 .top-bar{
   max-width:430px;
   margin:0 auto 6px auto;
@@ -55,7 +54,6 @@ body{
   cursor:pointer;
 }
 
-/* كرت الفلترة */
 .filter-wrap{
   max-width:430px;
   margin:0 auto 8px auto;
@@ -80,7 +78,6 @@ body{
   background:#fafafa;
 }
 
-/* شريط التحميل */
 .loader-wrap{
   max-width:430px;
   margin:0 auto 6px auto;
@@ -105,7 +102,6 @@ body{
   text-align:center;
 }
 
-/* النتائج */
 #results{
   max-width:430px;
   margin:0 auto 8px auto;
@@ -165,7 +161,6 @@ body{
   color:var(--muted);
 }
 
-/* رسالة */
 .msg{
   text-align:center;
   padding:10px;
@@ -173,7 +168,6 @@ body{
   font-size:13px;
 }
 
-/* نافذة التفاصيل */
 .detail-overlay{
   position:fixed;
   inset:0;
@@ -290,18 +284,14 @@ body{
 <div id="results"></div>
 
 <script>
-/* إعدادات */
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 const CACHE_KEY = "inventory_cache_v3";
 const MAX_RESULTS = 100;
-
-// غيّرها إلى false على أجهزة غير الأدمن
 const IS_ADMIN = true;
 
 let ALL_DATA = [];
 let isRefreshing = false;
 
-/* إخفاء زر التحديث لغير الأدمن */
 (function setupAdminUI(){
   const btn = document.getElementById("btnRefresh");
   if(!IS_ADMIN){
@@ -309,22 +299,24 @@ let isRefreshing = false;
   }
 })();
 
-/* تحميل البيانات من الكاش أو من الشيت أول مرة */
 function loadData(){
+  console.log("🔄 بدء تحميل البيانات...");
   const cached = localStorage.getItem(CACHE_KEY);
   if(cached){
     try{
       ALL_DATA = JSON.parse(cached);
+      console.log("✅ تم تحميل البيانات من الكاش:", ALL_DATA.length, "صنف");
       runSearch();
       return;
     }catch(e){
+      console.error("❌ خطأ في قراءة الكاش:", e);
       ALL_DATA = [];
     }
   }
+  console.log("📡 لا يوجد كاش، جاري التحميل من السيرفر...");
   refreshData(true);
 }
 
-/* واجهة زر التحديث */
 function handleRefreshClick(){
   if(!IS_ADMIN){
     alert("هذا الخيار متاح للمشرف فقط.");
@@ -334,7 +326,6 @@ function handleRefreshClick(){
   refreshData(false);
 }
 
-/* شريط التحميل */
 function showLoader(){
   document.getElementById("loaderWrap").style.display = "block";
   document.getElementById("loaderFill").style.width = "0%";
@@ -342,33 +333,39 @@ function showLoader(){
 }
 function updateLoaderProgress(p){
   document.getElementById("loaderFill").style.width = p + "%";
-  document.getElementById("loaderText").textContent =
-    "جاري تحميل البيانات... " + p + "%";
+  document.getElementById("loaderText").textContent = "جاري تحميل البيانات... " + p + "%";
 }
 function hideLoader(){
   document.getElementById("loaderWrap").style.display = "none";
 }
 
-/* تحديث من الشيت */
 async function refreshData(isFirstLoad = false){
   try{
     isRefreshing = true;
     showLoader();
     updateLoaderProgress(5);
 
+    console.log("📡 إرسال طلب إلى:", API);
     const start = Date.now();
     const resp = await fetch(API);
     updateLoaderProgress(40);
 
+    console.log("📥 استقبال الرد، الحالة:", resp.status);
     const data = await resp.json();
     updateLoaderProgress(80);
+
+    console.log("📦 البيانات المستلمة:", data);
 
     if(Array.isArray(data)){
       ALL_DATA = data;
       localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      console.log("✅ تم حفظ", data.length, "صنف في الكاش");
       runSearch();
     }else if(data && data.error){
+      console.error("❌ خطأ من السيرفر:", data.error);
       alert("خطأ من السيرفر: " + data.error);
+    }else{
+      console.warn("⚠️ البيانات المستلمة ليست Array:", typeof data);
     }
 
     const elapsed = Date.now() - start;
@@ -377,8 +374,9 @@ async function refreshData(isFirstLoad = false){
       alert("تم تحديث البيانات من الشيت.\nالوقت المستغرق: " + (elapsed/1000).toFixed(1) + " ثانية");
     }
   }catch(e){
+    console.error("❌ خطأ في الاتصال:", e);
     if(!isFirstLoad){
-      alert("فشل تحديث البيانات من الشيت");
+      alert("فشل تحديث البيانات من الشيت: " + e.message);
     }
   }finally{
     isRefreshing = false;
@@ -386,7 +384,6 @@ async function refreshData(isFirstLoad = false){
   }
 }
 
-/* البحث */
 document.querySelectorAll(".filter-input").forEach(i=>{
   i.addEventListener("input", debounce);
 });
@@ -396,66 +393,3 @@ function debounce(){
   clearTimeout(timer);
   timer=setTimeout(runSearch,700);
 }
-
-function runSearch(){
-  const resEl = document.getElementById("results");
-  if(!ALL_DATA.length){
-    resEl.innerHTML = "<div class='msg'>جاري تحميل البيانات...</div>";
-    return;
-  }
-
-  const pC = pContains.value.trim().toLowerCase();
-  const pE = pEnds.value.trim().toLowerCase();
-  const nS = nStarts.value.trim().toLowerCase();
-  const nC = nContains.value.trim().toLowerCase();
-  const lF = locFrom.value.trim().toLowerCase();
-  const lT = locTo.value.trim().toLowerCase();
-
-  // لو كل الحقول فاضية، لا نعرض شيء
-  if(!pC && !pE && !nS && !nC && !lF && !lT){
-    resEl.innerHTML = "<div class='msg'>اكتب جزءًا من الرقم أو الاسم أو الموقع للبحث</div>";
-    return;
-  }
-
-  const res = [];
-  for(const r of ALL_DATA){
-    const part = String(r.part ?? "").toLowerCase();
-    const name = String(r.name ?? "").toLowerCase();
-    const loc  = String(r.location ?? "").toLowerCase();
-
-    if(pC && !part.includes(pC)) continue;
-    if(pE && !part.endsWith(pE)) continue;
-    if(nS && !name.startsWith(nS)) continue;
-    if(nC && !name.includes(nC)) continue;
-    if(lF && loc < lF) continue;
-    if(lT && loc > lT) continue;
-
-    res.push(r);
-  }
-
-  if (lF || lT) {
-    res.sort((a,b)=>{
-      const la = String(a.location ?? "").toLowerCase();
-      const lb = String(b.location ?? "").toLowerCase();
-      if (la < lb) return -1;
-      if (la > lb) return 1;
-      return 0;
-    });
-  } else if (pC || pE) {
-    res.sort((a,b)=>{
-      const pa = String(a.part ?? "").toLowerCase();
-      const pb = String(b.part ?? "").toLowerCase();
-      if (pa < pb) return -1;
-      if (pa > pb) return 1;
-      return 0;
-    });
-  }
-
-  render(res.slice(0, MAX_RESULTS));
-}
-
-/* عرض النتائج */
-function render(data){
-  const el = document.getElementById("results");
-  if(!data.length){
-    el.innerHTML = "<div class='msg'>لا
