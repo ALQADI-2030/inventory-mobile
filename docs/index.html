@@ -81,6 +81,7 @@ input{
 <div class="results" id="results"></div>
 
 <script>
+// ضع هنا رابط الـ exec للويب آب
 const API = "https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let timer = null;
@@ -100,11 +101,11 @@ function search(){
 
   const params = {
     pContains: pContains.value.trim(),
-    pEnds: pEnds.value.trim(),
-    nStarts: nStarts.value.trim(),
+    pEnds:     pEnds.value.trim(),
+    nStarts:   nStarts.value.trim(),
     nContains: nContains.value.trim(),
-    locFrom: locFrom.value.trim(),
-    locTo: locTo.value.trim()
+    locFrom:   locFrom.value.trim(),
+    locTo:     locTo.value.trim()
   };
 
   if (Object.values(params).every(v => v === "")) {
@@ -122,13 +123,13 @@ function search(){
   fetch(API + "?" + qs)
     .then(r => r.json())
     .then(show)
-    .catch(() => results.innerHTML = "خطأ في الاتصال")
+    .catch(() => results.innerHTML = "<div class='loading'>خطأ في الاتصال</div>")
     .finally(() => isFetching = false);
 }
 
 function show(data){
   results.innerHTML = "";
-  if (!data.length){
+  if (!Array.isArray(data) || !data.length){
     results.innerHTML = "<div class='loading'>لا توجد نتائج</div>";
     return;
   }
