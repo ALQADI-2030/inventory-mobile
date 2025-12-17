@@ -16,9 +16,7 @@
   --muted:#777;
   --border:#e0e0e0;
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   font-family:system-ui,-apple-system;
@@ -26,14 +24,13 @@ body{
   padding:8px;
 }
 
-/* ================= LOGIN ================= */
+/* ===== LOGIN ===== */
 .login-screen{
   min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
 }
-
 .login-box{
   width:100%;
   max-width:360px;
@@ -43,15 +40,9 @@ body{
   box-shadow:0 10px 25px rgba(0,0,0,.15);
   text-align:center;
 }
-
-.login-box img{
-  width:72px;
-  margin-bottom:10px;
-}
-
+.login-box img{width:72px;margin-bottom:10px}
 .login-box h3{margin:0 0 6px}
 .login-box p{font-size:13px;color:var(--muted)}
-
 .login-box input{
   width:100%;
   padding:10px;
@@ -59,7 +50,6 @@ body{
   border-radius:10px;
   border:1px solid var(--border);
 }
-
 .login-box button{
   width:100%;
   margin-top:14px;
@@ -71,21 +61,11 @@ body{
   font-size:15px;
   cursor:pointer;
 }
+#loginError{margin-top:10px;font-size:13px;color:var(--warn)}
+#loginLoading{display:none;margin-top:10px;font-size:12px;color:var(--muted)}
+#buildInfo{margin-top:12px;font-size:11px;color:#999}
 
-#loginError{
-  margin-top:10px;
-  font-size:13px;
-  color:var(--warn);
-}
-
-#loginLoading{
-  display:none;
-  margin-top:10px;
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* ================= APP ================= */
+/* ===== APP ===== */
 #appScreen{display:none}
 
 /* TOP */
@@ -103,6 +83,7 @@ body{
   padding:6px 10px;
   background:var(--card);
   box-shadow:0 1px 4px rgba(0,0,0,.12);
+  cursor:pointer;
 }
 
 /* FILTER */
@@ -110,35 +91,27 @@ body{
   max-width:430px;
   margin:0 auto 8px;
 }
-
 .filter-card{
   background:var(--card);
   border-radius:12px;
   padding:6px;
   box-shadow:0 2px 6px rgba(0,0,0,.05);
 }
-
 .filter-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-bottom:4px;
 }
-
 .clear-btn{
   font-size:12px;
   background:#f1f3f4;
   border:none;
   border-radius:6px;
   padding:4px 8px;
+  cursor:pointer;
 }
-
-.filter-row{
-  display:flex;
-  gap:6px;
-  margin-bottom:6px;
-}
-
+.filter-row{display:flex;gap:6px;margin-bottom:6px}
 .filter-input{
   flex:1;
   min-width:0;
@@ -148,7 +121,6 @@ body{
   border:1px solid var(--border);
   background:#fafafa;
 }
-
 @media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
@@ -162,19 +134,13 @@ body{
   margin-bottom:7px;
   box-shadow:0 3px 8px rgba(0,0,0,.05);
 }
-
-.part-row{
-  display:flex;
-  justify-content:space-between;
-}
-
+.part-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .part{font-weight:700;color:var(--primary)}
 .part.ok{color:var(--ok)}
 .part.warn{color:var(--warn)}
-
-.location{font-size:12px;color:var(--muted)}
+.location{font-size:12px;color:var(--muted);white-space:nowrap}
 .name{font-size:13px;margin-top:2px}
-.meta{font-size:12px;color:var(--muted)}
+.meta{font-size:12px;color:var(--muted);margin-top:4px}
 .status{font-size:12px;margin-top:4px}
 
 /* DETAIL */
@@ -185,8 +151,8 @@ body{
   display:flex;
   justify-content:center;
   align-items:flex-end;
+  z-index:9999;
 }
-
 .detail-card{
   width:100%;
   max-width:430px;
@@ -194,46 +160,43 @@ body{
   border-radius:16px 16px 0 0;
   padding:12px;
 }
-
 .detail-header{
   display:flex;
   justify-content:space-between;
   font-weight:600;
 }
-
 .detail-close{
   border:none;
   background:none;
   font-size:18px;
+  cursor:pointer;
 }
-
-.detail-label{font-size:12px;color:var(--muted)}
-.detail-qty-box{
-  display:flex;
-  gap:8px;
-}
-
+.detail-label{font-size:12px;color:var(--muted);margin-top:10px}
+.detail-qty-box{display:flex;gap:8px;margin-top:6px}
 .detail-qty-box button{
   width:40px;
   border:none;
   border-radius:10px;
   font-size:20px;
+  cursor:pointer;
 }
-
 .detail-qty-box input{
   flex:1;
   text-align:center;
   font-size:16px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px;
 }
-
 .detail-save{
   width:100%;
-  margin-top:10px;
+  margin-top:12px;
   padding:10px;
   border:none;
   border-radius:10px;
   background:var(--primary);
   color:#fff;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -243,58 +206,69 @@ body{
 <!-- LOGIN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
-    <img src="icon-192.png">
+    <img src="icon-192.png" alt="logo">
     <h3>تسجيل الدخول</h3>
     <p>أدخل اسم المستخدم والرقم السري</p>
+
     <input id="loginUser" placeholder="اسم المستخدم">
     <input id="loginPass" type="password" placeholder="الرقم السري">
+
     <button onclick="login()">دخول</button>
     <div id="loginLoading">جاري التحقق...</div>
     <div id="loginError"></div>
-    <div id="buildInfo" style="
-  margin-top:10px;
-  font-size:11px;
-  color:#999;
-  text-align:center;
-"></div>
-
+    <div id="buildInfo"></div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="appScreen">
 
-<div class="top-bar">
-  <div class="top-title">جرد المخزون</div>
-  <button class="icon-btn" onclick="logout()">خروج</button>
-</div>
+  <div class="top-bar">
+    <div class="top-title">جرد المخزون</div>
+    <button class="icon-btn" onclick="logout()">خروج</button>
+  </div>
 
-<div class="filter-wrap">
-  <div class="filter-card">
-    <div class="filter-header">
-      <strong>البحث المتقدم</strong>
-      <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
-    </div>
+  <div class="filter-wrap">
+    <div class="filter-card">
+      <div class="filter-header">
+        <strong>البحث المتقدم</strong>
+        <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
+      </div>
 
-    <div class="filter-row">
-      <input id="pContains" class="filter-input" placeholder="رقم الصنف">
-      <input id="nContains" class="filter-input" placeholder="اسم الصنف">
+      <!-- نفس بحثك المتقدم (بدون تغيير منطق) -->
+      <div class="filter-row">
+        <input id="pContains" class="filter-input" placeholder="رقم الصنف يحتوي">
+        <input id="pEnds" class="filter-input" placeholder="ينتهي بـ">
+      </div>
+
+      <div class="filter-row">
+        <input id="nStarts" class="filter-input" placeholder="اسم يبدأ">
+        <input id="nContains" class="filter-input" placeholder="يحتوي">
+      </div>
+
+      <div class="filter-row">
+        <input id="locFrom" class="filter-input" placeholder="الموقع من">
+        <input id="locTo" class="filter-input" placeholder="إلى">
+      </div>
     </div>
   </div>
+
+  <div id="results"></div>
 </div>
 
-<div id="results"></div>
-
-</div>
 <script>
+/* ===== إصدار الصفحة ===== */
 const BUILD_VERSION = "v1.0.7";
 const BUILD_TIME = "2025-01-18 15:42";
+document.getElementById("buildInfo").textContent = `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
 
-  
+/* ===== API ===== */
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
-let ALL_DATA=[];
 
-/* LOGIN */
+let ALL_DATA = [];
+let LAST_RENDER = []; // آخر نتائج معروضة (عشان ما يرجع لأول الصفحة)
+
+/* ===== LOGIN ===== */
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
@@ -303,70 +277,223 @@ function login(){
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({
-      name:loginUser.value,
-      pass:loginPass.value
+      mode:"login",
+      name: loginUser.value,
+      pass: loginPass.value
     })
-  }).then(r=>r.json()).then(res=>{
+  })
+  .then(r=>r.json())
+  .then(res=>{
     loginLoading.style.display="none";
     if(!res.ok){
-      loginError.textContent=res.error;
+      loginError.textContent = res.error || "فشل تسجيل الدخول";
       return;
     }
     loginScreen.style.display="none";
     appScreen.style.display="block";
     loadData();
+  })
+  .catch(()=>{
+    loginLoading.style.display="none";
+    loginError.textContent="تعذر الاتصال بالسيرفر";
   });
 }
+function logout(){ location.reload(); }
 
-function logout(){location.reload();}
-
-/* DATA */
+/* ===== DATA ===== */
 function loadData(){
-  fetch(API).then(r=>r.json()).then(d=>{
-    ALL_DATA=d;
-    render(ALL_DATA.slice(0,100));
+  fetch(API)
+  .then(r=>r.json())
+  .then(d=>{
+    ALL_DATA = Array.isArray(d) ? d : [];
+    runSearch(); // مهم: يعرض نفس نتائج الفلاتر الحالية، مو يرجع لأول الصفحة
+  })
+  .catch(()=>{
+    results.innerHTML = `<div style="max-width:430px;margin:0 auto;color:#c62828;font-size:13px">فشل تحميل البيانات</div>`;
   });
 }
 
-document.querySelectorAll(".filter-input")
-.forEach(i=>i.addEventListener("input",runSearch));
+/* ===== ربط الفلاتر ===== */
+document.querySelectorAll(".filter-input").forEach(i=>i.addEventListener("input", runSearch));
 
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
-  render(ALL_DATA.slice(0,100));
+  runSearch();
 }
 
 function runSearch(){
-  const q1=pContains.value.toLowerCase();
-  const q2=nContains.value.toLowerCase();
-  const res=ALL_DATA.filter(r=>
-    String(r.part).toLowerCase().includes(q1) &&
-    String(r.name).toLowerCase().includes(q2)
-  );
-  render(res);
+  const res=[];
+  const pC = (pContains.value||"").toLowerCase();
+  const pE = (pEnds.value||"").toLowerCase();
+  const nS = (nStarts.value||"").toLowerCase();
+  const nC = (nContains.value||"").toLowerCase();
+  const lF = (locFrom.value||"").toLowerCase();
+  const lT = (locTo.value||"").toLowerCase();
+
+  for(const r of ALL_DATA){
+    const p = String(r.part ?? "").toLowerCase();
+    const n = String(r.name ?? "").toLowerCase();
+    const l = String(r.location ?? "").toLowerCase();
+
+    if(pC && !p.includes(pC)) continue;
+    if(pE && !p.endsWith(pE)) continue;
+    if(nS && !n.startsWith(nS)) continue;
+    if(nC && !n.includes(nC)) continue;
+    if(lF && l < lF) continue;
+    if(lT && l > lT) continue;
+
+    res.push(r);
+  }
+
+  // إذا كل الفلاتر فاضية: اعرض أول 100
+  const noFilters = !pC && !pE && !nS && !nC && !lF && !lT;
+  const view = noFilters ? res.slice(0,100) : res;
+
+  LAST_RENDER = view;
+  render(view);
 }
 
 function render(data){
-  results.innerHTML=data.map(r=>{
-    let cls="part",status="";
-    if(r.lastCountedAt){
-      cls+=" warn";
-      status=`تم الجرد: ${r.lastCountedAt} - ${r.countedBy||""}`;
+  results.innerHTML = data.map(r=>{
+    let cls="part", status="";
+    const hasCount = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
+    if(hasCount){
+      // لون الصنف حسب تطابق الجرد مع النظام
+      if(Number(r.qty) === Number(r.lastCountQty)){
+        cls += " ok";
+        status = `✓ تم الجرد (${r.lastCountedAt}) - ${r.countedBy||""}`;
+      }else{
+        cls += " warn";
+        status = `⚠ جرد: ${r.lastCountQty} | النظام: ${r.qty} (${r.lastCountedAt}) - ${r.countedBy||""}`;
+      }
     }
+
     return `
 <div class="item">
   <div class="part-row">
-    <div class="${cls}">${r.part}</div>
-    <div class="location">${r.location||""}</div>
+    <div class="${cls}">${r.part ?? ""}</div>
+    <div class="location">${r.location ?? ""}</div>
   </div>
-  <div class="name">${r.name||""}</div>
-  <div class="meta">الكمية الفعلية: <b>${r.qty}</b></div>
-  ${status?`<div class="status">${status}</div>`:""}
+
+  <div class="name">${r.name ?? ""}</div>
+
+  <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
+    <span>الكمية (النظام): <b>${r.qty ?? ""}</b></span>
+    <span>الكمية (الجرد): <b>${(r.lastCountQty ?? "")}</b></span>
+  </div>
+
+  ${status ? `<div class="status">${status}</div>` : ""}
+
+  <div style="display:flex;justify-content:flex-end;margin-top:6px">
+    <button
+      onclick='openDetail(${JSON.stringify(r.part)})'
+      style="
+        border:none;
+        background:#1976d2;
+        color:#fff;
+        font-size:12px;
+        padding:6px 12px;
+        border-radius:8px;
+        cursor:pointer
+      ">
+      ✏️ تعديل
+    </button>
+  </div>
 </div>`;
   }).join("");
 }
-  document.getElementById("buildInfo").textContent =
-    `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
+
+/* ===== نافذة التعديل ===== */
+function openDetail(part){
+  const r = ALL_DATA.find(x => String(x.part) === String(part));
+  if(!r) return;
+
+  const ov = document.createElement("div");
+  ov.className = "detail-overlay";
+
+  const currentCount = (r.lastCountQty ?? ""); // الجرد السابق (يبقى ظاهر)
+  const systemQty = (r.qty ?? 0);
+
+  ov.innerHTML = `
+    <div class="detail-card">
+      <div class="detail-header">
+        <span>تعديل الجرد</span>
+        <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
+      </div>
+
+      <div class="detail-label">رقم الصنف</div>
+      <div><b>${r.part}</b></div>
+
+      <div class="detail-label">الكمية (النظام) – للعرض فقط</div>
+      <div><b>${systemQty}</b></div>
+
+      <div class="detail-label">كمية الجرد</div>
+      <div class="detail-qty-box">
+        <button onclick="chg(-1)">−</button>
+        <input id="cq" type="number" value="${currentCount}">
+        <button onclick="chg(1)">+</button>
+      </div>
+
+      <div class="detail-label">ملاحظات</div>
+      <textarea id="note"
+        style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px">${r.note ?? ""}</textarea>
+
+      <button class="detail-save" onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
+        حفظ التعديل
+      </button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+}
+
+function chg(d){
+  const i = document.getElementById("cq");
+  i.value = Math.max(0, (+i.value || 0) + d);
+}
+
+/* ===== حفظ الجرد ===== */
+function saveCount(part, systemQty){
+  const counted = document.getElementById("cq").value;
+  const noteVal = document.getElementById("note").value || "";
+
+  // تحديث محلي صحيح: لا نغير qty (النظام) أبداً
+  const r = ALL_DATA.find(x => String(x.part) === String(part));
+  if(r){
+    r.lastCountedAt = new Date().toLocaleString("ar-SA");
+    r.lastCountQty = counted;     // الجرد = counted
+    r.note = noteVal;
+  }
+
+  // اغلاق النافذة
+  const ov = document.querySelector(".detail-overlay");
+  if(ov) ov.remove();
+
+  // ابقى على نفس نتائج البحث
+  runSearch();
+
+  // إرسال الحفظ للسيرفر
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      mode:"save",
+      part: part,
+      systemQty: String(systemQty),
+      countedQty: String(counted),
+      note: noteVal
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    // بعد الحفظ: نحدث البيانات من السيرفر (بدون ما نخرب نتائج البحث)
+    if(res && res.ok !== false){
+      loadData();
+    }
+  })
+  .catch(()=>{
+    // لو فشل السيرفر، على الأقل يبقى التحديث المحلي ظاهر
+  });
+}
 </script>
 
 </body>
