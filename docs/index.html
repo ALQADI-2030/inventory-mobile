@@ -280,8 +280,12 @@ body{
 
 </div>
 
-<script>
-const API="PUT_YOUR_APPS_SCRIPT_URL_HERE";
+<<script>
+const BUILD_VERSION = "v1.0.7";
+const BUILD_TIME = "2025-01-18 15:42";
+>
+  
+const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 let ALL_DATA=[];
 
 /* LOGIN */
@@ -355,6 +359,9 @@ function render(data){
 </div>`;
   }).join("");
 }
+  document.getElementById("buildInfo").textContent =
+  `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
+
 </script>
 
 </body>
