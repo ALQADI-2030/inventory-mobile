@@ -389,16 +389,18 @@ function saveCount(part,systemQty){
   document.querySelector(".detail-overlay").remove();
   render(ALL_DATA);
 
-  fetch(API,{
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:new URLSearchParams({
-      part:part,
-      systemQty:systemQty,
-      countedQty:counted,
-      note:noteVal
-    })
-  }).then(()=>loadData());
+  // إرسال التحديث للسيرفر (في الخلفية فقط)
+fetch(API,{
+  method:"POST",
+  headers:{"Content-Type":"application/x-www-form-urlencoded"},
+  body:new URLSearchParams({
+    part:part,
+    systemQty:systemQty,
+    countedQty:counted,
+    note:noteVal
+  })
+});
+
 }
 
 /* BUILD INFO */
