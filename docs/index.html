@@ -86,11 +86,20 @@ body{
   cursor:pointer;
 }
 
-/* FILTER */
+/* FILTER + RESULTS */
 .filter-wrap,#results{
   max-width:430px;
   margin:0 auto 8px;
 }
+
+/* خلى البحث ثابت أعلى الشاشة */
+.filter-wrap{
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+/* كرت الفلتر */
 .filter-card{
   background:var(--card);
   border-radius:12px;
@@ -290,7 +299,6 @@ function login(){
       return;
     }
 
-    // بعد نجاح الدخول نبدأ سحب المخزون قبل فتح الشاشة
     loginLoading.textContent = "جاري تحميل بيانات المخزون...";
     loadDataAfterLogin();
   })
@@ -311,7 +319,6 @@ function loadDataAfterLogin(){
       const initial = ALL_DATA.slice(0, 50);
       LAST_RENDER = initial;
 
-      // الآن فقط نفتح شاشة التطبيق
       loginScreen.style.display="none";
       appScreen.style.display="block";
       loginLoading.style.display="none";
@@ -497,7 +504,6 @@ function saveCount(part, systemQty){
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
 
-  // ابقَ على نفس نتائج البحث
   runSearch();
 
   fetch(API,{
