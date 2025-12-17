@@ -321,39 +321,60 @@ function loadData(){
 }
 
 /* ===== ربط الفلاتر ===== */
-document.querySelectorAll(".filter-input").forEach(i=>{
-  i.addEventListener("input", runSearchDebounced);   // للجوال
-  i.addEventListener("keyup", runSearchDebounced);   // للكمبيوتر
-});
+
 
 function clearFilters(){
+  let searchTimer = null;
+
+function runSearchDebounced(){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(runSearch, 180);
+}
+
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
+  
   runSearch();
 }
 
 function runSearch(){
-  const res=[];
-  const pC = (pContains.value||"").toLowerCase();
-  const pE = (pEnds.value||"").toLowerCase();
-  const nS = (nStarts.value||"").toLowerCase();
-  const nC = (nContains.value||"").toLowerCase();
-  const lF = (locFrom.value||"").toLowerCase();
-  const lT = (locTo.value||"").toLowerCase();
+  const pc = (pContains.value || "").trim().toLowerCase();
+  const pe = (pEnds.value || "").trim().toLowerCase();
+  const ns = (nStarts.value || "").trim().toLowerCase();
+  const nc = (nContains.value || "").trim().toLowerCase();
+  const lf = (locFrom.value || "").trim().toLowerCase();
+  const lt = (locTo.value || "").trim().toLowerCase();
+
+  if(!pc && !pe && !ns && !nc && !lf && !lt){
+    const initial = ALL_DATA.slice(0, 50);
+    LAST_RENDER = initial;
+    render(initial);
+    return;
+  }
+
+  const res = [];
 
   for(const r of ALL_DATA){
     const p = String(r.part ?? "").toLowerCase();
     const n = String(r.name ?? "").toLowerCase();
     const l = String(r.location ?? "").toLowerCase();
 
-    if(pC && !p.includes(pC)) continue;
-    if(pE && !p.endsWith(pE)) continue;
-    if(nS && !n.startsWith(nS)) continue;
-    if(nC && !n.includes(nC)) continue;
-    if(lF && l < lF) continue;
-    if(lT && l > lT) continue;
+    if(pc && !p.includes(pc)) continue;
+    if(pe && !p.endsWith(pe)) continue;
+    if(ns && !n.startsWith(ns)) continue;
+    if(nc && !n.includes(nc)) continue;
+    if(lf && l < lf) continue;
+    if(lt && l > lt) continue;
 
     res.push(r);
+    if(res.length >= 100) break;
   }
+
+  LAST_RENDER = res;
+  render(res);
+}
+
+  // غالبًا render(res) هنا
+}
 
   // إذا كل الفلاتر فاضية: اعرض أول 100
   const noFilters = !pC && !pE && !nS && !nC && !lF && !lT;
