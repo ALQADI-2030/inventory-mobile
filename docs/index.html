@@ -297,7 +297,7 @@ const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ix
 let ALL_DATA = [];
 let LAST_RENDER = [];
 
-/* ===== LOGIN: تحقّق ثم سحب البيانات ثم فتح الشاشة ===== */
+/* ===== LOGIN ===== */
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
@@ -331,7 +331,7 @@ function login(){
 
 function logout(){ location.reload(); }
 
-/* ===== DATA: تحميل بعد تسجيل الدخول ثم فتح الشاشة ===== */
+/* ===== DATA ===== */
 function loadDataAfterLogin(){
   fetch(API)
     .then(r => r.json())
@@ -362,7 +362,6 @@ document.querySelectorAll(".filter-input").forEach(inp=>{
   });
 });
 
-// تغيّر حالة الجرد يعيد البحث
 document.querySelectorAll('input[name="countState"]').forEach(r=>{
   r.addEventListener("change", runSearch);
 });
@@ -379,12 +378,14 @@ function runSearch(){
   const pe = (pEnds.value || "").trim().toLowerCase();
   const ns = (nStarts.value || "").trim().toLowerCase();
   const nc = (nContains.value || "").trim().toLowerCase();
-  const lf = (locFrom.value || "").trim().toLowerCase();
-  const lt = (locTo.value || "").trim().toLowerCase();
+  const lfRaw = (locFrom.value || "").trim().toLowerCase();
+  const ltRaw = (locTo.value || "").trim().toLowerCase();
   const stateEl = document.querySelector('input[name="countState"]:checked');
-  const state = stateEl ? stateEl.value : "all";  // all | counted | diff | not
+  const state = stateEl ? stateEl.value : "all";
 
-  if(!pc && !pe && !ns && !nc && !lf && !lt && state==="all"){
+  const hasLocFilter = !!(lfRaw || ltRaw);
+
+  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && state==="all"){
     const initial = ALL_DATA.slice(0, 50);
     LAST_RENDER = initial;
     render(initial);
@@ -402,21 +403,37 @@ function runSearch(){
     const qtyCountNum = Number(r.lastCountQty ?? 0);
     const isEqual     = hasCount && qtySysNum === qtyCountNum;
 
-    // فلتر حالة الجرد
     if(state === "counted" && !hasCount) continue;
     if(state === "diff"    && !(hasCount && !isEqual)) continue;
     if(state === "not"     && hasCount) continue;
 
-    // فلاتر البحث الحالية
     if(pc && !p.includes(pc)) continue;
     if(pe && !p.endsWith(pe)) continue;
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
-    if(lf && l < lf) continue;
-    if(lt && l > lt) continue;
+
+    // فلتر الموقع من/إلى كنطاق نصي
+    if(hasLocFilter){
+      const lf = lfRaw || l; // لو فقط "إلى" مستخدم نعتبر من = قيمة الصف
+      const lt = ltRaw || l; // لو فقط "من" مستخدم نعتبر إلى = نفس القيمة
+
+      if(l < lf) continue;
+      if(l > lt) continue;
+    }
 
     res.push(r);
     if(res.length >= 100) break;
+  }
+
+  // لو هناك فلتر موقع، نفرز النتائج بالموقع
+  if(hasLocFilter){
+    res.sort((a,b)=>{
+      const la = String(a.location ?? "").toLowerCase();
+      const lb = String(b.location ?? "").toLowerCase();
+      if(la < lb) return -1;
+      if(la > lb) return 1;
+      return 0;
+    });
   }
 
   LAST_RENDER = res;
