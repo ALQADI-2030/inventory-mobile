@@ -138,7 +138,7 @@ body{
 .part{font-weight:700;color:var(--primary)}
 .part.ok{color:var(--ok)}
 .part.warn{color:var(--warn)}
-.location{font-size:12px;color:var(--muted);white-space:nowrap}
+.location{font-size:12px;color:var(--muted)}
 .name{font-size:13px;margin-top:2px}
 .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .status{font-size:12px;margin-top:4px}
@@ -303,14 +303,21 @@ function logout(){ location.reload(); }
 /* ===== DATA ===== */
 function loadData(){
   fetch(API)
-  .then(r=>r.json())
-  .then(d=>{
-    ALL_DATA = Array.isArray(d) ? d : [];
-    runSearch(); // مهم: يعرض نفس نتائج الفلاتر الحالية، مو يرجع لأول الصفحة
-  })
-  .catch(()=>{
-    results.innerHTML = `<div style="max-width:430px;margin:0 auto;color:#c62828;font-size:13px">فشل تحميل البيانات</div>`;
-  });
+    .then(r => r.json())
+    .then(d => {
+      ALL_DATA = Array.isArray(d) ? d : [];
+
+      // 👇 عرض أول 50 صنف مباشرة بعد تسجيل الدخول
+      const initial = ALL_DATA.slice(0, 50);
+      LAST_RENDER = initial;
+      render(initial);
+    })
+    .catch(() => {
+      results.innerHTML = `
+        <div style="max-width:430px;margin:0 auto;color:#c62828;font-size:13px">
+          فشل تحميل البيانات
+        </div>`;
+    });
 }
 
 /* ===== ربط الفلاتر ===== */
@@ -381,12 +388,42 @@ function render(data){
     }
 
     return `
-<div class="item">
-<div class="part-row">
-  <div class="${cls}">${r.part ?? ""}</div>
-  <div class="location">
-  <b>الموقع:</b> ${r.location ?? ""}
+<<div class="item">
+
+  <div class="part-row">
+    <div class="${cls}">${r.part ?? ""}</div>
+    <div class="location">
+      <b>الموقع:</b> ${r.location ?? ""}
+    </div>
+  </div> <!-- ❗ إغلاق part-row هنا -->
+
+  <div class="name">${r.name ?? ""}</div>
+
+  <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
+    <span>الكمية (النظام): <b>${r.qty ?? ""}</b></span>
+    <span>الكمية (الجرد): <b>${(r.lastCountQty ?? "")}</b></span>
+  </div>
+
+  ${status ? `<div class="status">${status}</div>` : ""}
+
+  <div style="display:flex;justify-content:flex-end;margin-top:6px">
+    <button
+      onclick='openDetail(${JSON.stringify(r.part)})'
+      style="
+        border:none;
+        background:#1976d2;
+        color:#fff;
+        font-size:12px;
+        padding:6px 12px;
+        border-radius:8px;
+        cursor:pointer
+      ">
+      ✏️ تعديل
+    </button>
+  </div>
+
 </div>
+
 
 
   <div class="name">${r.name ?? ""}</div>
