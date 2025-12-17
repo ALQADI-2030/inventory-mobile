@@ -366,9 +366,9 @@ function render(data){
   }).join("");
 }
   document.getElementById("buildInfo").textContent =
-  `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
-
+  "آخر تحديث: " + new Date(document.lastModified).toLocaleString("ar-SA");
 </script>
+
 
 </body>
 </html>
