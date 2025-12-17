@@ -236,6 +236,13 @@ body{
     <input id="loginPass" type="password" placeholder="الرقم السري">
     <button onclick="login()">دخول</button>
     <div id="loginError"></div>
+    <div id="buildInfo" style="
+  margin-top:12px;
+  font-size:11px;
+  color:#999;
+">
+</div>
+
   </div>
 </div>
 
@@ -370,7 +377,8 @@ function render(data){
 
   <div class="meta" style="display:flex;justify-content:space-between;gap:6px">
   <span>الكمية: <b>${r.qty}</b></span>
-  <span>📍 ${r.location || "-"}</span>
+  <span>الموقع: ${r["الموقع"] || "-"}</span>
+
 </div>
 
 
@@ -421,7 +429,7 @@ function openDetail(part){
       <div class="detail-label">كمية الجرد</div>
       <div class="detail-qty-box">
         <button onclick="chg(-1)">−</button>
-        <input id="cq" type="number" value="${r.qty}">
+        <input id="cq" type="number" value="${r.lastCountQty ?? ""}">
         <button onclick="chg(1)">+</button>
       </div>
 
@@ -472,6 +480,9 @@ function saveCount(part, systemQty){
     })
   }).then(()=>loadData());
 }
+/* BUILD INFO */
+document.getElementById("buildInfo").textContent =
+  "آخر تحديث: " + new Date(document.lastModified).toLocaleString("ar-SA");
 
 </script>
 
