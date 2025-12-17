@@ -257,8 +257,8 @@ body{
 
 <script>
 /* ===== إصدار الصفحة ===== */
-const BUILD_VERSION = "v1.0.7";
-const BUILD_TIME = "2025-01-18 15:42";
+const BUILD_VERSION = "v1.0.8";
+const BUILD_TIME = "2025-01-18 18:40";
 document.getElementById("buildInfo").textContent =
   `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
 
@@ -324,7 +324,7 @@ let searchTimer = null;
 document.querySelectorAll(".filter-input").forEach(inp=>{
   inp.addEventListener("input", ()=>{
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(runSearch, 180);
+    searchTimer = setTimeout(runSearch, 300);
   });
 });
 
@@ -385,17 +385,25 @@ function fmtDate(d){
 /* ===== عرض النتائج ===== */
 function render(data){
   results.innerHTML = data.map(r=>{
+    const qtySysNum   = Number(r.qty ?? 0);
+    const qtyCountNum = Number(r.lastCountQty ?? 0);
+
     let cls="part", status="";
     const hasCount = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
     if(hasCount){
-      if(Number(r.qty) === Number(r.lastCountQty)){
+      if(qtySysNum === qtyCountNum){
         cls += " ok";
         status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy||""}`;
       }else{
         cls += " warn";
-        status = `⚠ فرق جرد | جرد: ${r.lastCountQty} | نظام: ${r.qty} | ${fmtDate(r.lastCountedAt)}`;
+        status = `⚠ فرق جرد | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)}`;
       }
+    }else{
+      status = "لم يُجرَد بعد";
     }
+
+    const qtySysTxt   = qtySysNum.toLocaleString("ar-SA");
+    const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("ar-SA") : "";
 
     return `
 <div class="item">
@@ -405,8 +413,8 @@ function render(data){
   </div>
   <div class="name">${r.name ?? ""}</div>
   <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
-    <span>الكمية (النظام): <b>${r.qty ?? ""}</b></span>
-    <span>الكمية (الجرد): <b>${r.lastCountQty ?? ""}</b></span>
+    <span>الكمية (النظام): <b>${qtySysTxt}</b></span>
+    <span>الكمية (الجرد): <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
@@ -483,6 +491,7 @@ function saveCount(part, systemQty){
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
 
+  // ابقَ على نفس نتائج البحث دون إعادة تحميل من السيرفر
   runSearch();
 
   fetch(API,{
@@ -498,9 +507,7 @@ function saveCount(part, systemQty){
   })
   .then(r=>r.json())
   .then(res=>{
-    if(res && res.ok !== false){
-      loadData();
-    }
+    // لا نعيد loadData هنا حتى لا يتغير ترتيب النتائج
   })
   .catch(()=>{});
 }
