@@ -235,7 +235,6 @@ body{
         <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
       </div>
 
-      <!-- نفس بحثك المتقدم (بدون تغيير منطق) -->
       <div class="filter-row">
         <input id="pContains" class="filter-input" placeholder="رقم الصنف يحتوي">
         <input id="pEnds" class="filter-input" placeholder="ينتهي بـ">
@@ -260,13 +259,14 @@ body{
 /* ===== إصدار الصفحة ===== */
 const BUILD_VERSION = "v1.0.7";
 const BUILD_TIME = "2025-01-18 15:42";
-document.getElementById("buildInfo").textContent = `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
+document.getElementById("buildInfo").textContent =
+  `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
 
 /* ===== API ===== */
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
-let LAST_RENDER = []; // آخر نتائج معروضة (عشان ما يرجع لأول الصفحة)
+let LAST_RENDER = [];
 
 /* ===== LOGIN ===== */
 function login(){
@@ -306,8 +306,6 @@ function loadData(){
     .then(r => r.json())
     .then(d => {
       ALL_DATA = Array.isArray(d) ? d : [];
-
-      // 👇 عرض أول 50 صنف مباشرة بعد تسجيل الدخول
       const initial = ALL_DATA.slice(0, 50);
       LAST_RENDER = initial;
       render(initial);
@@ -320,19 +318,18 @@ function loadData(){
     });
 }
 
-/* ===== ربط الفلاتر ===== */
+/* ===== الفلاتر ===== */
+let searchTimer = null;
 
+document.querySelectorAll(".filter-input").forEach(inp=>{
+  inp.addEventListener("input", ()=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 180);
+  });
+});
 
 function clearFilters(){
-  let searchTimer = null;
-
-function runSearchDebounced(){
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(runSearch, 180);
-}
-
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
-  
   runSearch();
 }
 
@@ -352,7 +349,6 @@ function runSearch(){
   }
 
   const res = [];
-
   for(const r of ALL_DATA){
     const p = String(r.part ?? "").toLowerCase();
     const n = String(r.name ?? "").toLowerCase();
@@ -373,16 +369,7 @@ function runSearch(){
   render(res);
 }
 
-  // غالبًا render(res) هنا
-}
-
-  // إذا كل الفلاتر فاضية: اعرض أول 100
-  const noFilters = !pC && !pE && !nS && !nC && !lF && !lT;
-  const view = noFilters ? res.slice(0,100) : res;
-
-  LAST_RENDER = view;
-  render(view);
-}
+/* ===== عرض التاريخ ===== */
 function fmtDate(d){
   if(!d) return "";
   const dt = new Date(d);
@@ -395,56 +382,40 @@ function fmtDate(d){
   return `${day}/${month}/${year} ${hour}:${min}`;
 }
 
+/* ===== عرض النتائج ===== */
 function render(data){
   results.innerHTML = data.map(r=>{
     let cls="part", status="";
     const hasCount = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
     if(hasCount){
-      // لون الصنف حسب تطابق الجرد مع النظام
       if(Number(r.qty) === Number(r.lastCountQty)){
         cls += " ok";
-        status = `✓ تم الجرد (${r.lastCountedAt}) - ${r.countedBy||""}`;
+        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy||""}`;
       }else{
         cls += " warn";
         status = `⚠ فرق جرد | جرد: ${r.lastCountQty} | نظام: ${r.qty} | ${fmtDate(r.lastCountedAt)}`;
-
       }
     }
 
     return `
 <div class="item">
-
   <div class="part-row">
     <div class="${cls}">${r.part ?? ""}</div>
-    <div class="location">
-      <b>الموقع:</b> ${r.location ?? ""}
-    </div>
-  </div> <!-- ❗ إغلاق part-row هنا -->
-
+    <div class="location"><b>الموقع:</b> ${r.location ?? ""}</div>
+  </div>
   <div class="name">${r.name ?? ""}</div>
-
   <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
     <span>الكمية (النظام): <b>${r.qty ?? ""}</b></span>
-    <span>الكمية (الجرد): <b>${(r.lastCountQty ?? "")}</b></span>
+    <span>الكمية (الجرد): <b>${r.lastCountQty ?? ""}</b></span>
   </div>
-
   ${status ? `<div class="status">${status}</div>` : ""}
-
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
     <button
-      onclick='openDetail(${JSON.stringify(r.part)})'
-      style="
-        border:none;
-        background:#1976d2;
-        color:#fff;
-        font-size:12px;
-        padding:6px 12px;
-        border-radius:8px;
-        cursor:pointer
-      ">
+      onclick='openDetail(${JSON.stringify(r.part ?? "")})'
+      style="border:none;background:#1976d2;color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer">
       ✏️ تعديل
     </button>
- 
+  </div>
 </div>`;
   }).join("");
 }
@@ -457,7 +428,7 @@ function openDetail(part){
   const ov = document.createElement("div");
   ov.className = "detail-overlay";
 
-  const currentCount = (r.lastCountQty ?? ""); // الجرد السابق (يبقى ظاهر)
+  const currentCount = (r.lastCountQty ?? "");
   const systemQty = (r.qty ?? 0);
 
   ov.innerHTML = `
@@ -502,22 +473,18 @@ function saveCount(part, systemQty){
   const counted = document.getElementById("cq").value;
   const noteVal = document.getElementById("note").value || "";
 
-  // تحديث محلي صحيح: لا نغير qty (النظام) أبداً
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(r){
-    r.lastCountedAt = new Date().toLocaleString("ar-SA");
-    r.lastCountQty = counted;     // الجرد = counted
+    r.lastCountedAt = new Date().toISOString();
+    r.lastCountQty = counted;
     r.note = noteVal;
   }
 
-  // اغلاق النافذة
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
 
-  // ابقى على نفس نتائج البحث
   runSearch();
 
-  // إرسال الحفظ للسيرفر
   fetch(API,{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
@@ -531,14 +498,11 @@ function saveCount(part, systemQty){
   })
   .then(r=>r.json())
   .then(res=>{
-    // بعد الحفظ: نحدث البيانات من السيرفر (بدون ما نخرب نتائج البحث)
     if(res && res.ok !== false){
       loadData();
     }
   })
-  .catch(()=>{
-    // لو فشل السيرفر، على الأقل يبقى التحديث المحلي ظاهر
-  });
+  .catch(()=>{});
 }
 </script>
 
