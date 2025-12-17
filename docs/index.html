@@ -256,11 +256,10 @@ body{
 </div>
 
 <script>
-/* ===== إصدار الصفحة ===== */
-const BUILD_VERSION = "v1.0.8";
-const BUILD_TIME = "2025-01-18 18:40";
+/* ===== إصدار الصفحة (تلقائي من تاريخ الملف) ===== */
 document.getElementById("buildInfo").textContent =
-  `الإصدار ${BUILD_VERSION} – آخر تحديث: ${BUILD_TIME}`;
+  "آخر تحديث للملف: " +
+  new Date(document.lastModified).toLocaleString("ar-SA");
 
 /* ===== API ===== */
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
@@ -268,10 +267,11 @@ const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ix
 let ALL_DATA = [];
 let LAST_RENDER = [];
 
-/* ===== LOGIN ===== */
+/* ===== LOGIN: تحقّق ثم سحب البيانات ثم فتح الشاشة ===== */
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
+  loginLoading.textContent = "جاري التحقق من البيانات...";
 
   fetch(API,{
     method:"POST",
@@ -284,37 +284,43 @@ function login(){
   })
   .then(r=>r.json())
   .then(res=>{
-    loginLoading.style.display="none";
     if(!res.ok){
+      loginLoading.style.display="none";
       loginError.textContent = res.error || "فشل تسجيل الدخول";
       return;
     }
-    loginScreen.style.display="none";
-    appScreen.style.display="block";
-    loadData();
+
+    // بعد نجاح الدخول نبدأ سحب المخزون قبل فتح الشاشة
+    loginLoading.textContent = "جاري تحميل بيانات المخزون...";
+    loadDataAfterLogin();
   })
   .catch(()=>{
     loginLoading.style.display="none";
     loginError.textContent="تعذر الاتصال بالسيرفر";
   });
 }
+
 function logout(){ location.reload(); }
 
-/* ===== DATA ===== */
-function loadData(){
+/* ===== DATA: تحميل بعد تسجيل الدخول ثم فتح الشاشة ===== */
+function loadDataAfterLogin(){
   fetch(API)
     .then(r => r.json())
     .then(d => {
       ALL_DATA = Array.isArray(d) ? d : [];
       const initial = ALL_DATA.slice(0, 50);
       LAST_RENDER = initial;
+
+      // الآن فقط نفتح شاشة التطبيق
+      loginScreen.style.display="none";
+      appScreen.style.display="block";
+      loginLoading.style.display="none";
+
       render(initial);
     })
     .catch(() => {
-      results.innerHTML = `
-        <div style="max-width:430px;margin:0 auto;color:#c62828;font-size:13px">
-          فشل تحميل البيانات
-        </div>`;
+      loginLoading.style.display="none";
+      loginError.textContent = "فشل تحميل بيانات المخزون";
     });
 }
 
@@ -491,7 +497,7 @@ function saveCount(part, systemQty){
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
 
-  // ابقَ على نفس نتائج البحث دون إعادة تحميل من السيرفر
+  // ابقَ على نفس نتائج البحث
   runSearch();
 
   fetch(API,{
