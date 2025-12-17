@@ -321,8 +321,10 @@ function loadData(){
 }
 
 /* ===== ربط الفلاتر ===== */
-document.querySelectorAll(".filter-input")
-  .forEach(i=>i.addEventListener("input", runSearchDebounced));
+document.querySelectorAll(".filter-input").forEach(i=>{
+  i.addEventListener("input", runSearchDebounced);   // للجوال
+  i.addEventListener("keyup", runSearchDebounced);   // للكمبيوتر
+});
 
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
@@ -421,36 +423,7 @@ function render(data){
       ">
       ✏️ تعديل
     </button>
-  </div>
-
-</div>
-
-
-
-  <div class="name">${r.name ?? ""}</div>
-
-  <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
-    <span>الكمية (النظام): <b>${r.qty ?? ""}</b></span>
-    <span>الكمية (الجرد): <b>${(r.lastCountQty ?? "")}</b></span>
-  </div>
-
-  ${status ? `<div class="status">${status}</div>` : ""}
-
-  <div style="display:flex;justify-content:flex-end;margin-top:6px">
-    <button
-      onclick='openDetail(${JSON.stringify(r.part)})'
-      style="
-        border:none;
-        background:#1976d2;
-        color:#fff;
-        font-size:12px;
-        padding:6px 12px;
-        border-radius:8px;
-        cursor:pointer
-      ">
-      ✏️ تعديل
-    </button>
-  </div>
+ 
 </div>`;
   }).join("");
 }
