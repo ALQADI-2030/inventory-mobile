@@ -321,7 +321,8 @@ function loadData(){
 }
 
 /* ===== ربط الفلاتر ===== */
-document.querySelectorAll(".filter-input").forEach(i=>i.addEventListener("input", runSearch));
+document.querySelectorAll(".filter-input")
+  .forEach(i=>i.addEventListener("input", runSearchDebounced));
 
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
@@ -388,7 +389,7 @@ function render(data){
     }
 
     return `
-<<div class="item">
+<div class="item">
 
   <div class="part-row">
     <div class="${cls}">${r.part ?? ""}</div>
