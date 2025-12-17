@@ -239,9 +239,30 @@ body{
 
   <div class="filter-wrap">
     <div class="filter-card">
+
       <div class="filter-header">
-        <strong>مخزون عام 2025</strong>
+        <strong>البحث المتقدم</strong>
         <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
+      </div>
+
+      <!-- أزرار حالة الجرد -->
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;font-size:11px">
+        <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
+          <input type="radio" name="countState" value="all" checked style="margin:0">
+          <span>الكل</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
+          <input type="radio" name="countState" value="counted" style="margin:0">
+          <span>المجرد</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
+          <input type="radio" name="countState" value="diff" style="margin:0">
+          <span>فيه فرق</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
+          <input type="radio" name="countState" value="not" style="margin:0">
+          <span>غير مجرد</span>
+        </label>
       </div>
 
       <div class="filter-row">
@@ -341,8 +362,15 @@ document.querySelectorAll(".filter-input").forEach(inp=>{
   });
 });
 
+// تغيّر حالة الجرد يعيد البحث
+document.querySelectorAll('input[name="countState"]').forEach(r=>{
+  r.addEventListener("change", runSearch);
+});
+
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
+  const allRadio = document.querySelector('input[name="countState"][value="all"]');
+  if(allRadio) allRadio.checked = true;
   runSearch();
 }
 
@@ -353,8 +381,10 @@ function runSearch(){
   const nc = (nContains.value || "").trim().toLowerCase();
   const lf = (locFrom.value || "").trim().toLowerCase();
   const lt = (locTo.value || "").trim().toLowerCase();
+  const stateEl = document.querySelector('input[name="countState"]:checked');
+  const state = stateEl ? stateEl.value : "all";  // all | counted | diff | not
 
-  if(!pc && !pe && !ns && !nc && !lf && !lt){
+  if(!pc && !pe && !ns && !nc && !lf && !lt && state==="all"){
     const initial = ALL_DATA.slice(0, 50);
     LAST_RENDER = initial;
     render(initial);
@@ -367,6 +397,17 @@ function runSearch(){
     const n = String(r.name ?? "").toLowerCase();
     const l = String(r.location ?? "").toLowerCase();
 
+    const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
+    const qtySysNum   = Number(r.qty ?? 0);
+    const qtyCountNum = Number(r.lastCountQty ?? 0);
+    const isEqual     = hasCount && qtySysNum === qtyCountNum;
+
+    // فلتر حالة الجرد
+    if(state === "counted" && !hasCount) continue;
+    if(state === "diff"    && !(hasCount && !isEqual)) continue;
+    if(state === "not"     && hasCount) continue;
+
+    // فلاتر البحث الحالية
     if(pc && !p.includes(pc)) continue;
     if(pe && !p.endsWith(pe)) continue;
     if(ns && !n.startsWith(ns)) continue;
