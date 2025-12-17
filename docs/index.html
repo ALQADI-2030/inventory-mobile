@@ -352,6 +352,17 @@ function runSearch(){
   LAST_RENDER = view;
   render(view);
 }
+function fmtDate(d){
+  if(!d) return "";
+  const dt = new Date(d);
+  if (isNaN(dt)) return "";
+  const day   = String(dt.getDate()).padStart(2,"0");
+  const month = String(dt.getMonth()+1).padStart(2,"0");
+  const year  = dt.getFullYear();
+  const hour  = String(dt.getHours()).padStart(2,"0");
+  const min   = String(dt.getMinutes()).padStart(2,"0");
+  return `${day}/${month}/${year} ${hour}:${min}`;
+}
 
 function render(data){
   results.innerHTML = data.map(r=>{
@@ -364,16 +375,19 @@ function render(data){
         status = `✓ تم الجرد (${r.lastCountedAt}) - ${r.countedBy||""}`;
       }else{
         cls += " warn";
-        status = `⚠ جرد: ${r.lastCountQty} | النظام: ${r.qty} (${r.lastCountedAt}) - ${r.countedBy||""}`;
+        status = `⚠ فرق جرد | جرد: ${r.lastCountQty} | نظام: ${r.qty} | ${fmtDate(r.lastCountedAt)}`;
+
       }
     }
 
     return `
 <div class="item">
-  <div class="part-row">
-    <div class="${cls}">${r.part ?? ""}</div>
-    <div class="location">${r.location ?? ""}</div>
-  </div>
+<div class="part-row">
+  <div class="${cls}">${r.part ?? ""}</div>
+  <div class="location">
+  <b>الموقع:</b> ${r.location ?? ""}
+</div>
+
 
   <div class="name">${r.name ?? ""}</div>
 
