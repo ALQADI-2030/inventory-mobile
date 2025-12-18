@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>شركة القاضي </title>
+<title>شركة القاضي</title>
 
 <link rel="manifest" href="manifest.json">
 
@@ -32,7 +32,7 @@ body{
 }
 *{box-sizing:border-box}
 
-/* ===== LOGIN (فخم فاتح ويغطي الشاشة) ===== */
+/* ===== LOGIN (شاشة الدخول) ===== */
 .login-screen{
   position:fixed;
   inset:0;
@@ -44,13 +44,12 @@ body{
 .login-box{
   width:100%;
   max-width:360px;
-  padding:20px 18px 16px;
+  padding:20px 18px 18px;
   border-radius:24px;
-  background:rgba(255,255,255,0.9);
+  background:#ffffff;
   box-shadow:0 18px 45px rgba(148,163,184,0.4);
   border:1px solid rgba(209,213,219,0.9);
   color:var(--text);
-  backdrop-filter:blur(14px);
   text-align:center;
 }
 .login-logo{
@@ -60,20 +59,15 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  /* بدون أي خلفية أو ألوان إضافية */
 }
-
 .login-logo img{
   max-width:100%;
   max-height:100%;
   object-fit:contain;
   display:block;
 }
-
-
-
 .login-box h3{margin:4px 0 4px;font-size:18px}
-.login-box p{font-size:12px;color:var(--muted);margin:0 0 8px}
+.login-box p{font-size:12px;color:var(--muted);margin:0 0 10px}
 .login-box input{
   width:100%;
   padding:10px;
@@ -85,23 +79,31 @@ body{
   font-size:13px;
 }
 .login-box input::placeholder{color:#9ca3af}
-.login-box{
+
+/* زر الدخول متناسق */
+.login-btn{
   width:100%;
-  max-width:360px;
-  padding:20px 18px 16px;
-  border-radius:24px;
-  background:#ffffff;              /* أبيض صافي */
-  box-shadow:0 18px 45px rgba(148,163,184,0.4);
-  border:1px solid rgba(209,213,219,0.9);
-  color:var(--text);
-  text-align:center;
+  margin-top:12px;
+  padding:10px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(135deg,#1976d2,#4caf50);
+  color:#ffffff;
+  font-size:14px;
+  cursor:pointer;
+  font-weight:600;
+  box-shadow:0 8px 18px rgba(25,118,210,0.35);
+}
+.login-btn:active{
+  transform:translateY(1px);
+  box-shadow:0 4px 10px rgba(25,118,210,0.35);
 }
 
 #loginError{margin-top:8px;font-size:12px;color:#d32f2f}
 #loginLoading{display:none;margin-top:6px;font-size:11px;color:#6b7280}
 #buildInfo{margin-top:10px;font-size:11px;color:#9ca3af}
 
-/* ===== MAIN MENU (فاتحة) ===== */
+/* ===== MAIN MENU ===== */
 #mainScreen{
   display:none;
   min-height:100vh;
@@ -199,14 +201,17 @@ body{
   color:var(--text);
 }
 .top-title{font-weight:700;font-size:15px}
+
+/* زر عودة بدل خروج */
 .icon-btn{
   border:none;
   border-radius:8px;
-  padding:6px 10px;
+  padding:6px 12px;
   background:#ffffff;
   color:var(--text);
   box-shadow:0 1px 4px rgba(148,163,184,.5);
   cursor:pointer;
+  font-size:12px;
 }
 
 /* FILTER + RESULTS */
@@ -347,9 +352,8 @@ body{
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <div class="login-logo">
-  <img src="logo.png.gif" alt="">
-</div>
-
+      <img src="logo.png.gif" alt="">
+    </div>
 
     <h3>شركة القاضي لبيع قطع غيار السيارات</h3>
     <p>فضلاً أدخل اسم المستخدم والرقم السري</p>
@@ -357,7 +361,7 @@ body{
     <input id="loginUser" placeholder="اسم المستخدم">
     <input id="loginPass" type="password" placeholder="الرقم السري">
 
-    <button onclick="login()">دخول</button>
+    <button class="login-btn" onclick="login()">دخول</button>
     <div id="loginLoading">جاري التحقق...</div>
     <div id="loginError"></div>
     <div id="buildInfo"></div>
@@ -372,7 +376,7 @@ body{
         <div class="main-title">القائمة الرئيسية</div>
         <div class="main-sub">اختر العملية المطلوبة</div>
       </div>
-      <div class="main-badge"> </div>
+      <div class="main-badge"></div>
     </div>
 
     <div class="main-list">
@@ -408,7 +412,8 @@ body{
 
   <div class="top-bar">
     <div class="top-title">جرد المخزون</div>
-    <button class="icon-btn" onclick="logout()">خروج</button>
+    <!-- زر عودة بدل خروج -->
+    <button class="icon-btn" onclick="backToMain()">عودة</button>
   </div>
 
   <div class="filter-wrap">
@@ -470,19 +475,25 @@ const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ix
 let ALL_DATA = [];
 let LAST_RENDER = [];
 
+/* تخزين اسم المستخدم الحالي لاستخدامه في الجرد */
+let CURRENT_USER = "";
+
 /* ===== LOGIN ===== */
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
   loginLoading.textContent = "جاري التحقق من البيانات...";
 
+  const user = loginUser.value.trim();
+  const pass = loginPass.value.trim();
+
   fetch(API,{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({
       mode:"login",
-      name: loginUser.value,
-      pass: loginPass.value
+      name: user,
+      pass: pass
     })
   })
   .then(r=>r.json())
@@ -493,6 +504,9 @@ function login(){
       return;
     }
 
+    // حفظ اسم المستخدم بعد نجاح الدخول
+    CURRENT_USER = user || "";
+
     loginLoading.textContent = "جاري تحميل بيانات المخزون...";
     loadDataAfterLogin();
   })
@@ -502,7 +516,16 @@ function login(){
   });
 }
 
-function logout(){ location.reload(); }
+/* العودة إلى القائمة الرئيسية */
+function backToMain(){
+  appScreen.style.display = "none";
+  mainScreen.style.display = "flex";
+}
+
+/* يمكن إبقاء logout لو احتجته لاحقاً */
+function logout(){
+  location.reload();
+}
 
 /* ===== DATA ===== */
 function loadDataAfterLogin(){
@@ -651,10 +674,10 @@ function render(data){
     if(hasCount){
       if(qtySysNum === qtyCountNum){
         cls += " ok";
-        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy||""}`;
+        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
-        status = `⚠ فرق جرد | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)}`;
+        status = `⚠ فرق جرد | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
       }
     }else{
       status = "لم يُجرَد بعد";
@@ -734,7 +757,7 @@ function chg(d){
   i.value = Math.max(0, (+i.value || 0) + d);
 }
 
-/* ===== حفظ الجرد ===== */
+/* ===== حفظ الجرد (مع اسم الجارد) ===== */
 function saveCount(part, systemQty){
   const counted = document.getElementById("cq").value;
   const noteVal = document.getElementById("note").value || "";
@@ -744,6 +767,8 @@ function saveCount(part, systemQty){
     r.lastCountedAt = new Date().toISOString();
     r.lastCountQty = counted;
     r.note = noteVal;
+    // حفظ اسم الجارد داخل البيانات المحلية
+    r.countedBy = CURRENT_USER || "";
   }
 
   const ov = document.querySelector(".detail-overlay");
@@ -751,15 +776,17 @@ function saveCount(part, systemQty){
 
   runSearch();
 
+  // إرسال البيانات للـ API مع اسم الجارد
   fetch(API,{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({
-      mode:"save",
-      part: part,
+      mode: "save",
+      part: String(part),
       systemQty: String(systemQty),
       countedQty: String(counted),
-      note: noteVal
+      note: noteVal,
+      countedBy: CURRENT_USER || ""
     })
   })
   .then(r=>r.json())
