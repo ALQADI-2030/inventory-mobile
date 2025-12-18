@@ -68,6 +68,15 @@ body{
 #loginLoading{display:none;margin-top:10px;font-size:12px;color:var(--muted)}
 #buildInfo{margin-top:12px;font-size:11px;color:#999}
 
+/* ===== MAIN MENU ===== */
+#mainScreen{
+  display:none;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
 /* ===== APP ===== */
 #appScreen{display:none}
 
@@ -232,7 +241,29 @@ body{
   </div>
 </div>
 
-<!-- APP -->
+<!-- MAIN MENU -->
+<div id="mainScreen">
+  <div style="width:100%;max-width:360px;background:var(--card);border-radius:16px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.15);">
+    <h3 style="margin:0 0 10px;text-align:center">القائمة الرئيسية</h3>
+    <button
+      style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#eeeeee;color:#333;font-size:14px;cursor:pointer"
+      onclick="openMenu(1)">
+      1) تعديل المواقع
+    </button>
+    <button
+      style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#eeeeee;color:#333;font-size:14px;cursor:pointer"
+      onclick="openMenu(2)">
+      2) بضاعة شركة تويوتا
+    </button>
+    <button
+      style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:14px;cursor:pointer"
+      onclick="openMenu(3)">
+      3) الجرد المخزني
+    </button>
+  </div>
+</div>
+
+<!-- APP (الجرد المخزني) -->
 <div id="appScreen">
 
   <div class="top-bar">
@@ -343,16 +374,35 @@ function loadDataAfterLogin(){
       const initial = ALL_DATA.slice(0, 50);
       LAST_RENDER = initial;
 
+      // إغلاق شاشة الدخول وفتح القائمة فقط
       loginScreen.style.display="none";
-      appScreen.style.display="block";
       loginLoading.style.display="none";
-
-      render(initial);
+      mainScreen.style.display="flex";
+      // لا نعرض صفحة الجرد الآن؛ تظهر عند اختيار القائمة 3
     })
     .catch(() => {
       loginLoading.style.display="none";
       loginError.textContent = "فشل تحميل بيانات المخزون";
     });
+}
+
+/* ===== فتح القوائم ===== */
+function openMenu(id){
+  if(id === 3){
+    // فتح شاشة الجرد
+    mainScreen.style.display = "none";
+    appScreen.style.display  = "block";
+
+    if(!LAST_RENDER || !LAST_RENDER.length){
+      const initial = ALL_DATA.slice(0, 50);
+      LAST_RENDER = initial;
+      render(initial);
+    }else{
+      render(LAST_RENDER);
+    }
+  }else{
+    alert("هذه القائمة لم تُفعّل بعد");
+  }
 }
 
 /* ===== الفلاتر ===== */
