@@ -54,22 +54,22 @@ body{
   text-align:center;
 }
 .login-logo{
-  width:90px;
-  height:90px;
-  border-radius:24px;
-  margin:0 auto 10px;
-  background:linear-gradient(145deg,#4caf50,#29b6f6);
+  width:110px;
+  height:60px;
+  margin:4px auto 14px;
   display:flex;
   align-items:center;
   justify-content:center;
+  /* بدون أي خلفية أو ألوان إضافية */
 }
 
 .login-logo img{
-  width:100%;
-  height:100%;
-  object-fit:cover;   /* أو contain لو تبيها كاملة بدون قص */
-  border-radius:24px;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  display:block;
 }
+
 
 
 .login-box h3{margin:4px 0 4px;font-size:18px}
@@ -85,19 +85,18 @@ body{
   font-size:13px;
 }
 .login-box input::placeholder{color:#9ca3af}
-.login-box button{
+.login-box{
   width:100%;
-  margin-top:14px;
-  padding:11px;
-  border:none;
-  border-radius:999px;
-  background:linear-gradient(135deg,#1976d2,#4caf50);
-  color:#fff;
-  font-size:14px;
-  font-weight:600;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(25,118,210,0.35);
+  max-width:360px;
+  padding:20px 18px 16px;
+  border-radius:24px;
+  background:#ffffff;              /* أبيض صافي */
+  box-shadow:0 18px 45px rgba(148,163,184,0.4);
+  border:1px solid rgba(209,213,219,0.9);
+  color:var(--text);
+  text-align:center;
 }
+
 #loginError{margin-top:8px;font-size:12px;color:#d32f2f}
 #loginLoading{display:none;margin-top:6px;font-size:11px;color:#6b7280}
 #buildInfo{margin-top:10px;font-size:11px;color:#9ca3af}
