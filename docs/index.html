@@ -855,10 +855,10 @@ function startScan(){
   const qrRegionId = "reader";
   html5QrCode = new Html5Qrcode(qrRegionId);
 
-  const config = {
-    fps: 10,
-    qrbox: { width: 250, height: 150 }
-  };
+ const config = {
+  fps: 15,
+  qrbox: { width: 200, height: 80 } // مستطيل صغير للباركود
+};
 
   Html5Qrcode.getCameras().then(cameras => {
     if (!cameras || cameras.length === 0) {
