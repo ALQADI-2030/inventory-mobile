@@ -7,6 +7,9 @@
 
 <link rel="manifest" href="manifest.json">
 
+<!-- مكتبة قراءة الباركود / QR -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
 <style>
 :root{
   --bg:#f3f4f6;
@@ -84,7 +87,7 @@ body{
   padding:10px;
   border:none;
   border-radius:999px;
-  background:linear-gradient(135deg,#1976d2,#0d47a1); /* أزرق فقط */
+  background:linear-gradient(135deg,#1976d2,#0d47a1);
   color:#ffffff;
   font-size:14px;
   cursor:pointer;
@@ -178,7 +181,7 @@ body{
   color:#6b7280;
 }
 .main-btn.primary{
-  background:linear-gradient(135deg,#1976d2,#0d47a1); /* أزرق */
+  background:linear-gradient(135deg,#1976d2,#0d47a1);
   color:#ffffff;
 }
 .main-btn.primary .main-icon{
@@ -252,7 +255,6 @@ body{
   color:var(--text);
 }
 .filter-input::placeholder{color:#9ca3af}
-/* نسخه صغيرة للبحث بالموقع والباركود */
 .filter-input.small{
   flex:1 1 30%;
   font-size:11px;
@@ -340,9 +342,19 @@ body{
   padding:10px;
   border:none;
   border-radius:10px;
-  background:linear-gradient(135deg,#1976d2,#0d47a1); /* أزرق */
+  background:linear-gradient(135deg,#1976d2,#0d47a1);
   color:#fff;
   cursor:pointer;
+}
+
+/* SCANNER */
+#scannerContainer{
+  display:none;
+  max-width:430px;
+  margin:6px auto;
+  background:#000;
+  border-radius:12px;
+  overflow:hidden;
 }
 </style>
 </head>
@@ -448,9 +460,29 @@ body{
       <div class="filter-row">
         <input id="locFrom" class="filter-input small" placeholder="الموقع من">
         <input id="locTo"   class="filter-input small" placeholder="إلى">
-        <input id="barcode" class="filter-input small" placeholder="باركود">
+
+        <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
+          <input id="barcode" class="filter-input small" placeholder="باركود">
+          <button type="button"
+                  id="scanBtn"
+                  style="border:none;background:#1976d2;color:#fff;font-size:12px;
+                         padding:5px 8px;border-radius:8px;cursor:pointer;">
+            📷
+          </button>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- حاوية الكاميرا -->
+  <div id="scannerContainer">
+    <div id="reader" style="width:100%;"></div>
+    <button type="button"
+            onclick="stopScan()"
+            style="width:100%;border:none;background:#eee;padding:6px;
+                   font-size:12px;cursor:pointer">
+      إغلاق الكاميرا
+    </button>
   </div>
 
   <div id="results"></div>
@@ -773,7 +805,7 @@ function saveCount(part, systemQty){
     r.lastCountQty = counted;
     r.note = noteVal;
     r.countedBy = CURRENT_USER || "";
-    r.countLocation = newLoc;      // موقع الجرد فقط
+    r.countLocation = newLoc;
   }
 
   const ov = document.querySelector(".detail-overlay");
@@ -798,6 +830,68 @@ function saveCount(part, systemQty){
   .then(r=>r.json())
   .then(res=>{})
   .catch(()=>{});
+}
+
+/* CAMERA / BARCODE SCAN */
+let html5QrCode = null;
+let isScanning = false;
+
+document.getElementById("scanBtn").addEventListener("click", startScan);
+
+function startScan(){
+  if(isScanning) return;
+
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "block";
+
+  const qrRegionId = "reader";
+  html5QrCode = new Html5Qrcode(qrRegionId);
+
+  const config = {
+    fps: 10,
+    qrbox: { width: 250, height: 150 }
+  };
+
+  Html5Qrcode.getCameras().then(cameras => {
+    if (!cameras || cameras.length === 0) {
+      alert("لم يتم العثور على كاميرا");
+      container.style.display = "none";
+      return;
+    }
+
+    const cameraId = cameras[0].id;
+    isScanning = true;
+
+    html5QrCode.start(
+      cameraId,
+      config,
+      decodedText => {
+        document.getElementById("barcode").value = decodedText;
+        stopScan();
+        runSearch();
+      },
+      errorMessage => {
+        // يمكن تجاهل أخطاء القراءة اللحظية
+      }
+    );
+  }).catch(err => {
+    alert("تعذر فتح الكاميرا");
+    container.style.display = "none";
+  });
+}
+
+function stopScan(){
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "none";
+
+  if(html5QrCode && isScanning){
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      isScanning = false;
+    }).catch(err => {
+      isScanning = false;
+    });
+  }
 }
 </script>
 
