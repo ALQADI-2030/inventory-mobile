@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width, initial-scale=1, maximum=1, viewport-fit=cover">
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>شركة القاضي</title>
 
 <link rel="manifest" href="manifest.json">
@@ -21,7 +21,7 @@
   --border:#d1d5db;
 }
 
-/* منع تكبير iOS: نجعل حجم الخط 16px على الحقول */
+/* منع تكبير iOS: حجم خط الحقول 16px */
 body{
   margin:0;
   font-family:system-ui,-apple-system;
@@ -34,7 +34,7 @@ body{
 }
 *{box-sizing:border-box}
 input, textarea, button{
-  font-size:16px; /* مهم للآيفون حتى لا يزوم */
+  font-size:16px;
 }
 
 /* LOGIN */
@@ -501,6 +501,20 @@ let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
 
+/* منع pinch/double-tap zoom في iOS */
+document.addEventListener("gesturestart", function (e) {
+  e.preventDefault();
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener("touchend", function (e) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault(); // يمنع double-tap zoom
+  }
+  lastTouchEnd = now;
+}, { passive: false });
+
 /* منع pull-to-refresh بعد الدخول فقط */
 let lastTouchY = 0;
 let preventPullToRefresh = false;
@@ -873,9 +887,9 @@ function updateDetailSaveState(){
 }
 
 /* SAVE COUNT
-   - لو ما غيّر الكمية (أو تركها فاضية) وغَيَّر الموقع/ملاحظة:
-       countedQty = systemQty  → يعتبره جرد مطابق.
-   - لو غيّر الكمية: يستخدم الكمية الجديدة. */
+   - لو غيّر الكمية: يعتمد الكمية الجديدة.
+   - لو ما غيّر الكمية (أو تركها فاضية) لكنه غيّر الموقع/ملاحظة:
+       countedQty = systemQty (جرد مطابق للنظام). */
 function saveCount(part, systemQty){
   const cqEl   = document.getElementById("cq");
   const noteEl = document.getElementById("note");
@@ -901,10 +915,8 @@ function saveCount(part, systemQty){
 
   let counted;
   if(changedCount && countedRaw !== ""){
-    // جرد فعلي: استخدم الكمية التي أدخلها المستخدم
     counted = Number(countedRaw) || 0;
   }else{
-    // لم يغيّر الكمية → اعتبر النظام صحيح وأخذه ككمية جرد
     counted = Number(systemQty) || 0;
   }
 
