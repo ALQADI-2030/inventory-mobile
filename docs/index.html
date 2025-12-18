@@ -581,6 +581,13 @@ function openMenu(id){
   }
 }
 
+/* مساعدة: توحيد صيغة الباركود إلى أول 10 أرقام فقط */
+function normalizeBarcode(text){
+  if(!text) return "";
+  const digits = String(text).replace(/\D/g, ""); // نزيل كل ما ليس رقم
+  return digits.substring(0, 10);                 // أول 10 أرقام
+}
+
 /* FILTERS */
 let searchTimer = null;
 
@@ -609,14 +616,15 @@ function runSearch(){
   const nc = (nContains.value || "").trim().toLowerCase();
   const lfRaw = (locFrom.value || "").trim().toLowerCase();
   const ltRaw = (locTo.value || "").trim().toLowerCase();
-  const bcRaw = (barcode.value || "").trim().toLowerCase();
+  const bcInput = (barcode.value || "").trim();
+  const bcNorm  = normalizeBarcode(bcInput);
 
   const stateEl = document.querySelector('input[name="countState"]:checked');
   const state = stateEl ? stateEl.value : "all";
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
-  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcRaw && state==="all"){
+  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
     const initial = ALL_DATA.slice(0, 50);
     LAST_RENDER = initial;
     render(initial);
@@ -628,7 +636,8 @@ function runSearch(){
     const p = String(r.part ?? "").toLowerCase();
     const n = String(r.name ?? "").toLowerCase();
     const l = String(r.location ?? "").toLowerCase();
-    const b = String(r.barcode ?? "").toLowerCase();
+    const bRaw = String(r.barcode ?? "");
+    const bNorm = normalizeBarcode(bRaw);
 
     const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
     const qtySysNum   = Number(r.qty ?? 0);
@@ -644,12 +653,11 @@ function runSearch(){
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
 
-    if(bcRaw && !b.includes(bcRaw)) continue;
+    if(bcNorm && bcNorm !== bNorm) continue;
 
     if(hasLocFilter){
       const lf = lfRaw || l;
       const lt = ltRaw || l;
-
       if(l < lf) continue;
       if(l > lt) continue;
     }
@@ -859,10 +867,8 @@ function startScan(){
       return;
     }
 
-    // نحاول نختار الكاميرا الخلفية
+    // اختيار الكاميرا الخلفية قدر الإمكان
     let cameraId = cameras[0].id;
-
-    // أولاً: ابحث عن كاميرا نوعها environment أو back
     const backCam = cameras.find(c =>
       c.label.toLowerCase().includes("back") ||
       c.label.toLowerCase().includes("rear") ||
@@ -871,7 +877,6 @@ function startScan(){
     if (backCam) {
       cameraId = backCam.id;
     } else if (cameras.length > 1) {
-      // لو ما قدر يتعرف من الاسم، خذ آخر كاميرا (غالباً الخلفية في الجوالات)
       cameraId = cameras[cameras.length - 1].id;
     }
 
@@ -881,7 +886,12 @@ function startScan(){
       cameraId,
       config,
       decodedText => {
-        document.getElementById("barcode").value = decodedText;
+        const cleaned = normalizeBarcode(decodedText);
+        if(!cleaned){
+          alert("لم يتم العثور على أرقام صالحة في الباركود");
+          return;
+        }
+        document.getElementById("barcode").value = cleaned;
         stopScan();
         runSearch();
       },
@@ -895,6 +905,19 @@ function startScan(){
   });
 }
 
+function stopScan(){
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "none";
+
+  if(html5QrCode && isScanning){
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      isScanning = false;
+    }).catch(err => {
+      isScanning = false;
+    });
+  }
+}
 </script>
 
 </body>
