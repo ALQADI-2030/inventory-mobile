@@ -154,7 +154,7 @@ body{
   justify-content:space-between;
   cursor:pointer;
   background:#f5f7fb;
-  color:#var(--text);
+  color:var(--text);
   font-size:14px;
 }
 .main-btn span.left{
@@ -315,7 +315,7 @@ body{
   font-size:20px;
   cursor:pointer;
   background:#e5e7eb;
-  color:var(--text);
+  color:#text;
 }
 .detail-qty-box input{
   flex:1;
@@ -461,7 +461,7 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
-// غيّر هذا الرابط إلى رابط الويب آب المنشور عندك
+// غيّر هذا الرابط إذا تغير نشر الويب آب
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
@@ -704,7 +704,9 @@ function openDetail(part){
 
   const currentCount = (r.lastCountQty ?? "");
   const systemQty = (r.qty ?? 0);
-  const currentLoc = r.location || "";
+  const realLoc = r.location || "";          // الموقع الفعلي من المخزون
+  const countLoc = r.countLocation || "";    // موقع الجرد إن وجد
+  const currentNote = r.note || "";
 
   ov.innerHTML = `
     <div class="detail-card">
@@ -716,12 +718,12 @@ function openDetail(part){
       <div class="detail-label">رقم الصنف</div>
       <div><b>${r.part}</b></div>
 
-      <div class="detail-label">الموقع الحالي</div>
-      <div><b>${currentLoc}</b></div>
+      <div class="detail-label">الموقع الفعلي (من المخزون)</div>
+      <div><b>${realLoc}</b></div>
 
-      <div class="detail-label">تعديل الموقع</div>
+      <div class="detail-label">موقع الجرد (يمكن تغييره)</div>
       <input id="newLoc"
-        value="${currentLoc}"
+        value="${countLoc}"
         style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
 
       <div class="detail-label">الكمية (النظام) – للعرض فقط</div>
@@ -736,9 +738,11 @@ function openDetail(part){
 
       <div class="detail-label">ملاحظات</div>
       <textarea id="note"
-        style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;background:#f9fafb;color:var(--text)">${r.note ?? ""}</textarea>
+        style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;background:#f9fafb;color:var(--text)">${currentNote}</textarea>
 
-      <button class="detail-save" onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
+      <button
+        class="detail-save"
+        onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
         حفظ التعديل
       </button>
     </div>
@@ -764,7 +768,8 @@ function saveCount(part, systemQty){
     r.lastCountQty = counted;
     r.note = noteVal;
     r.countedBy = CURRENT_USER || "";
-    if(newLoc) r.location = newLoc;
+    r.countLocation = newLoc;      // موقع الجرد فقط
+    // r.location (الموقع الفعلي) لا يتغير
   }
 
   const ov = document.querySelector(".detail-overlay");
