@@ -584,8 +584,8 @@ function openMenu(id){
 /* مساعدة: توحيد صيغة الباركود إلى أول 10 أرقام فقط */
 function normalizeBarcode(text){
   if(!text) return "";
-  const digits = String(text).replace(/\D/g, ""); // نزيل كل ما ليس رقم
-  return digits.substring(0, 10);                 // أول 10 أرقام
+  const digits = String(text).replace(/\D/g, "");
+  return digits.substring(0, 10);
 }
 
 /* FILTERS */
@@ -769,6 +769,7 @@ function openDetail(part){
       <div class="detail-label">موقع الجرد (يمكن تغييره)</div>
       <input id="newLoc"
         value="${countLoc}"
+        data-original="${countLoc.replace(/"/g,'&quot;')}"
         style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
 
       <div class="detail-label">الكمية (النظام) – للعرض فقط</div>
@@ -776,23 +777,31 @@ function openDetail(part){
 
       <div class="detail-label">كمية التعديل</div>
       <div class="detail-qty-box">
-        <button onclick="chg(-1)">−</button>
-        <input id="cq" type="number" value="${currentCount}">
-        <button onclick="chg(1)">+</button>
+        <button onclick="chg(-1);updateDetailSaveState()">−</button>
+        <input id="cq" type="number" value="${currentCount}" data-original="${currentCount}">
+        <button onclick="chg(1);updateDetailSaveState()">+</button>
       </div>
 
       <div class="detail-label">ملاحظات</div>
       <textarea id="note"
+        data-original="${currentNote.replace(/"/g,'&quot;')}"
         style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;background:#f9fafb;color:var(--text)">${currentNote}</textarea>
 
       <button
+        id="detailSaveBtn"
         class="detail-save"
+        disabled
+        style="opacity:0.5;cursor:not-allowed"
         onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
         حفظ التعديل
       </button>
     </div>
   `;
   document.body.appendChild(ov);
+
+  document.getElementById("newLoc").addEventListener("input", updateDetailSaveState);
+  document.getElementById("cq").addEventListener("input", updateDetailSaveState);
+  document.getElementById("note").addEventListener("input", updateDetailSaveState);
 }
 
 function chg(d){
@@ -800,12 +809,58 @@ function chg(d){
   i.value = Math.max(0, (+i.value || 0) + d);
 }
 
+/* تفعيل/تعطيل زر الحفظ حسب التغييرات */
+function updateDetailSaveState(){
+  const btn  = document.getElementById("detailSaveBtn");
+  if(!btn) return;
+
+  const cq   = document.getElementById("cq");
+  const note = document.getElementById("note");
+  const loc  = document.getElementById("newLoc");
+
+  const origCount = cq.getAttribute("data-original") ?? "";
+  const origNote  = note.getAttribute("data-original") ?? "";
+  const origLoc   = loc.getAttribute("data-original") ?? "";
+
+  const changedCount = String(cq.value || "") !== String(origCount);
+  const changedNote  = String(note.value || "") !== String(origNote);
+  const changedLoc   = String(loc.value || "") !== String(origLoc);
+
+  if(changedCount || changedNote || changedLoc){
+    btn.disabled = false;
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+  }else{
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+  }
+}
+
 /* SAVE COUNT */
 function saveCount(part, systemQty){
-  const counted = document.getElementById("cq").value;
-  const noteVal = document.getElementById("note").value || "";
-  const newLocEl = document.getElementById("newLoc");
-  const newLoc   = newLocEl ? newLocEl.value.trim() : "";
+  const cqEl   = document.getElementById("cq");
+  const noteEl = document.getElementById("note");
+  const locEl  = document.getElementById("newLoc");
+
+  const counted = cqEl.value;
+  const noteVal = noteEl.value || "";
+  const newLoc  = locEl ? locEl.value.trim() : "";
+
+  const origCount = cqEl.getAttribute("data-original") ?? "";
+  const origNote  = noteEl.getAttribute("data-original") ?? "";
+  const origLoc   = locEl.getAttribute("data-original") ?? "";
+
+  const changedCount = String(counted || "") !== String(origCount);
+  const changedNote  = String(noteVal || "") !== String(origNote);
+  const changedLoc   = String(newLoc || "") !== String(origLoc);
+
+  // لو ما فيه أي تغيير لا نرسل شيء
+  if(!changedCount && !changedNote && !changedLoc){
+    const ov0 = document.querySelector(".detail-overlay");
+    if(ov0) ov0.remove();
+    return;
+  }
 
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(r){
@@ -855,10 +910,10 @@ function startScan(){
   const qrRegionId = "reader";
   html5QrCode = new Html5Qrcode(qrRegionId);
 
- const config = {
-  fps: 15,
-  qrbox: { width: 200, height: 80 } // مستطيل صغير للباركود
-};
+  const config = {
+    fps: 10,
+    qrbox: { width: 250, height: 150 }
+  };
 
   Html5Qrcode.getCameras().then(cameras => {
     if (!cameras || cameras.length === 0) {
@@ -867,7 +922,6 @@ function startScan(){
       return;
     }
 
-    // اختيار الكاميرا الخلفية قدر الإمكان
     let cameraId = cameras[0].id;
     const backCam = cameras.find(c =>
       c.label.toLowerCase().includes("back") ||
