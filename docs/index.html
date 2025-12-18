@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>جرد المخزون</title>
 
+<!-- ربط ملف manifest.json -->
+<link rel="manifest" href="manifest.json">
+
 <style>
 :root{
   --bg:#f4f6f8;
@@ -414,8 +417,8 @@ function runSearch(){
 
     // فلتر الموقع من/إلى كنطاق نصي
     if(hasLocFilter){
-      const lf = lfRaw || l; // لو فقط "إلى" مستخدم نعتبر من = قيمة الصف
-      const lt = ltRaw || l; // لو فقط "من" مستخدم نعتبر إلى = نفس القيمة
+      const lf = lfRaw || l;
+      const lt = ltRaw || l;
 
       if(l < lf) continue;
       if(l > lt) continue;
@@ -425,7 +428,6 @@ function runSearch(){
     if(res.length >= 100) break;
   }
 
-  // لو هناك فلتر موقع، نفرز النتائج بالموقع
   if(hasLocFilter){
     res.sort((a,b)=>{
       const la = String(a.location ?? "").toLowerCase();
