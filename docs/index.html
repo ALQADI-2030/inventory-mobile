@@ -859,7 +859,22 @@ function startScan(){
       return;
     }
 
-    const cameraId = cameras[0].id;
+    // نحاول نختار الكاميرا الخلفية
+    let cameraId = cameras[0].id;
+
+    // أولاً: ابحث عن كاميرا نوعها environment أو back
+    const backCam = cameras.find(c =>
+      c.label.toLowerCase().includes("back") ||
+      c.label.toLowerCase().includes("rear") ||
+      c.label.toLowerCase().includes("environment")
+    );
+    if (backCam) {
+      cameraId = backCam.id;
+    } else if (cameras.length > 1) {
+      // لو ما قدر يتعرف من الاسم، خذ آخر كاميرا (غالباً الخلفية في الجوالات)
+      cameraId = cameras[cameras.length - 1].id;
+    }
+
     isScanning = true;
 
     html5QrCode.start(
@@ -880,19 +895,6 @@ function startScan(){
   });
 }
 
-function stopScan(){
-  const container = document.getElementById("scannerContainer");
-  container.style.display = "none";
-
-  if(html5QrCode && isScanning){
-    html5QrCode.stop().then(() => {
-      html5QrCode.clear();
-      isScanning = false;
-    }).catch(err => {
-      isScanning = false;
-    });
-  }
-}
 </script>
 
 </body>
