@@ -2,7 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, maximum=1, viewport-fit=cover">
 <title>شركة القاضي</title>
 
 <link rel="manifest" href="manifest.json">
@@ -20,6 +21,7 @@
   --border:#d1d5db;
 }
 
+/* منع تكبير iOS: نجعل حجم الخط 16px على الحقول */
 body{
   margin:0;
   font-family:system-ui,-apple-system;
@@ -31,6 +33,9 @@ body{
   color:var(--text);
 }
 *{box-sizing:border-box}
+input, textarea, button{
+  font-size:16px; /* مهم للآيفون حتى لا يزوم */
+}
 
 /* LOGIN */
 .login-screen{
@@ -76,7 +81,6 @@ body{
   border:1px solid var(--border);
   background:#ffffff;
   color:var(--text);
-  font-size:13px;
 }
 .login-box input::placeholder{color:#9ca3af}
 .login-btn{
@@ -87,7 +91,6 @@ body{
   border-radius:999px;
   background:linear-gradient(135deg,#1976d2,#0d47a1);
   color:#ffffff;
-  font-size:14px;
   cursor:pointer;
   font-weight:600;
   box-shadow:0 8px 18px rgba(25,118,210,0.35);
@@ -156,7 +159,6 @@ body{
   cursor:pointer;
   background:#f5f7fb;
   color:var(--text);
-  font-size:14px;
 }
 .main-btn span.left{
   display:flex;
@@ -206,7 +208,6 @@ body{
   color:#1f2933;
   box-shadow:0 1px 4px rgba(148,163,184,.5);
   cursor:pointer;
-  font-size:12px;
 }
 
 /* FILTER + RESULTS */
@@ -246,18 +247,18 @@ body{
   flex:1;
   min-width:0;
   padding:7px 8px;
-  font-size:12px;
   border-radius:8px;
   border:1px solid var(--border);
   background:#f9fafb;
   color:var(--text);
+  font-size:14px;
 }
-.filter-input::placeholder{color:#9ca3af}
 .filter-input.small{
   flex:1 1 30%;
-  font-size:11px;
   padding:5px 6px;
+  font-size:14px;
 }
+.filter-input::placeholder{color:#9ca3af}
 @media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
@@ -327,7 +328,6 @@ body{
 .detail-qty-box input{
   flex:1;
   text-align:center;
-  font-size:16px;
   border:1px solid var(--border);
   border-radius:10px;
   padding:8px;
@@ -396,7 +396,7 @@ body{
           <span class="main-icon">🚗</span>
           <span>بضاعة شركة تويوتا</span>
         </span>
-        <span class="main-arrow">قريباً</span>
+        <span class="main-arrow"></span>
       </button>
 
       <button class="main-btn primary" onclick="openMenu(3)">
@@ -463,7 +463,7 @@ body{
           <input id="barcode" class="filter-input small" placeholder="باركود">
           <button type="button"
                   id="scanBtn"
-                  style="border:none;background:#1976d2;color:#fff;font-size:12px;
+                  style="border:none;background:#1976d2;color:#fff;
                          padding:5px 8px;border-radius:8px;cursor:pointer;">
             📷
           </button>
@@ -477,7 +477,7 @@ body{
     <button type="button"
             onclick="stopScan()"
             style="width:100%;border:none;background:#eee;padding:6px;
-                   font-size:12px;cursor:pointer">
+                   font-size:14px;cursor:pointer">
       إغلاق الكاميرا
     </button>
   </div>
@@ -501,28 +501,22 @@ let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
 
-/* التحكم في pull-to-refresh: مفعّل فقط بعد تسجيل الدخول */
+/* منع pull-to-refresh بعد الدخول فقط */
 let lastTouchY = 0;
 let preventPullToRefresh = false;
-
 function enablePullBlock(){ preventPullToRefresh = true; }
-function disablePullBlock(){ preventPullToRefresh = false; }
-
 window.addEventListener("touchstart", function(e){
   if(!preventPullToRefresh) return;
   if(e.touches.length !== 1) return;
   lastTouchY = e.touches[0].clientY;
 }, {passive:false});
-
 window.addEventListener("touchmove", function(e){
   if(!preventPullToRefresh) return;
   if(window.scrollY > 0) return;
   const touchY = e.touches[0].clientY;
   const deltaY = touchY - lastTouchY;
   lastTouchY = touchY;
-  if(deltaY > 0){
-    e.preventDefault();
-  }
+  if(deltaY > 0) e.preventDefault();
 }, {passive:false});
 
 /* beep */
@@ -562,7 +556,7 @@ function login(){
     CURRENT_USER = res.user && res.user.name ? res.user.name : user;
     CURRENT_ROLE = res.user && res.user.role ? res.user.role : "User";
 
-    enablePullBlock(); // بعد الدخول نمنع pull‑to‑refresh
+    enablePullBlock();
 
     loginLoading.textContent = "جاري تحميل بيانات المخزون...";
     loadDataAfterLogin();
@@ -738,7 +732,7 @@ function render(data){
     if(hasCount){
       const diffAbs = Math.abs(qtySysNum - qtyCountNum);
       if(qtySysNum === qtyCountNum){
-        cls += "ok";
+        cls += " ok";
         status = `✓ تم التعديل (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
@@ -765,14 +759,14 @@ function render(data){
   </div>
   <div class="name">${r.name ?? ""}</div>
   <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
-    <span>الكمية (النظام): <b>${qtySysTxt}</b></span>
+    <span>الكمية (المتوفرة): <b>${qtySysTxt}</b></span>
     <span>الكمية (التعديل): <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
     <button
       onclick='openDetail(${JSON.stringify(r.part ?? "")})'
-      style="border:none;background:#1976d2;color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer">
+      style="border:none;background:#1976d2;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">
       ✏️ تعديل
     </button>
   </div>
@@ -813,7 +807,7 @@ function openDetail(part){
         data-original="${countLoc.replace(/"/g,'&quot;')}"
         style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
 
-      <div class="detail-label">الكمية (النظام) – للعرض فقط</div>
+      <div class="detail-label">الكمية (المتوفرة) – للعرض فقط</div>
       <div><b>${systemQty}</b></div>
 
       <div class="detail-label">كمية التعديل</div>
@@ -878,13 +872,16 @@ function updateDetailSaveState(){
   }
 }
 
-/* SAVE COUNT */
+/* SAVE COUNT
+   - لو ما غيّر الكمية (أو تركها فاضية) وغَيَّر الموقع/ملاحظة:
+       countedQty = systemQty  → يعتبره جرد مطابق.
+   - لو غيّر الكمية: يستخدم الكمية الجديدة. */
 function saveCount(part, systemQty){
   const cqEl   = document.getElementById("cq");
   const noteEl = document.getElementById("note");
   const locEl  = document.getElementById("newLoc");
 
-  const counted = cqEl.value;
+  const countedRaw = cqEl.value;
   const noteVal = noteEl.value || "";
   const newLoc  = locEl ? locEl.value.trim() : "";
 
@@ -892,9 +889,9 @@ function saveCount(part, systemQty){
   const origNote  = noteEl.getAttribute("data-original") ?? "";
   const origLoc   = locEl.getAttribute("data-original") ?? "";
 
-  const changedCount = String(counted || "") !== String(origCount);
-  const changedNote  = String(noteVal || "") !== String(origNote);
-  const changedLoc   = String(newLoc || "") !== String(origLoc);
+  const changedCount = String(countedRaw || "") !== String(origCount);
+  const changedNote  = String(noteVal   || "") !== String(origNote);
+  const changedLoc   = String(newLoc    || "") !== String(origLoc);
 
   if(!changedCount && !changedNote && !changedLoc){
     const ov0 = document.querySelector(".detail-overlay");
@@ -902,12 +899,21 @@ function saveCount(part, systemQty){
     return;
   }
 
+  let counted;
+  if(changedCount && countedRaw !== ""){
+    // جرد فعلي: استخدم الكمية التي أدخلها المستخدم
+    counted = Number(countedRaw) || 0;
+  }else{
+    // لم يغيّر الكمية → اعتبر النظام صحيح وأخذه ككمية جرد
+    counted = Number(systemQty) || 0;
+  }
+
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(r){
     r.lastCountedAt = new Date().toISOString();
-    r.lastCountQty = counted;
-    r.note = noteVal;
-    r.countedBy = CURRENT_USER || "";
+    r.lastCountQty  = counted;
+    r.note          = noteVal;
+    r.countedBy     = CURRENT_USER || "";
     r.countLocation = newLoc;
   }
 
