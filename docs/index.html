@@ -6,8 +6,6 @@
 <title>شركة القاضي</title>
 
 <link rel="manifest" href="manifest.json">
-
-<!-- مكتبة قراءة الباركود / QR -->
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
@@ -34,7 +32,7 @@ body{
 }
 *{box-sizing:border-box}
 
-/* ===== LOGIN ===== */
+/* LOGIN */
 .login-screen{
   position:fixed;
   inset:0;
@@ -102,7 +100,7 @@ body{
 #loginLoading{display:none;margin-top:6px;font-size:11px;color:#6b7280}
 #buildInfo{margin-top:10px;font-size:11px;color:#9ca3af}
 
-/* ===== MAIN MENU ===== */
+/* MAIN MENU */
 #mainScreen{
   display:none;
   min-height:100vh;
@@ -189,7 +187,7 @@ body{
   color:#ffffff;
 }
 
-/* ===== APP ===== */
+/* APP TOP */
 #appScreen{display:none}
 .top-bar{
   max-width:430px;
@@ -205,7 +203,7 @@ body{
   border-radius:8px;
   padding:6px 12px;
   background:#ffffff;
-  color:#var(--text);
+  color:#1f2933;
   box-shadow:0 1px 4px rgba(148,163,184,.5);
   cursor:pointer;
   font-size:12px;
@@ -474,7 +472,6 @@ body{
     </div>
   </div>
 
-  <!-- حاوية الكاميرا -->
   <div id="scannerContainer">
     <div id="reader" style="width:100%;"></div>
     <button type="button"
@@ -488,7 +485,6 @@ body{
   <div id="results"></div>
 </div>
 
-<!-- صوت beep عند الحفظ -->
 <audio id="beepAudio">
   <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUAAAAA=" type="audio/wav">
 </audio>
@@ -498,7 +494,6 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
-// غيّر هذا الرابط إذا تغير نشر الويب آب
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
@@ -506,7 +501,31 @@ let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
 
-/* صوت beep */
+/* التحكم في pull-to-refresh: مفعّل فقط بعد تسجيل الدخول */
+let lastTouchY = 0;
+let preventPullToRefresh = false;
+
+function enablePullBlock(){ preventPullToRefresh = true; }
+function disablePullBlock(){ preventPullToRefresh = false; }
+
+window.addEventListener("touchstart", function(e){
+  if(!preventPullToRefresh) return;
+  if(e.touches.length !== 1) return;
+  lastTouchY = e.touches[0].clientY;
+}, {passive:false});
+
+window.addEventListener("touchmove", function(e){
+  if(!preventPullToRefresh) return;
+  if(window.scrollY > 0) return;
+  const touchY = e.touches[0].clientY;
+  const deltaY = touchY - lastTouchY;
+  lastTouchY = touchY;
+  if(deltaY > 0){
+    e.preventDefault();
+  }
+}, {passive:false});
+
+/* beep */
 function playBeep(){
   const a = document.getElementById("beepAudio");
   if(!a) return;
@@ -542,6 +561,8 @@ function login(){
 
     CURRENT_USER = res.user && res.user.name ? res.user.name : user;
     CURRENT_ROLE = res.user && res.user.role ? res.user.role : "User";
+
+    enablePullBlock(); // بعد الدخول نمنع pull‑to‑refresh
 
     loginLoading.textContent = "جاري تحميل بيانات المخزون...";
     loadDataAfterLogin();
@@ -594,7 +615,7 @@ function openMenu(id){
   }
 }
 
-/* مساعدة: توحيد صيغة الباركود إلى أول 10 أرقام فقط */
+/* barcode normalize */
 function normalizeBarcode(text){
   if(!text) return "";
   const digits = String(text).replace(/\D/g, "");
@@ -706,7 +727,7 @@ function fmtDate(d){
   return `${day}/${month}/${year} ${hour}:${min}`;
 }
 
-/* RENDER مع تنبيه بصري إذا الفرق ≥ 5 */
+/* RENDER مع تنبيه فرق ≥5 */
 function render(data){
   results.innerHTML = data.map(r=>{
     const qtySysNum   = Number(r.qty ?? 0);
@@ -714,16 +735,14 @@ function render(data){
 
     let cls="part", status="";
     const hasCount = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
-    let bigDiff = false;
-
     if(hasCount){
       const diffAbs = Math.abs(qtySysNum - qtyCountNum);
       if(qtySysNum === qtyCountNum){
-        cls += " ok";
+        cls += "ok";
         status = `✓ تم التعديل (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
-        bigDiff = diffAbs >= 5;
+        const bigDiff = diffAbs >= 5;
         const alertIcon = bigDiff ? "🚨" : "⚠";
         status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
       }
@@ -761,7 +780,7 @@ function render(data){
   }).join("");
 }
 
-/* DETAIL MODAL مع تفعيل/تعطيل زر الحفظ */
+/* DETAIL MODAL + زر حفظ مشروط */
 function openDetail(part){
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(!r) return;
@@ -831,7 +850,7 @@ function chg(d){
   i.value = Math.max(0, (+i.value || 0) + d);
 }
 
-/* تفعيل/تعطيل زر الحفظ حسب التغييرات */
+/* enable/disable save */
 function updateDetailSaveState(){
   const btn  = document.getElementById("detailSaveBtn");
   if(!btn) return;
@@ -859,7 +878,7 @@ function updateDetailSaveState(){
   }
 }
 
-/* SAVE COUNT مع beep وعدم حفظ إذا ما فيه تغيير */
+/* SAVE COUNT */
 function saveCount(part, systemQty){
   const cqEl   = document.getElementById("cq");
   const noteEl = document.getElementById("note");
@@ -896,7 +915,7 @@ function saveCount(part, systemQty){
   if(ov) ov.remove();
 
   runSearch();
-  playBeep(); // صوت بعد التحديث المحلي
+  playBeep();
 
   fetch(API,{
     method:"POST",
@@ -917,7 +936,7 @@ function saveCount(part, systemQty){
   .catch(()=>{});
 }
 
-/* CAMERA / BARCODE SCAN */
+/* CAMERA */
 let html5QrCode = null;
 let isScanning = false;
 
@@ -971,9 +990,7 @@ function startScan(){
         stopScan();
         runSearch();
       },
-      errorMessage => {
-        // يمكن تجاهل أخطاء القراءة اللحظية
-      }
+      errorMessage =>{}
     );
   }).catch(err => {
     alert("تعذر فتح الكاميرا");
