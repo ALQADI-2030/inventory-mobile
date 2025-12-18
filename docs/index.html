@@ -84,7 +84,7 @@ body{
   padding:10px;
   border:none;
   border-radius:999px;
-  background:linear-gradient(135deg,#1976d2,#4caf50);
+  background:linear-gradient(135deg,#1976d2,#0d47a1); /* أزرق فقط */
   color:#ffffff;
   font-size:14px;
   cursor:pointer;
@@ -178,7 +178,7 @@ body{
   color:#6b7280;
 }
 .main-btn.primary{
-  background:linear-gradient(135deg,#1976d2,#4caf50);
+  background:linear-gradient(135deg,#1976d2,#0d47a1); /* أزرق */
   color:#ffffff;
 }
 .main-btn.primary .main-icon{
@@ -252,9 +252,16 @@ body{
   color:var(--text);
 }
 .filter-input::placeholder{color:#9ca3af}
+/* نسخه صغيرة للبحث بالموقع والباركود */
+.filter-input.small{
+  flex:1 1 30%;
+  font-size:11px;
+  padding:5px 6px;
+}
 @media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
+  .filter-input.small{flex:1 1 30%}
 }
 
 /* ITEM */
@@ -315,7 +322,7 @@ body{
   font-size:20px;
   cursor:pointer;
   background:#e5e7eb;
-  color:#text;
+  color:var(--text);
 }
 .detail-qty-box input{
   flex:1;
@@ -333,7 +340,7 @@ body{
   padding:10px;
   border:none;
   border-radius:10px;
-  background:linear-gradient(135deg,#1976d2,#4caf50);
+  background:linear-gradient(135deg,#1976d2,#0d47a1); /* أزرق */
   color:#fff;
   cursor:pointer;
 }
@@ -374,14 +381,6 @@ body{
     </div>
 
     <div class="main-list">
-      <button class="main-btn" onclick="openMenu(1)">
-        <span class="left">
-          <span class="main-icon">📍</span>
-          <span>تعديل المواقع</span>
-        </span>
-        <span class="main-arrow">قريباً</span>
-      </button>
-
       <button class="main-btn" onclick="openMenu(2)">
         <span class="left">
           <span class="main-icon">🚗</span>
@@ -393,7 +392,7 @@ body{
       <button class="main-btn primary" onclick="openMenu(3)">
         <span class="left">
           <span class="main-icon">📋</span>
-          <span>الجرد المخزني</span>
+          <span>تعديل بيانات الأصناف</span>
         </span>
         <span class="main-arrow">دخول</span>
       </button>
@@ -405,7 +404,7 @@ body{
 <div id="appScreen">
 
   <div class="top-bar">
-    <div class="top-title">جرد المخزون</div>
+    <div class="top-title">تعديل بيانات الأصناف</div>
     <button class="icon-btn" onclick="backToMain()">عودة</button>
   </div>
 
@@ -447,8 +446,9 @@ body{
       </div>
 
       <div class="filter-row">
-        <input id="locFrom" class="filter-input" placeholder="الموقع من">
-        <input id="locTo" class="filter-input" placeholder="إلى">
+        <input id="locFrom" class="filter-input small" placeholder="الموقع من">
+        <input id="locTo"   class="filter-input small" placeholder="إلى">
+        <input id="barcode" class="filter-input small" placeholder="باركود">
       </div>
     </div>
   </div>
@@ -577,12 +577,14 @@ function runSearch(){
   const nc = (nContains.value || "").trim().toLowerCase();
   const lfRaw = (locFrom.value || "").trim().toLowerCase();
   const ltRaw = (locTo.value || "").trim().toLowerCase();
+  const bcRaw = (barcode.value || "").trim().toLowerCase();
+
   const stateEl = document.querySelector('input[name="countState"]:checked');
   const state = stateEl ? stateEl.value : "all";
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
-  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && state==="all"){
+  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcRaw && state==="all"){
     const initial = ALL_DATA.slice(0, 50);
     LAST_RENDER = initial;
     render(initial);
@@ -594,6 +596,7 @@ function runSearch(){
     const p = String(r.part ?? "").toLowerCase();
     const n = String(r.name ?? "").toLowerCase();
     const l = String(r.location ?? "").toLowerCase();
+    const b = String(r.barcode ?? "").toLowerCase();
 
     const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
     const qtySysNum   = Number(r.qty ?? 0);
@@ -608,6 +611,8 @@ function runSearch(){
     if(pe && !p.endsWith(pe)) continue;
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
+
+    if(bcRaw && !b.includes(bcRaw)) continue;
 
     if(hasLocFilter){
       const lf = lfRaw || l;
@@ -659,13 +664,13 @@ function render(data){
     if(hasCount){
       if(qtySysNum === qtyCountNum){
         cls += " ok";
-        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
+        status = `✓ تم التعديل (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
-        status = `⚠ فرق جرد | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
+        status = `⚠ فرق | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
       }
     }else{
-      status = "لم يُجرَد بعد";
+      status = "لم يُعدَّل بعد";
     }
 
     const qtySysTxt   = qtySysNum.toLocaleString("ar-SA");
@@ -680,7 +685,7 @@ function render(data){
   <div class="name">${r.name ?? ""}</div>
   <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
     <span>الكمية (النظام): <b>${qtySysTxt}</b></span>
-    <span>الكمية (الجرد): <b>${qtyCountTxt}</b></span>
+    <span>الكمية (التعديل): <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
@@ -704,14 +709,14 @@ function openDetail(part){
 
   const currentCount = (r.lastCountQty ?? "");
   const systemQty = (r.qty ?? 0);
-  const realLoc = r.location || "";          // الموقع الفعلي من المخزون
-  const countLoc = r.countLocation || "";    // موقع الجرد إن وجد
+  const realLoc = r.location || "";
+  const countLoc = r.countLocation || "";
   const currentNote = r.note || "";
 
   ov.innerHTML = `
     <div class="detail-card">
       <div class="detail-header">
-        <span>تعديل الجرد</span>
+        <span>تعديل بيانات الصنف</span>
         <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
       </div>
 
@@ -729,7 +734,7 @@ function openDetail(part){
       <div class="detail-label">الكمية (النظام) – للعرض فقط</div>
       <div><b>${systemQty}</b></div>
 
-      <div class="detail-label">كمية الجرد</div>
+      <div class="detail-label">كمية التعديل</div>
       <div class="detail-qty-box">
         <button onclick="chg(-1)">−</button>
         <input id="cq" type="number" value="${currentCount}">
@@ -769,7 +774,6 @@ function saveCount(part, systemQty){
     r.note = noteVal;
     r.countedBy = CURRENT_USER || "";
     r.countLocation = newLoc;      // موقع الجرد فقط
-    // r.location (الموقع الفعلي) لا يتغير
   }
 
   const ov = document.querySelector(".detail-overlay");
