@@ -19,7 +19,6 @@
   --border:#d1d5db;
 }
 
-/* خلفية فاتحة للتطبيق */
 body{
   margin:0;
   font-family:system-ui,-apple-system;
@@ -32,7 +31,7 @@ body{
 }
 *{box-sizing:border-box}
 
-/* ===== LOGIN (شاشة الدخول) ===== */
+/* ===== LOGIN ===== */
 .login-screen{
   position:fixed;
   inset:0;
@@ -79,8 +78,6 @@ body{
   font-size:13px;
 }
 .login-box input::placeholder{color:#9ca3af}
-
-/* زر الدخول متناسق */
 .login-btn{
   width:100%;
   margin-top:12px;
@@ -98,7 +95,6 @@ body{
   transform:translateY(1px);
   box-shadow:0 4px 10px rgba(25,118,210,0.35);
 }
-
 #loginError{margin-top:8px;font-size:12px;color:#d32f2f}
 #loginLoading{display:none;margin-top:6px;font-size:11px;color:#6b7280}
 #buildInfo{margin-top:10px;font-size:11px;color:#9ca3af}
@@ -201,8 +197,6 @@ body{
   color:var(--text);
 }
 .top-title{font-weight:700;font-size:15px}
-
-/* زر عودة بدل خروج */
 .icon-btn{
   border:none;
   border-radius:8px;
@@ -407,12 +401,11 @@ body{
   </div>
 </div>
 
-<!-- APP (الجرد المخزني) -->
+<!-- APP -->
 <div id="appScreen">
 
   <div class="top-bar">
     <div class="top-title">جرد المخزون</div>
-    <!-- زر عودة بدل خروج -->
     <button class="icon-btn" onclick="backToMain()">عودة</button>
   </div>
 
@@ -464,21 +457,18 @@ body{
 </div>
 
 <script>
-/* ===== إصدار الصفحة (تلقائي من تاريخ الملف) ===== */
 document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
-/* ===== API ===== */
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
 let LAST_RENDER = [];
-
-/* تخزين اسم المستخدم الحالي لاستخدامه في الجرد */
 let CURRENT_USER = "";
+let CURRENT_ROLE = "";
 
-/* ===== LOGIN ===== */
+/* LOGIN */
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
@@ -504,8 +494,8 @@ function login(){
       return;
     }
 
-    // حفظ اسم المستخدم بعد نجاح الدخول
-    CURRENT_USER = user || "";
+    CURRENT_USER = res.user && res.user.name ? res.user.name : user;
+    CURRENT_ROLE = res.user && res.user.role ? res.user.role : "User";
 
     loginLoading.textContent = "جاري تحميل بيانات المخزون...";
     loadDataAfterLogin();
@@ -516,18 +506,12 @@ function login(){
   });
 }
 
-/* العودة إلى القائمة الرئيسية */
 function backToMain(){
   appScreen.style.display = "none";
   mainScreen.style.display = "flex";
 }
 
-/* يمكن إبقاء logout لو احتجته لاحقاً */
-function logout(){
-  location.reload();
-}
-
-/* ===== DATA ===== */
+/* DATA */
 function loadDataAfterLogin(){
   fetch(API)
     .then(r => r.json())
@@ -546,7 +530,7 @@ function loadDataAfterLogin(){
     });
 }
 
-/* ===== فتح القوائم ===== */
+/* MENU */
 function openMenu(id){
   if(id === 3){
     mainScreen.style.display = "none";
@@ -564,7 +548,7 @@ function openMenu(id){
   }
 }
 
-/* ===== الفلاتر ===== */
+/* FILTERS */
 let searchTimer = null;
 
 document.querySelectorAll(".filter-input").forEach(inp=>{
@@ -650,7 +634,7 @@ function runSearch(){
   render(res);
 }
 
-/* ===== عرض التاريخ ===== */
+/* DATE FORMAT */
 function fmtDate(d){
   if(!d) return "";
   const dt = new Date(d);
@@ -663,7 +647,7 @@ function fmtDate(d){
   return `${day}/${month}/${year} ${hour}:${min}`;
 }
 
-/* ===== عرض النتائج ===== */
+/* RENDER */
 function render(data){
   results.innerHTML = data.map(r=>{
     const qtySysNum   = Number(r.qty ?? 0);
@@ -709,7 +693,7 @@ function render(data){
   }).join("");
 }
 
-/* ===== نافذة التعديل ===== */
+/* DETAIL MODAL */
 function openDetail(part){
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(!r) return;
@@ -757,7 +741,7 @@ function chg(d){
   i.value = Math.max(0, (+i.value || 0) + d);
 }
 
-/* ===== حفظ الجرد (مع اسم الجارد) ===== */
+/* SAVE COUNT */
 function saveCount(part, systemQty){
   const counted = document.getElementById("cq").value;
   const noteVal = document.getElementById("note").value || "";
@@ -767,7 +751,6 @@ function saveCount(part, systemQty){
     r.lastCountedAt = new Date().toISOString();
     r.lastCountQty = counted;
     r.note = noteVal;
-    // حفظ اسم الجارد داخل البيانات المحلية
     r.countedBy = CURRENT_USER || "";
   }
 
@@ -776,7 +759,6 @@ function saveCount(part, systemQty){
 
   runSearch();
 
-  // إرسال البيانات للـ API مع اسم الجارد
   fetch(API,{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
@@ -786,7 +768,8 @@ function saveCount(part, systemQty){
       systemQty: String(systemQty),
       countedQty: String(counted),
       note: noteVal,
-      countedBy: CURRENT_USER || ""
+      user: CURRENT_USER || "",
+      role: CURRENT_ROLE || "User"
     })
   })
   .then(r=>r.json())
