@@ -5,29 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>جرد المخزون</title>
 
-<!-- ربط ملف manifest.json -->
 <link rel="manifest" href="manifest.json">
 
 <style>
 :root{
-  --bg:#f4f6f8;
+  --bg:#0f172a;
   --card:#ffffff;
   --primary:#1976d2;
   --ok:#1b5e20;
   --warn:#c62828;
-  --text:#222;
-  --muted:#777;
-  --border:#e0e0e0;
+  --text:#111827;
+  --muted:#6b7280;
+  --border:#e5e7eb;
 }
-*{box-sizing:border-box}
+
+/* خلفية متدرجة للتطبيق كامل */
 body{
   margin:0;
   font-family:system-ui,-apple-system;
-  background:var(--bg);
-  padding:8px;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left, #1d4ed8 0, transparent 55%),
+    radial-gradient(circle at bottom right, #0ea5e9 0, #020617 55%);
+  padding:12px;
+  color:var(--text);
 }
+*{box-sizing:border-box}
 
-/* ===== LOGIN ===== */
+/* ===== LOGIN (فخم) ===== */
 .login-screen{
   min-height:100vh;
   display:flex;
@@ -37,38 +42,57 @@ body{
 .login-box{
   width:100%;
   max-width:360px;
-  background:var(--card);
-  border-radius:16px;
-  padding:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,.15);
+  padding:20px 18px 16px;
+  border-radius:24px;
+  background:rgba(15,23,42,0.65);
+  box-shadow:0 18px 45px rgba(15,23,42,0.7);
+  border:1px solid rgba(148,163,184,0.35);
+  color:#e5e7eb;
+  backdrop-filter:blur(16px);
   text-align:center;
 }
-.login-box img{width:72px;margin-bottom:10px}
-.login-box h3{margin:0 0 6px}
-.login-box p{font-size:13px;color:var(--muted)}
+.login-logo{
+  width:72px;
+  height:72px;
+  border-radius:20px;
+  margin:0 auto 10px;
+  background:linear-gradient(145deg,#22c55e,#22d3ee);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+}
+.login-box h3{margin:4px 0 4px;font-size:18px}
+.login-box p{font-size:12px;color:#9ca3af;margin:0 0 8px}
 .login-box input{
   width:100%;
   padding:10px;
-  margin-top:10px;
-  border-radius:10px;
-  border:1px solid var(--border);
+  margin-top:8px;
+  border-radius:12px;
+  border:1px solid rgba(148,163,184,0.7);
+  background:rgba(15,23,42,0.75);
+  color:#e5e7eb;
+  font-size:13px;
 }
+.login-box input::placeholder{color:#6b7280}
 .login-box button{
   width:100%;
   margin-top:14px;
-  padding:12px;
+  padding:11px;
   border:none;
-  border-radius:12px;
-  background:var(--primary);
+  border-radius:999px;
+  background:linear-gradient(135deg,#2563eb,#22c55e);
   color:#fff;
-  font-size:15px;
+  font-size:14px;
+  font-weight:600;
   cursor:pointer;
+  box-shadow:0 10px 25px rgba(37,99,235,0.6);
 }
-#loginError{margin-top:10px;font-size:13px;color:var(--warn)}
-#loginLoading{display:none;margin-top:10px;font-size:12px;color:var(--muted)}
-#buildInfo{margin-top:12px;font-size:11px;color:#999}
+#loginError{margin-top:8px;font-size:12px;color:#fecaca}
+#loginLoading{display:none;margin-top:6px;font-size:11px;color:#9ca3af}
+#buildInfo{margin-top:10px;font-size:11px;color:#6b7280}
 
-/* ===== MAIN MENU ===== */
+/* ===== MAIN MENU (محسّنة) ===== */
 #mainScreen{
   display:none;
   min-height:100vh;
@@ -76,25 +100,101 @@ body{
   justify-content:center;
   align-items:center;
 }
+.main-card{
+  width:100%;
+  max-width:380px;
+  background:rgba(15,23,42,0.7);
+  border-radius:22px;
+  padding:18px 16px 16px;
+  box-shadow:0 18px 40px rgba(15,23,42,0.8);
+  border:1px solid rgba(148,163,184,0.35);
+  backdrop-filter:blur(18px);
+  color:#e5e7eb;
+}
+.main-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.main-title{
+  font-size:16px;
+  font-weight:700;
+}
+.main-sub{
+  font-size:11px;
+  color:#9ca3af;
+}
+.main-badge{
+  font-size:11px;
+  background:rgba(56,189,248,0.12);
+  color:#7dd3fc;
+  padding:4px 8px;
+  border-radius:999px;
+}
+.main-list{
+  margin-top:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.main-btn{
+  width:100%;
+  padding:11px 10px;
+  border:none;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  background:rgba(15,23,42,0.85);
+  color:#e5e7eb;
+  font-size:14px;
+}
+.main-btn span.left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.main-icon{
+  width:30px;
+  height:30px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  background:rgba(30,64,175,0.4);
+}
+.main-arrow{
+  font-size:13px;
+  color:#9ca3af;
+}
+.main-btn.primary{
+  background:linear-gradient(135deg,#2563eb,#22c55e);
+}
+.main-btn.primary .main-icon{
+  background:rgba(15,23,42,0.25);
+}
 
 /* ===== APP ===== */
 #appScreen{display:none}
-
-/* TOP */
 .top-bar{
   max-width:430px;
   margin:0 auto 6px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  color:#e5e7eb;
 }
 .top-title{font-weight:700;font-size:15px}
 .icon-btn{
   border:none;
   border-radius:8px;
   padding:6px 10px;
-  background:var(--card);
-  box-shadow:0 1px 4px rgba(0,0,0,.12);
+  background:rgba(15,23,42,0.9);
+  color:#e5e7eb;
+  box-shadow:0 1px 4px rgba(15,23,42,.6);
   cursor:pointer;
 }
 
@@ -103,20 +203,17 @@ body{
   max-width:430px;
   margin:0 auto 8px;
 }
-
-/* خلى البحث ثابت أعلى الشاشة */
 .filter-wrap{
   position:sticky;
   top:0;
   z-index:10;
 }
-
-/* كرت الفلتر */
 .filter-card{
-  background:var(--card);
+  background:rgba(15,23,42,0.9);
   border-radius:12px;
   padding:6px;
-  box-shadow:0 2px 6px rgba(0,0,0,.05);
+  box-shadow:0 2px 6px rgba(0,0,0,.35);
+  color:#e5e7eb;
 }
 .filter-header{
   display:flex;
@@ -126,7 +223,8 @@ body{
 }
 .clear-btn{
   font-size:12px;
-  background:#f1f3f4;
+  background:#111827;
+  color:#e5e7eb;
   border:none;
   border-radius:6px;
   padding:4px 8px;
@@ -139,9 +237,11 @@ body{
   padding:7px 8px;
   font-size:12px;
   border-radius:8px;
-  border:1px solid var(--border);
-  background:#fafafa;
+  border:1px solid #374151;
+  background:#020617;
+  color:#e5e7eb;
 }
+.filter-input::placeholder{color:#6b7280}
 @media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
@@ -149,26 +249,27 @@ body{
 
 /* ITEM */
 .item{
-  background:var(--card);
+  background:rgba(15,23,42,0.95);
   border-radius:12px;
   padding:9px;
   margin-bottom:7px;
-  box-shadow:0 3px 8px rgba(0,0,0,.05);
+  box-shadow:0 3px 8px rgba(15,23,42,.7);
+  color:#e5e7eb;
 }
 .part-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.part{font-weight:700;color:var(--primary)}
-.part.ok{color:var(--ok)}
-.part.warn{color:var(--warn)}
-.location{font-size:12px;color:var(--muted)}
+.part{font-weight:700;color:#60a5fa}
+.part.ok{color:#4ade80}
+.part.warn{color:#f87171}
+.location{font-size:12px;color:#9ca3af}
 .name{font-size:13px;margin-top:2px}
-.meta{font-size:12px;color:var(--muted);margin-top:4px}
+.meta{font-size:12px;color:#9ca3af;margin-top:4px}
 .status{font-size:12px;margin-top:4px}
 
 /* DETAIL */
 .detail-overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.35);
+  background:rgba(15,23,42,.7);
   display:flex;
   justify-content:center;
   align-items:flex-end;
@@ -177,9 +278,10 @@ body{
 .detail-card{
   width:100%;
   max-width:430px;
-  background:var(--card);
+  background:#020617;
   border-radius:16px 16px 0 0;
   padding:12px;
+  color:#e5e7eb;
 }
 .detail-header{
   display:flex;
@@ -191,8 +293,9 @@ body{
   background:none;
   font-size:18px;
   cursor:pointer;
+  color:#9ca3af;
 }
-.detail-label{font-size:12px;color:var(--muted);margin-top:10px}
+.detail-label{font-size:12px;color:#9ca3af;margin-top:10px}
 .detail-qty-box{display:flex;gap:8px;margin-top:6px}
 .detail-qty-box button{
   width:40px;
@@ -200,14 +303,18 @@ body{
   border-radius:10px;
   font-size:20px;
   cursor:pointer;
+  background:#111827;
+  color:#e5e7eb;
 }
 .detail-qty-box input{
   flex:1;
   text-align:center;
   font-size:16px;
-  border:1px solid var(--border);
+  border:1px solid #374151;
   border-radius:10px;
   padding:8px;
+  background:#020617;
+  color:#e5e7eb;
 }
 .detail-save{
   width:100%;
@@ -215,7 +322,7 @@ body{
   padding:10px;
   border:none;
   border-radius:10px;
-  background:var(--primary);
+  background:linear-gradient(135deg,#2563eb,#22c55e);
   color:#fff;
   cursor:pointer;
 }
@@ -227,9 +334,9 @@ body{
 <!-- LOGIN -->
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
-    <img src="icon-192.png" alt="logo">
-    <h3>تسجيل الدخول</h3>
-    <p>أدخل اسم المستخدم والرقم السري</p>
+    <div class="login-logo">📦</div>
+    <h3>جرد المخزون</h3>
+    <p>فضلاً أدخل اسم المستخدم والرقم السري</p>
 
     <input id="loginUser" placeholder="اسم المستخدم">
     <input id="loginPass" type="password" placeholder="الرقم السري">
@@ -243,23 +350,40 @@ body{
 
 <!-- MAIN MENU -->
 <div id="mainScreen">
-  <div style="width:100%;max-width:360px;background:var(--card);border-radius:16px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.15);">
-    <h3 style="margin:0 0 10px;text-align:center">القائمة الرئيسية</h3>
-    <button
-      style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#eeeeee;color:#333;font-size:14px;cursor:pointer"
-      onclick="openMenu(1)">
-      1) تعديل المواقع
-    </button>
-    <button
-      style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#eeeeee;color:#333;font-size:14px;cursor:pointer"
-      onclick="openMenu(2)">
-      2) بضاعة شركة تويوتا
-    </button>
-    <button
-      style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:var(--primary);color:#fff;font-size:14px;cursor:pointer"
-      onclick="openMenu(3)">
-      3) الجرد المخزني
-    </button>
+  <div class="main-card">
+    <div class="main-header">
+      <div>
+        <div class="main-title">القائمة الرئيسية</div>
+        <div class="main-sub">اختر العملية المطلوبة</div>
+      </div>
+      <div class="main-badge">نظام الجرد</div>
+    </div>
+
+    <div class="main-list">
+      <button class="main-btn" onclick="openMenu(1)">
+        <span class="left">
+          <span class="main-icon">📍</span>
+          <span>تعديل المواقع</span>
+        </span>
+        <span class="main-arrow">قريباً</span>
+      </button>
+
+      <button class="main-btn" onclick="openMenu(2)">
+        <span class="left">
+          <span class="main-icon">🚗</span>
+          <span>بضاعة شركة تويوتا</span>
+        </span>
+        <span class="main-arrow">قريباً</span>
+      </button>
+
+      <button class="main-btn primary" onclick="openMenu(3)">
+        <span class="left">
+          <span class="main-icon">📋</span>
+          <span>الجرد المخزني</span>
+        </span>
+        <span class="main-arrow">دخول</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -279,7 +403,6 @@ body{
         <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
       </div>
 
-      <!-- أزرار حالة الجرد -->
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;font-size:11px">
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="all" checked style="margin:0">
@@ -374,11 +497,9 @@ function loadDataAfterLogin(){
       const initial = ALL_DATA.slice(0, 50);
       LAST_RENDER = initial;
 
-      // إغلاق شاشة الدخول وفتح القائمة فقط
       loginScreen.style.display="none";
       loginLoading.style.display="none";
       mainScreen.style.display="flex";
-      // لا نعرض صفحة الجرد الآن؛ تظهر عند اختيار القائمة 3
     })
     .catch(() => {
       loginLoading.style.display="none";
@@ -389,7 +510,6 @@ function loadDataAfterLogin(){
 /* ===== فتح القوائم ===== */
 function openMenu(id){
   if(id === 3){
-    // فتح شاشة الجرد
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
 
@@ -465,7 +585,6 @@ function runSearch(){
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
 
-    // فلتر الموقع من/إلى كنطاق نصي
     if(hasLocFilter){
       const lf = lfRaw || l;
       const lt = ltRaw || l;
@@ -543,7 +662,7 @@ function render(data){
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
     <button
       onclick='openDetail(${JSON.stringify(r.part ?? "")})'
-      style="border:none;background:#1976d2;color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer">
+      style="border:none;background:#2563eb;color:#fff;font-size:12px;padding:6px 12px;border-radius:8px;cursor:pointer">
       ✏️ تعديل
     </button>
   </div>
@@ -584,7 +703,7 @@ function openDetail(part){
 
       <div class="detail-label">ملاحظات</div>
       <textarea id="note"
-        style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px">${r.note ?? ""}</textarea>
+        style="width:100%;min-height:60px;border-radius:8px;border:1px solid #374151;padding:6px;background:#020617;color:#e5e7eb">${r.note ?? ""}</textarea>
 
       <button class="detail-save" onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
         حفظ التعديل
@@ -628,9 +747,7 @@ function saveCount(part, systemQty){
     })
   })
   .then(r=>r.json())
-  .then(res=>{
-    // لا نعيد loadData هنا حتى لا يتغير ترتيب النتائج
-  })
+  .then(res=>{})
   .catch(()=>{});
 }
 </script>
