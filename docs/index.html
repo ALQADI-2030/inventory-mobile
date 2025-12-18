@@ -154,7 +154,7 @@ body{
   justify-content:space-between;
   cursor:pointer;
   background:#f5f7fb;
-  color:var(--text);
+  color:#var(--text);
   font-size:14px;
 }
 .main-btn span.left{
@@ -175,7 +175,7 @@ body{
 }
 .main-arrow{
   font-size:13px;
-  color:var(--muted);
+  color:#6b7280;
 }
 .main-btn.primary{
   background:linear-gradient(135deg,#1976d2,#4caf50);
@@ -461,6 +461,7 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
+// غيّر هذا الرابط إلى رابط الويب آب المنشور عندك
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
@@ -703,6 +704,7 @@ function openDetail(part){
 
   const currentCount = (r.lastCountQty ?? "");
   const systemQty = (r.qty ?? 0);
+  const currentLoc = r.location || "";
 
   ov.innerHTML = `
     <div class="detail-card">
@@ -713,6 +715,14 @@ function openDetail(part){
 
       <div class="detail-label">رقم الصنف</div>
       <div><b>${r.part}</b></div>
+
+      <div class="detail-label">الموقع الحالي</div>
+      <div><b>${currentLoc}</b></div>
+
+      <div class="detail-label">تعديل الموقع</div>
+      <input id="newLoc"
+        value="${currentLoc}"
+        style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
 
       <div class="detail-label">الكمية (النظام) – للعرض فقط</div>
       <div><b>${systemQty}</b></div>
@@ -745,6 +755,8 @@ function chg(d){
 function saveCount(part, systemQty){
   const counted = document.getElementById("cq").value;
   const noteVal = document.getElementById("note").value || "";
+  const newLocEl = document.getElementById("newLoc");
+  const newLoc   = newLocEl ? newLocEl.value.trim() : "";
 
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(r){
@@ -752,6 +764,7 @@ function saveCount(part, systemQty){
     r.lastCountQty = counted;
     r.note = noteVal;
     r.countedBy = CURRENT_USER || "";
+    if(newLoc) r.location = newLoc;
   }
 
   const ov = document.querySelector(".detail-overlay");
@@ -769,7 +782,8 @@ function saveCount(part, systemQty){
       countedQty: String(counted),
       note: noteVal,
       user: CURRENT_USER || "",
-      role: CURRENT_ROLE || "User"
+      role: CURRENT_ROLE || "User",
+      newLocation: newLoc
     })
   })
   .then(r=>r.json())
