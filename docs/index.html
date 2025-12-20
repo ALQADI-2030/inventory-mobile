@@ -275,7 +275,7 @@ input, textarea, button{
 }
 .part-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .part{font-weight:700;color:#1976d2}
-.part.ok{color:var(--ok)}
+.part.ok{color:var(--primary)}
 .part.warn{color:var(--warn)}
 .location{font-size:12px;color:var(--muted)}
 .name{font-size:13px;margin-top:2px}
@@ -829,14 +829,15 @@ function renderInventory(data){
         cls += " warn";
         const bigDiff = diffAbs >= 5;
         const alertIcon = bigDiff ? "🚨" : "⚠";
-        status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
-      }
+        status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("en-US")} | نظام: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
+
     }else{
       status = "لم يجرد";
     }
 
-    const qtySysTxt   = qtySysNum.toLocaleString("ar-SA");
-    const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("ar-SA") : "";
+    const qtySysTxt   = qtySysNum.toLocaleString("en-US");
+const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("en-US") : "";
+
 
     const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5
       ? "border:2px solid #f97316;background:#fff7ed;"
@@ -871,21 +872,26 @@ function renderSales(data){
     const availTxt = r.available > 0 ? "متوفر" : "غير متوفر";
     const availCls = r.available > 0 ? "ok" : "warn";
 
+    const qtyTxt   = Number(r.available || 0).toLocaleString("en-US");
+    const costTxt  = Number(r.cost || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const maxTxt   = Number(r.maxPrice || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
     return `
-<div class="item">
+<div class="item sales-item">
   <div class="part-row">
     <div class="part ${availCls}">${r.part}</div>
     <div class="location"><b>الفرع:</b> ${r.branch}</div>
   </div>
   <div class="name">${r.name}</div>
   <div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between">
-    <span>الحالة: <b>${availTxt}</b> (كمية: ${r.available.toLocaleString("ar-SA")})</span>
-    <span>التكلفة: <b>${r.cost.toLocaleString("ar-SA")}</b></span>
-    <span>أعلى سعر: <b>${r.maxPrice.toLocaleString("ar-SA")}</b></span>
+    <span>الحالة: <b>${availTxt}</b> (Qty: ${qtyTxt})</span>
+    <span>Cost: <b>${costTxt}</b></span>
+    <span>Max Price: <b>${maxTxt}</b></span>
   </div>
 </div>`;
   }).join("");
 }
+
 
 /* DETAIL MODAL + زر حفظ (للجرد فقط) */
 function openDetail(part){
