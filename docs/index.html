@@ -48,10 +48,10 @@ input, textarea, button{
 .login-box{
   width:100%;
   max-width:360px;
-  padding:20px 18px 18px;
-  border-radius:24px;
+  padding:22px 20px 18px;
+  border-radius:26px;
   background:#ffffff;
-  box-shadow:0 18px 45px rgba(148,163,184,0.4);
+  box-shadow:0 22px 55px rgba(15,23,42,0.25);
   border:1px solid rgba(209,213,219,0.9);
   color:var(--text);
   text-align:center;
@@ -70,29 +70,38 @@ input, textarea, button{
   object-fit:contain;
   display:block;
 }
-.login-box h3{margin:4px 0 4px;font-size:18px}
-.login-box p{font-size:12px;color:var(--muted);margin:0 0 10px}
+.login-box h3{
+  margin:6px 0 4px;
+  font-size:18px;
+  font-weight:800;
+}
+.login-box p{
+  font-size:12px;
+  color:var(--muted);
+  margin:0 0 12px;
+}
 .login-box input{
   width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:12px;
+  padding:11px;
+  margin-top:9px;
+  border-radius:14px;
   border:1px solid var(--border);
-  background:#ffffff;
+  background:#f9fafb;
   color:var(--text);
 }
 .login-box input::placeholder{color:#9ca3af}
 .login-btn{
   width:100%;
-  margin-top:12px;
-  padding:10px;
+  margin-top:14px;
+  padding:11px;
   border:none;
   border-radius:999px;
   background:linear-gradient(135deg,#1976d2,#0d47a1);
   color:#ffffff;
   cursor:pointer;
-  font-weight:600;
-  box-shadow:0 8px 18px rgba(25,118,210,0.35);
+  font-weight:700;
+  letter-spacing:0.3px;
+  box-shadow:0 10px 22px rgba(25,118,210,0.45);
 }
 .login-btn:active{
   transform:translateY(1px);
@@ -114,21 +123,21 @@ input, textarea, button{
   width:100%;
   max-width:380px;
   background:#ffffff;
-  border-radius:22px;
-  padding:18px 16px 16px;
-  box-shadow:0 18px 40px rgba(148,163,184,0.35);
+  border-radius:26px;
+  padding:20px 18px 18px;
+  box-shadow:0 18px 40px rgba(15,23,42,0.12);
   border:1px solid #e5e7eb;
   color:var(--text);
 }
 .main-header{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
-  margin-bottom:10px;
+  margin-bottom:14px;
 }
 .main-title{
-  font-size:16px;
-  font-weight:700;
+  font-size:18px;
+  font-weight:800;
 }
 .main-sub{
   font-size:11px;
@@ -136,56 +145,65 @@ input, textarea, button{
 }
 .main-badge{
   font-size:11px;
-  background:#e3f2fd;
+  background:rgba(25,118,210,0.08);
   color:#1565c0;
-  padding:4px 8px;
+  padding:4px 10px;
   border-radius:999px;
 }
 .main-list{
-  margin-top:10px;
+  margin-top:6px;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:10px;
 }
 .main-btn{
   width:100%;
-  padding:11px 10px;
+  padding:12px 12px;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   cursor:pointer;
-  background:#f5f7fb;
+  background:linear-gradient(135deg,#f4f6fb,#e5ecff);
   color:var(--text);
+  box-shadow:0 4px 10px rgba(15,23,42,0.08);
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .main-btn span.left{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:10px;
 }
 .main-icon{
-  width:30px;
-  height:30px;
-  border-radius:10px;
+  width:36px;
+  height:36px;
+  border-radius:12px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:16px;
-  background:#e3f2fd;
+  font-size:18px;
+  background:#ffffff;
   color:#1976d2;
+  box-shadow:0 2px 6px rgba(148,163,184,.45);
 }
 .main-arrow{
   font-size:13px;
   color:#6b7280;
+  font-weight:600;
 }
 .main-btn.primary{
   background:linear-gradient(135deg,#1976d2,#0d47a1);
   color:#ffffff;
 }
 .main-btn.primary .main-icon{
-  background:rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.18);
   color:#ffffff;
+  box-shadow:none;
+}
+.main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 7px 16px rgba(15,23,42,0.15);
 }
 
 /* APP TOP */
@@ -282,7 +300,7 @@ input, textarea, button{
 .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .status{font-size:12px;margin-top:4px}
 
-/* نتائج المبيعات: رقم الصنف المتوفر أزرق */
+/* نتائج المبيعات: المتوفر أزرق */
 .sales-item .part.ok{
   color:var(--primary);
 }
@@ -391,7 +409,7 @@ input, textarea, button{
         <div class="main-title">القائمة الرئيسية</div>
         <div class="main-sub">اختر العملية المطلوبة</div>
       </div>
-      <div class="main-badge"></div>
+      <div class="main-badge">نظام الجرد والمبيعات</div>
     </div>
 
     <div class="main-list">
@@ -400,7 +418,7 @@ input, textarea, button{
           <span class="main-icon">🚗</span>
           <span>بضاعة شركة تويوتا</span>
         </span>
-        <span class="main-arrow"></span>
+        <span class="main-arrow">›</span>
       </button>
 
       <button class="main-btn primary" onclick="openMenu(3)">
@@ -411,7 +429,6 @@ input, textarea, button{
         <span class="main-arrow">دخول</span>
       </button>
 
-      <!-- زر المبيعات الجديد -->
       <button class="main-btn" onclick="openSalesMenu()">
         <span class="left">
           <span class="main-icon">💰</span>
@@ -889,8 +906,8 @@ function renderSales(data){
   <div class="name">${r.name}</div>
   <div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between">
     <span>الحالة: <b>${availTxt}</b> (Qty: ${qtyTxt})</span>
-    <span>التكلفة: <b>${costTxt}</b></span>
-    <span>سعر الشركة: <b>${maxTxt}</b></span>
+    <span>Cost: <b>${costTxt}</b></span>
+    <span>Max Price: <b>${maxTxt}</b></span>
   </div>
 </div>`;
   }).join("");
