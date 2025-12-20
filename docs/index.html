@@ -11,14 +11,16 @@
 
 <style>
 :root{
-  --bg:#f3f4f6;
-  --card:#ffffff;
-  --primary:#1976d2;
-  --ok:#2e7d32;
-  --warn:#c62828;
-  --text:#1f2933;
+  --bg:#f3f4fb;
+  --card:rgba(255,255,255,0.94);
+  --primary:#2563eb;          /* أزرق كهربائي مريح */
+  --primary-soft:rgba(37,99,235,0.10);
+  --accent:#7c3aed;           /* بنفسجي لدعم الجنون */
+  --ok:#16a34a;
+  --warn:#dc2626;
+  --text:#0f172a;
   --muted:#6b7280;
-  --border:#d1d5db;
+  --border:rgba(148,163,184,0.35);
 }
 
 body{
@@ -26,8 +28,8 @@ body{
   font-family:system-ui,-apple-system;
   min-height:100vh;
   background:
-    radial-gradient(circle at top left, #e3f2fd 0, transparent 55%),
-    radial-gradient(circle at bottom right, #e0f7fa 0, #f3f4f6 55%);
+    radial-gradient(circle at 0% 0%, rgba(59,130,246,0.12) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56,189,248,0.16) 0, #e5e7eb 55%);
   padding:12px;
   color:var(--text);
 }
@@ -44,21 +46,43 @@ input, textarea, button{
   display:flex;
   justify-content:center;
   align-items:center;
+  background:radial-gradient(circle at 0% 0%, rgba(59,130,246,0.18) 0, transparent 55%),
+             radial-gradient(circle at 100% 100%, rgba(236,72,153,0.16) 0, rgba(248,250,252,0.96) 55%);
 }
 .login-box{
   width:100%;
   max-width:360px;
-  padding:22px 20px 18px;
-  border-radius:26px;
-  background:#ffffff;
-  box-shadow:0 22px 55px rgba(15,23,42,0.25);
-  border:1px solid rgba(209,213,219,0.9);
+  padding:24px 20px 20px;
+  border-radius:28px;
+  background:var(--card);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  box-shadow:
+    0 22px 60px rgba(15,23,42,0.25),
+    0 0 0 1px rgba(148,163,184,0.40);
   color:var(--text);
   text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.login-box::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59,130,246,0.18) 0, transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba(236,72,153,0.20) 0, transparent 55%);
+  opacity:0.45;
+  pointer-events:none;
+  mix-blend-mode:soft-light;
+}
+.login-box > *{
+  position:relative;
+  z-index:1;
 }
 .login-logo{
-  width:110px;
-  height:60px;
+  width:120px;
+  height:64px;
   margin:4px auto 14px;
   display:flex;
   align-items:center;
@@ -86,30 +110,59 @@ input, textarea, button{
   margin-top:9px;
   border-radius:14px;
   border:1px solid var(--border);
-  background:#f9fafb;
+  background:rgba(248,250,252,0.9);
   color:var(--text);
+  transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
 .login-box input::placeholder{color:#9ca3af}
+.login-box input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px rgba(37,99,235,0.45);
+  background:#ffffff;
+}
 .login-btn{
   width:100%;
-  margin-top:14px;
+  margin-top:16px;
   padding:11px;
   border:none;
   border-radius:999px;
-  background:linear-gradient(135deg,#1976d2,#0d47a1);
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
   color:#ffffff;
   cursor:pointer;
   font-weight:700;
   letter-spacing:0.3px;
-  box-shadow:0 10px 22px rgba(25,118,210,0.45);
+  box-shadow:
+    0 14px 32px rgba(37,99,235,0.55),
+    0 0 0 1px rgba(129,140,248,0.65);
+  transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+.login-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    0 18px 40px rgba(37,99,235,0.6),
+    0 0 0 1px rgba(129,140,248,0.8);
 }
 .login-btn:active{
-  transform:translateY(1px);
-  box-shadow:0 4px 10px rgba(25,118,210,0.35);
+  transform:translateY(1px) scale(0.99);
+  box-shadow:0 6px 18px rgba(37,99,235,0.45);
 }
-#loginError{margin-top:8px;font-size:12px;color:#d32f2f}
-#loginLoading{display:none;margin-top:6px;font-size:11px;color:#6b7280}
-#buildInfo{margin-top:10px;font-size:11px;color:#9ca3af}
+#loginError{
+  margin-top:8px;
+  font-size:12px;
+  color:#dc2626;
+}
+#loginLoading{
+  display:none;
+  margin-top:6px;
+  font-size:11px;
+  color:#6b7280;
+}
+#buildInfo{
+  margin-top:10px;
+  font-size:11px;
+  color:#9ca3af;
+}
 
 /* MAIN MENU */
 #mainScreen{
@@ -119,41 +172,57 @@ input, textarea, button{
   justify-content:center;
   align-items:center;
 }
-
 .main-card{
   width:100%;
   max-width:380px;
-  background:rgba(255,255,255,0.9);
+  background:var(--card);
   border-radius:28px;
-  padding:18px 16px 14px;
-  box-shadow:0 24px 55px rgba(15,23,42,0.25);
-  border:1px solid rgba(209,213,219,0.9);
+  padding:18px 16px 16px;
+  box-shadow:
+    0 24px 55px rgba(15,23,42,0.22),
+    0 0 0 1px rgba(148,163,184,0.40);
   color:var(--text);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  position:relative;
+  overflow:hidden;
 }
-
+.main-card::before{
+  content:"";
+  position:absolute;
+  inset:-35%;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59,130,246,0.16) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56,189,248,0.16) 0, transparent 55%);
+  opacity:0.6;
+  pointer-events:none;
+  mix-blend-mode:soft-light;
+}
+.main-card > *{
+  position:relative;
+  z-index:1;
+}
 .main-header{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
   margin-bottom:12px;
 }
-
 .main-title{
   font-size:18px;
   font-weight:800;
 }
-
 .main-sub{
   font-size:11px;
   color:var(--muted);
 }
-
 .main-badge{
   font-size:11px;
-  background:rgba(25,118,210,0.1);
-  color:#1565c0;
+  background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(37,99,235,0.16));
+  color:#1d4ed8;
   padding:4px 10px;
   border-radius:999px;
+  box-shadow:0 0 0 1px rgba(129,140,248,0.55);
 }
 
 /* بطاقات القائمة */
@@ -163,7 +232,6 @@ input, textarea, button{
   flex-direction:column;
   gap:10px;
 }
-
 .main-btn{
   width:100%;
   border:none;
@@ -173,10 +241,12 @@ input, textarea, button{
   align-items:center;
   justify-content:space-between;
   cursor:pointer;
-  background:#ffffff;
+  background:
+    radial-gradient(circle at top left, rgba(129,140,248,0.12) 0, transparent 55%),
+    rgba(248,250,252,0.98);
   color:var(--text);
-  box-shadow:0 4px 10px rgba(15,23,42,0.10);
-  transition:transform .12s ease, box-shadow .12s ease;
+  box-shadow:0 4px 12px rgba(15,23,42,0.08);
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
 .main-btn span.left{
   display:flex;
@@ -191,8 +261,9 @@ input, textarea, button{
   align-items:center;
   justify-content:center;
   font-size:18px;
-  background:#eef2ff;
-  color:#1d4ed8;
+  background:radial-gradient(circle at 30% 30%, #22d3ee 0, #0ea5e9 45%, #2563eb 100%);
+  color:#f9fafb;
+  box-shadow:0 0 0 1px rgba(15,23,42,0.12);
 }
 .main-arrow{
   font-size:13px;
@@ -201,22 +272,31 @@ input, textarea, button{
 }
 .main-btn:hover{
   transform:translateY(-1px);
-  box-shadow:0 8px 18px rgba(15,23,42,0.18);
+  box-shadow:0 10px 22px rgba(15,23,42,0.16);
+  background:
+    radial-gradient(circle at top left, rgba(129,140,248,0.16) 0, transparent 55%),
+    #ffffff;
 }
 .main-btn.primary{
-  background:linear-gradient(135deg,#6366f1,#4f46e5);
+  background:linear-gradient(135deg,#6366f1,#2563eb);
   color:#ffffff;
+  box-shadow:
+    0 14px 30px rgba(79,70,229,0.55),
+    0 0 0 1px rgba(191,219,254,0.65);
 }
 .main-btn.primary .main-icon{
-  background:rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.20);
   color:#ffffff;
+  box-shadow:none;
 }
 .main-btn.primary .main-arrow{
   color:#e5e7eb;
 }
 
 /* APP TOP */
-#appScreen{display:none}
+#appScreen{
+  display:none;
+}
 .top-bar{
   max-width:430px;
   margin:0 auto 6px;
@@ -225,15 +305,27 @@ input, textarea, button{
   align-items:center;
   color:var(--text);
 }
-.top-title{font-weight:700;font-size:15px}
+.top-title{
+  font-weight:700;
+  font-size:15px;
+}
 .icon-btn{
   border:none;
-  border-radius:8px;
+  border-radius:999px;
   padding:6px 12px;
-  background:#ffffff;
-  color:#1f2933;
-  box-shadow:0 1px 4px rgba(148,163,184,.5);
+  background:rgba(255,255,255,0.92);
+  color:#0f172a;
+  box-shadow:0 1px 4px rgba(148,163,184,.55);
   cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  transition:background .12s ease, transform .12s ease, box-shadow .12s ease;
+}
+.icon-btn:hover{
+  background:#eff6ff;
+  transform:translateY(-1px);
+  box-shadow:0 4px 10px rgba(148,163,184,.55);
 }
 
 /* FILTER + RESULTS */
@@ -247,11 +339,14 @@ input, textarea, button{
   z-index:10;
 }
 .filter-card{
-  background:#ffffff;
-  border-radius:12px;
-  padding:6px;
-  box-shadow:0 2px 6px rgba(148,163,184,.35);
+  background:var(--card);
+  border-radius:16px;
+  padding:8px;
+  box-shadow:0 3px 10px rgba(148,163,184,.35);
   color:var(--text);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--border);
 }
 .filter-header{
   display:flex;
@@ -259,25 +354,38 @@ input, textarea, button{
   align-items:center;
   margin-bottom:4px;
 }
+.filter-header strong{
+  font-size:13px;
+}
 .clear-btn{
   font-size:12px;
   background:#e5e7eb;
   color:var(--text);
   border:none;
-  border-radius:6px;
-  padding:4px 8px;
+  border-radius:999px;
+  padding:4px 10px;
   cursor:pointer;
+  transition:background .12s ease, transform .12s ease;
 }
-.filter-row{display:flex;gap:6px;margin-bottom:6px}
+.clear-btn:hover{
+  background:#e0e7ff;
+  transform:translateY(-1px);
+}
+.filter-row{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+}
 .filter-input{
   flex:1;
   min-width:0;
   padding:7px 8px;
-  border-radius:8px;
+  border-radius:10px;
   border:1px solid var(--border);
   background:#f9fafb;
   color:var(--text);
   font-size:14px;
+  transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
 .filter-input.small{
   flex:1 1 30%;
@@ -285,33 +393,70 @@ input, textarea, button{
   font-size:14px;
 }
 .filter-input::placeholder{color:#9ca3af}
+.filter-input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px rgba(37,99,235,0.45);
+  background:#ffffff;
+}
 @media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
   .filter-input.small{flex:1 1 30%}
 }
 
-/* ITEM */
+/* ITEM (المخزون والمبيعات) */
 .item{
-  background:#ffffff;
-  border-radius:12px;
-  padding:9px;
+  background:var(--card);
+  border-radius:16px;
+  padding:9px 9px 10px;
   margin-bottom:7px;
-  box-shadow:0 3px 8px rgba(148,163,184,.35);
+  box-shadow:0 4px 12px rgba(148,163,184,.35);
   color:var(--text);
+  border:1px solid rgba(226,232,240,0.9);
 }
-.part-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.part{font-weight:700;color:#1976d2}
-.part.ok{color:var(--ok)}
-.part.warn{color:var(--warn)}
-.location{font-size:12px;color:var(--muted)}
-.name{font-size:13px;margin-top:2px}
-.meta{font-size:12px;color:var(--muted);margin-top:4px}
-.status{font-size:12px;margin-top:4px}
+.part-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:8px;
+}
+.part{
+  font-weight:700;
+  color:var(--primary);
+}
+.part.ok{
+  color:var(--ok);
+}
+.part.warn{
+  color:var(--warn);
+}
+.location{
+  font-size:12px;
+  color:var(--muted);
+}
+.name{
+  font-size:13px;
+  margin-top:2px;
+}
+.meta{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.status{
+  font-size:12px;
+  margin-top:4px;
+}
 
 /* نتائج المبيعات: المتوفر أزرق */
 .sales-item .part.ok{
   color:var(--primary);
+}
+
+/* إبراز الفرق الكبير في الجرد */
+.item[style*="border:2px solid"]{
+  background:#fff7ed;
 }
 
 /* DETAIL */
@@ -327,11 +472,12 @@ input, textarea, button{
 .detail-card{
   width:100%;
   max-width:430px;
-  background:#ffffff;
-  border-radius:16px 16px 0 0;
+  background:var(--card);
+  border-radius:18px 18px 0 0;
   padding:12px;
   color:var(--text);
-  box-shadow:0 -6px 20px rgba(148,163,184,.45);
+  box-shadow:0 -8px 25px rgba(15,23,42,0.45);
+  border-top:1px solid var(--border);
 }
 .detail-header{
   display:flex;
@@ -345,8 +491,16 @@ input, textarea, button{
   cursor:pointer;
   color:var(--muted);
 }
-.detail-label{font-size:12px;color:var(--muted);margin-top:10px}
-.detail-qty-box{display:flex;gap:8px;margin-top:6px}
+.detail-label{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:10px;
+}
+.detail-qty-box{
+  display:flex;
+  gap:8px;
+  margin-top:6px;
+}
 .detail-qty-box button{
   width:40px;
   border:none;
@@ -354,7 +508,12 @@ input, textarea, button{
   font-size:20px;
   cursor:pointer;
   background:#e5e7eb;
-  color:#text;
+  color:#0f172a;
+  transition:background .12s ease, transform .12s ease;
+}
+.detail-qty-box button:hover{
+  background:#dbeafe;
+  transform:translateY(-1px);
 }
 .detail-qty-box input{
   flex:1;
@@ -365,15 +524,44 @@ input, textarea, button{
   background:#f9fafb;
   color:var(--text);
 }
+.detail-qty-box input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px rgba(37,99,235,0.45);
+}
 .detail-save{
   width:100%;
   margin-top:12px;
   padding:10px;
   border:none;
-  border-radius:10px;
-  background:linear-gradient(135deg,#1976d2,#0d47a1);
+  border-radius:999px;
+  background:linear-gradient(135deg,#2563eb,#7c3aed);
   color:#fff;
   cursor:pointer;
+  transition:opacity .12s ease, transform .12s ease, box-shadow .12s ease;
+  box-shadow:
+    0 12px 26px rgba(37,99,235,0.45),
+    0 0 0 1px rgba(129,140,248,0.75);
+}
+.detail-save:hover:enabled{
+  transform:translateY(-1px);
+  box-shadow:
+    0 16px 34px rgba(37,99,235,0.55),
+    0 0 0 1px rgba(129,140,248,0.9);
+}
+
+/* مدخلات داخل المودال */
+#newLoc,
+#note{
+  background:#f9fafb;
+  border:1px solid var(--border);
+  color:var(--text);
+}
+#newLoc:focus,
+#note:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px rgba(37,99,235,0.45);
 }
 
 /* SCANNER */
@@ -381,9 +569,10 @@ input, textarea, button{
   display:none;
   max-width:430px;
   margin:6px auto;
-  background:#000;
-  border-radius:12px;
+  background:#020617;
+  border-radius:14px;
   overflow:hidden;
+  box-shadow:0 10px 28px rgba(15,23,42,0.65);
 }
 </style>
 </head>
@@ -466,7 +655,6 @@ input, textarea, button{
       </div>
 
       <div class="filter-row" style="margin-bottom:6px">
-        <!-- الفرع: افتراضي كل الفروع، ويُعتبر اختيار صحيح -->
         <select id="branchFilter" class="filter-input small" required>
           <option value="*">كل الفروع</option>
           <option value="مستودع الرئيسي">مستودع الرئيسي</option>
@@ -513,7 +701,7 @@ input, textarea, button{
           <input id="barcode" class="filter-input small" placeholder="باركود">
           <button type="button"
                   id="scanBtn"
-                  style="border:none;background:#1976d2;color:#fff;
+                  style="border:none;background:#2563eb;color:#fff;
                          padding:5px 8px;border-radius:8px;cursor:pointer;">
             📷
           </button>
@@ -525,8 +713,7 @@ input, textarea, button{
   <div id="scannerContainer">
     <div id="reader" style="width:100%;"></div>
     <button type="button"
-            onclick="stopScan()
-            "
+            onclick="stopScan()"
             style="width:100%;border:none;background:#eee;padding:6px;
                    font-size:14px;cursor:pointer">
       إغلاق الكاميرا
@@ -550,9 +737,7 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
-// عرض: inventory أو sales
 let CURRENT_VIEW = "inventory";
-
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
@@ -689,7 +874,7 @@ function openMenu(id){
   }
 }
 
-/* SALES VIEW من نفس البيانات */
+/* SALES VIEW */
 function openSalesMenu(){
   CURRENT_VIEW = "sales";
   document.getElementById("topTitle").textContent = "مبيعات";
@@ -705,7 +890,6 @@ function openSalesMenu(){
   if(!SALES_DATA || SALES_DATA.length === 0){
     SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
   }
-
   renderSales(SALES_DATA.slice(0,100));
 }
 
@@ -735,18 +919,15 @@ document.querySelectorAll('input[name="countState"]').forEach(r=>{
   });
 });
 
-/* مسح كل الفلاتر ما عدا الفرع */
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>{
-    if(i.id !== "branchFilter"){ // لا تمسح اختيار الفرع
+    if(i.id !== "branchFilter"){
       i.value = "";
     }
   });
 
   const allRadio = document.querySelector('input[name="countState"][value="all"]');
   if(allRadio) allRadio.checked = true;
-
-  // لا تلمس branchFilter هنا حتى يبقى ثابت
 
   if(CURRENT_VIEW === "inventory"){
     runSearchInventory();
@@ -755,7 +936,7 @@ function clearFilters(){
   }
 }
 
-/* ======= بحث المخزون (مع الجرد) ======= */
+/* ======= بحث المخزون ======= */
 function runSearchInventory(){
   const pc = (pContains.value || "").trim().toLowerCase();
   const pe = (pEnds.value || "").trim().toLowerCase();
@@ -773,7 +954,6 @@ function runSearchInventory(){
   const hasLocFilter = !!(lfRaw || ltRaw);
 
   if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
-    // هنا لا نتحقق من branchVal حتى لو كان "كل الفروع" أو فرع معين
     const initial = ALL_DATA.slice(0, 100);
     LAST_RENDER = initial;
     renderInventory(initial);
@@ -794,7 +974,6 @@ function runSearchInventory(){
     const qtyCountNum = Number(r.lastCountQty ?? 0);
     const isEqual     = hasCount && qtySysNum === qtyCountNum;
 
-    // تصفية الفرع: قيمة * تعني كل الفروع، أي لا تصفية بالفرع
     if(branchVal && branchVal !== "*" && br !== branchVal) continue;
 
     if(state === "counted" && !hasCount) continue;
@@ -833,14 +1012,13 @@ function runSearchInventory(){
   renderInventory(res);
 }
 
-/* ======= بحث المبيعات (عرض فقط) ======= */
+/* ======= بحث المبيعات ======= */
 function runSearchSales(){
   const q    = (pContains.value || "").trim().toLowerCase();
   const nQ   = (nContains.value || "").trim().toLowerCase();
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
 
   if(!q && !nQ){
-    // لو الفرع كل الفروع أو فرع معيّن، الفلترة تتم لاحقاً
     let base = SALES_DATA.slice(0,100);
     if(branchVal && branchVal !== "*"){
       base = base.filter(r => String(r.branch ?? "").trim().toLowerCase() === branchVal);
@@ -878,7 +1056,7 @@ function fmtDate(d){
   return `${day}/${month}/${year} ${hour}:${min}`;
 }
 
-/* ======= RENDER المخزون ======= */
+/* RENDER المخزون */
 function renderInventory(data){
   results.innerHTML = data.map(r=>{
     const qtySysNum   = Number(r.qty ?? 0);
@@ -926,7 +1104,7 @@ function renderInventory(data){
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
     <button
       onclick='openDetail(${JSON.stringify(r.part ?? "")})'
-      style="border:none;background:#1976d2;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">
+      style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">
       ✏️ تعديل
     </button>
   </div>
@@ -934,7 +1112,7 @@ function renderInventory(data){
   }).join("");
 }
 
-/* ======= RENDER المبيعات  ======= */
+/* RENDER المبيعات */
 function renderSales(data){
   results.innerHTML = data.map(r=>{
     const availTxt = r.qty > 0 ? "متوفر" : "غير متوفر";
@@ -960,7 +1138,7 @@ function renderSales(data){
   }).join("");
 }
 
-/* DETAIL MODAL + زر حفظ (للجرد فقط) */
+/* DETAIL MODAL */
 function openDetail(part){
   if(CURRENT_VIEW !== "inventory") return;
 
