@@ -619,7 +619,7 @@ function openMenu(id){
       render(LAST_RENDER);
     }
   }else{
-    alert("هذه القائمة لم تُفعّل بعد");
+    alert("هذه القائمة لم يجرد");
   }
 }
 
@@ -747,7 +747,7 @@ function render(data){
       const diffAbs = Math.abs(qtySysNum - qtyCountNum);
       if(qtySysNum === qtyCountNum){
         cls += " ok";
-        status = `✓ تم التعديل (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
+        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
         const bigDiff = diffAbs >= 5;
@@ -755,7 +755,7 @@ function render(data){
         status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("ar-SA")} | نظام: ${qtySysNum.toLocaleString("ar-SA")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
       }
     }else{
-      status = "لم يُعدَّل بعد";
+      status = "لم يجرد";
     }
 
     const qtySysTxt   = qtySysNum.toLocaleString("ar-SA");
@@ -774,7 +774,7 @@ function render(data){
   <div class="name">${r.name ?? ""}</div>
   <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
     <span>الكمية (المتوفرة): <b>${qtySysTxt}</b></span>
-    <span>الكمية (التعديل): <b>${qtyCountTxt}</b></span>
+    <span>الكمية (الجرد): <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
