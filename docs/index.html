@@ -275,14 +275,19 @@ input, textarea, button{
 }
 .part-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .part{font-weight:700;color:#1976d2}
-.part.ok{color:var(--primary)}
+.part.ok{color:var(--ok)}
 .part.warn{color:var(--warn)}
 .location{font-size:12px;color:var(--muted)}
 .name{font-size:13px;margin-top:2px}
 .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .status{font-size:12px;margin-top:4px}
 
-/* DETAIL (لشاشة الجرد فقط) */
+/* نتائج المبيعات: رقم الصنف المتوفر أزرق */
+.sales-item .part.ok{
+  color:var(--primary);
+}
+
+/* DETAIL */
 .detail-overlay{
   position:fixed;
   inset:0;
@@ -830,14 +835,13 @@ function renderInventory(data){
         const bigDiff = diffAbs >= 5;
         const alertIcon = bigDiff ? "🚨" : "⚠";
         status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("en-US")} | نظام: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
-
+      }
     }else{
       status = "لم يجرد";
     }
 
     const qtySysTxt   = qtySysNum.toLocaleString("en-US");
-const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("en-US") : "";
-
+    const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("en-US") : "";
 
     const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5
       ? "border:2px solid #f97316;background:#fff7ed;"
@@ -851,8 +855,8 @@ const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("en-US") : "";
   </div>
   <div class="name">${r.name ?? ""}</div>
   <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
-    <span>الكمية (المتوفرة): <b>${qtySysTxt}</b></span>
-    <span>الكمية (الجرد): <b>${qtyCountTxt}</b></span>
+    <span>Qty (system): <b>${qtySysTxt}</b></span>
+    <span>Qty (count): <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
@@ -872,9 +876,9 @@ function renderSales(data){
     const availTxt = r.available > 0 ? "متوفر" : "غير متوفر";
     const availCls = r.available > 0 ? "ok" : "warn";
 
-    const qtyTxt   = Number(r.available || 0).toLocaleString("en-US");
-    const costTxt  = Number(r.cost || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const maxTxt   = Number(r.maxPrice || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const qtyTxt  = Number(r.available || 0).toLocaleString("en-US");
+    const costTxt = Number(r.cost || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+    const maxTxt  = Number(r.maxPrice || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 
     return `
 <div class="item sales-item">
@@ -891,7 +895,6 @@ function renderSales(data){
 </div>`;
   }).join("");
 }
-
 
 /* DETAIL MODAL + زر حفظ (للجرد فقط) */
 function openDetail(part){
