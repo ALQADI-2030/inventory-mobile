@@ -203,7 +203,6 @@ input, textarea, button{
   transform:translateY(-1px);
   box-shadow:0 8px 18px rgba(15,23,42,0.18);
 }
-/* زر تعديل البيانات مميز */
 .main-btn.primary{
   background:linear-gradient(135deg,#6366f1,#4f46e5);
   color:#ffffff;
@@ -466,6 +465,16 @@ input, textarea, button{
         <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
       </div>
 
+      <!-- فلتر الفرع أعلى حالة الجرد -->
+      <div class="filter-row" style="margin-bottom:6px">
+        <select id="branchFilter" class="filter-input small">
+          <option value="">كل الفروع</option>
+          <option value="الفرع الاول">الفرع الأول</option>
+          <option value="الفرع الثاني">الفرع الثاني</option>
+          <option value="الفرع الثالث">الفرع الثالث</option>
+        </select>
+      </div>
+
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;font-size:11px" id="countStateWrap">
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="all" checked style="margin:0">
@@ -640,8 +649,11 @@ function loadInventoryAfterLogin(){
     .then(r => r.json())
     .then(d => {
       ALL_DATA = Array.isArray(d) ? d : [];
-      const initial = ALL_DATA.slice(0, 50);
+      const initial = ALL_DATA.slice(0, 100);
       LAST_RENDER = initial;
+
+      // تهيئة بيانات المبيعات من نفس ALL_DATA
+      SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
 
       loginScreen.style.display="none";
       loginLoading.style.display="none";
@@ -665,7 +677,7 @@ function openMenu(id){
     appScreen.style.display  = "block";
 
     if(!LAST_RENDER || !LAST_RENDER.length){
-      const initial = ALL_DATA.slice(0, 50);
+      const initial = ALL_DATA.slice(0, 100);
       LAST_RENDER = initial;
       renderInventory(initial);
     }else{
@@ -676,7 +688,7 @@ function openMenu(id){
   }
 }
 
-/* فتح شاشة المبيعات مع مؤشر تحميل */
+/* فتح شاشة المبيعات من نفس بيانات المخزون */
 function openSalesMenu(){
   CURRENT_VIEW = "sales";
   document.getElementById("topTitle").textContent = "مبيعات";
@@ -687,25 +699,13 @@ function openSalesMenu(){
   appScreen.style.display  = "block";
 
   const loadingEl = document.getElementById("salesLoading");
-  loadingEl.style.display = "block";
-  results.innerHTML = "";
+  if(loadingEl) loadingEl.style.display = "none";
 
   if(!SALES_DATA || SALES_DATA.length === 0){
-    fetch(API + "?mode=sales")
-      .then(r=>r.json())
-      .then(d=>{
-        SALES_DATA = Array.isArray(d) ? d : [];
-        renderSales(SALES_DATA.slice(0,50));
-        loadingEl.style.display = "none";
-      })
-      .catch(()=>{
-        alert("فشل تحميل بيانات المبيعات");
-        loadingEl.style.display = "none";
-      });
-  }else{
-    renderSales(SALES_DATA.slice(0,50));
-    loadingEl.style.display = "none";
+    SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
   }
+
+  renderSales(SALES_DATA.slice(0,100));
 }
 
 /* barcode normalize */
@@ -738,6 +738,8 @@ function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
   const allRadio = document.querySelector('input[name="countState"][value="all"]');
   if(allRadio) allRadio.checked = true;
+  const bf = document.getElementById("branchFilter");
+  if(bf) bf.value = "";
 
   if(CURRENT_VIEW === "inventory"){
     runSearchInventory();
@@ -756,14 +758,15 @@ function runSearchInventory(){
   const ltRaw = (locTo.value || "").trim().toLowerCase();
   const bcInput = (barcode.value || "").trim();
   const bcNorm  = normalizeBarcode(bcInput);
+  const branchQ = (branchFilter.value || "").trim().toLowerCase();
 
   const stateEl = document.querySelector('input[name="countState"]:checked');
   const state = stateEl ? stateEl.value : "all";
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
-  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
-    const initial = ALL_DATA.slice(0, 50);
+  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && !branchQ && state==="all"){
+    const initial = ALL_DATA.slice(0, 100);
     LAST_RENDER = initial;
     renderInventory(initial);
     return;
@@ -771,16 +774,19 @@ function runSearchInventory(){
 
   const res = [];
   for(const r of ALL_DATA){
-    const p = String(r.part ?? "").toLowerCase();
-    const n = String(r.name ?? "").toLowerCase();
-    const l = String(r.location ?? "").toLowerCase();
+    const p  = String(r.part ?? "").toLowerCase();
+    const n  = String(r.name ?? "").toLowerCase();
+    const l  = String(r.location ?? "").toLowerCase();
+    const br = String(r.branch ?? "").toLowerCase();
     const bRaw = String(r.barcode ?? "");
     const bNorm = normalizeBarcode(bRaw);
 
     const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
-    const qtySysNum   = Number(r.qty ?? 0);          // الكمية النهائية من السيرفر
+    const qtySysNum   = Number(r.qty ?? 0);
     const qtyCountNum = Number(r.lastCountQty ?? 0);
     const isEqual     = hasCount && qtySysNum === qtyCountNum;
+
+    if(branchQ && br !== branchQ) continue;
 
     if(state === "counted" && !hasCount) continue;
     if(state === "diff"    && !(hasCount && !isEqual)) continue;
@@ -820,24 +826,24 @@ function runSearchInventory(){
 
 /* ======= بحث المبيعات (عرض فقط) ======= */
 function runSearchSales(){
-  const q = (pContains.value || "").trim().toLowerCase();
-  const nQ = (nContains.value || "").trim().toLowerCase();
-  const locQ = (locFrom.value || "").trim().toLowerCase();
+  const q    = (pContains.value || "").trim().toLowerCase();
+  const nQ   = (nContains.value || "").trim().toLowerCase();
+  const brQ  = (branchFilter.value || "").trim().toLowerCase();
 
-  if(!q && !nQ && !locQ){
-    renderSales(SALES_DATA.slice(0,50));
+  if(!q && !nQ && !brQ){
+    renderSales(SALES_DATA.slice(0,100));
     return;
   }
 
   const res = [];
   for(const r of SALES_DATA){
-    const p = String(r.part ?? "").toLowerCase();
-    const n = String(r.name ?? "").toLowerCase();
-    const br= String(r.branch ?? "").toLowerCase();
+    const p  = String(r.part ?? "").toLowerCase();
+    const n  = String(r.name ?? "").toLowerCase();
+    const br = String(r.branch ?? "").toLowerCase();
 
-    if(q && !p.includes(q)) continue;
-    if(nQ && !n.includes(nQ)) continue;
-    if(locQ && !br.includes(locQ)) continue;
+    if(q   && !p.includes(q)) continue;
+    if(nQ  && !n.includes(nQ)) continue;
+    if(brQ && br !== brQ) continue;
 
     res.push(r);
     if(res.length >= 100) break;
@@ -861,7 +867,7 @@ function fmtDate(d){
 /* ======= RENDER المخزون ======= */
 function renderInventory(data){
   results.innerHTML = data.map(r=>{
-    const qtySysNum   = Number(r.qty ?? 0);          // الكمية النهائية (بعد طرح المحجوز)
+    const qtySysNum   = Number(r.qty ?? 0);
     const qtyCountNum = Number(r.lastCountQty ?? 0);
 
     let cls="part", status="";
@@ -917,10 +923,10 @@ function renderInventory(data){
 /* ======= RENDER المبيعات  ======= */
 function renderSales(data){
   results.innerHTML = data.map(r=>{
-    const availTxt = r.available > 0 ? "متوفر" : "غير متوفر";
-    const availCls = r.available > 0 ? "ok" : "warn";
+    const availTxt = r.qty > 0 ? "متوفر" : "غير متوفر";
+    const availCls = r.qty > 0 ? "ok" : "warn";
 
-    const qtyTxt  = Number(r.available || 0).toLocaleString("en-US");
+    const qtyTxt  = Number(r.qty || 0).toLocaleString("en-US");
     const costTxt = Number(r.cost || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
     const maxTxt  = Number(r.maxPrice || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -928,7 +934,7 @@ function renderSales(data){
 <div class="item sales-item">
   <div class="part-row">
     <div class="part ${availCls}">${r.part}</div>
-    <div class="location"><b>الفرع:</b> ${r.branch}</div>
+    <div class="location"><b>الفرع:</b> ${r.branch || ""}</div>
   </div>
   <div class="name">${r.name}</div>
   <div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between">
@@ -954,7 +960,7 @@ function openDetail(part){
   ov.className = "detail-overlay";
 
   const currentCount = (r.lastCountQty ?? "");
-  const systemQty = (r.qty ?? 0);      // الكمية النهائية الحالية
+  const systemQty = (r.qty ?? 0);
   const realLoc = r.location || "";
   const countLoc = r.countLocation || "";
   const currentNote = r.note || "";
