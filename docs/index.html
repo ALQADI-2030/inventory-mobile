@@ -778,7 +778,7 @@ function runSearchInventory(){
     const bNorm = normalizeBarcode(bRaw);
 
     const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
-    const qtySysNum   = Number(r.qty ?? 0);
+    const qtySysNum   = Number(r.qty ?? 0);          // الكمية النهائية من السيرفر
     const qtyCountNum = Number(r.lastCountQty ?? 0);
     const isEqual     = hasCount && qtySysNum === qtyCountNum;
 
@@ -861,7 +861,7 @@ function fmtDate(d){
 /* ======= RENDER المخزون ======= */
 function renderInventory(data){
   results.innerHTML = data.map(r=>{
-    const qtySysNum   = Number(r.qty ?? 0);
+    const qtySysNum   = Number(r.qty ?? 0);          // الكمية النهائية (بعد طرح المحجوز)
     const qtyCountNum = Number(r.lastCountQty ?? 0);
 
     let cls="part", status="";
@@ -875,7 +875,7 @@ function renderInventory(data){
         cls += " warn";
         const bigDiff = diffAbs >= 5;
         const alertIcon = bigDiff ? "🚨" : "⚠";
-        status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("en-US")} | نظام: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
+        status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("en-US")} | نهائي: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
       }
     }else{
       status = "لم يجرد";
@@ -895,11 +895,14 @@ function renderInventory(data){
     <div class="location"><b>الموقع:</b> ${r.location ?? ""}</div>
   </div>
   <div class="name">${r.name ?? ""}</div>
-  <div class="meta" style="display:flex;justify-content:space-between;gap:8px">
-    <span>الكمية المتوفر: <b>${qtySysTxt}</b></span>
+  <div class="meta" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between">
+    <span>الكمية النهائية: <b>${qtySysTxt}</b></span>
     <span>كمية الجرد: <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
+  <div class="meta" style="margin-top:2px">
+    <span>فرع: <b>${r.branch || ""}</b> | باركود: <b>${r.barcode || ""}</b></span>
+  </div>
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
     <button
       onclick='openDetail(${JSON.stringify(r.part ?? "")})'
@@ -933,6 +936,9 @@ function renderSales(data){
     <span>التكلفة: <b>${costTxt}</b></span>
     <span>سعر الشركة: <b>${maxTxt}</b></span>
   </div>
+  <div class="meta" style="margin-top:2px">
+    <span>باركود: <b>${r.barcode || ""}</b></span>
+  </div>
 </div>`;
   }).join("");
 }
@@ -948,7 +954,7 @@ function openDetail(part){
   ov.className = "detail-overlay";
 
   const currentCount = (r.lastCountQty ?? "");
-  const systemQty = (r.qty ?? 0);
+  const systemQty = (r.qty ?? 0);      // الكمية النهائية الحالية
   const realLoc = r.location || "";
   const countLoc = r.countLocation || "";
   const currentNote = r.note || "";
@@ -963,6 +969,9 @@ function openDetail(part){
       <div class="detail-label">رقم الصنف</div>
       <div><b>${r.part}</b></div>
 
+      <div class="detail-label">الفرع</div>
+      <div><b>${r.branch || ""}</b></div>
+
       <div class="detail-label">الموقع</div>
       <div><b>${realLoc}</b></div>
 
@@ -972,7 +981,7 @@ function openDetail(part){
         data-original="${countLoc.replace(/"/g,'&quot;')}"
         style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
 
-      <div class="detail-label">الكمية (المتوفرة)</div>
+      <div class="detail-label">الكمية النهائية (بعد خصم المحجوز)</div>
       <div><b>${systemQty}</b></div>
 
       <div class="detail-label">كمية التعديل</div>
@@ -1093,7 +1102,8 @@ function saveCount(part, systemQty){
       note: noteVal,
       user: CURRENT_USER || "",
       role: CURRENT_ROLE || "User",
-      newLocation: newLoc
+      newLocation: newLoc,
+      branch: r && r.branch ? r.branch : ""
     })
   })
   .then(r=>r.json())
