@@ -563,13 +563,14 @@ function login(){
   const pass = loginPass.value.trim();
 
   fetch(API,{
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:new URLSearchParams({
-      name: user,
-      pass: pass
-    })
+  method:"POST",
+  headers:{"Content-Type":"application/x-www-form-urlencoded"},
+  body:new URLSearchParams({
+    name: user,
+    pass: pass
   })
+})
+
   .then(r=>r.json())
   .then(res=>{
     if(!res.ok){
