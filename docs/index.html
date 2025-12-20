@@ -563,14 +563,13 @@ function login(){
   const pass = loginPass.value.trim();
 
   fetch(API,{
-  method:"POST",
-  headers:{"Content-Type":"application/x-www-form-urlencoded"},
-  body:new URLSearchParams({
-    name: user,
-    pass: pass
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      name: user,
+      pass: pass
+    })
   })
-})
-
   .then(r=>r.json())
   .then(res=>{
     if(!res.ok){
@@ -622,7 +621,7 @@ function openMenu(id){
   if(id === 3){
     CURRENT_VIEW = "inventory";
     document.getElementById("topTitle").textContent = "تعديل بيانات الأصناف";
-    countStateWrap.style.display = "flex";          // تظهر فلاتر الجرد
+    countStateWrap.style.display = "flex";
     document.getElementById("scanBtn").disabled = false;
 
     mainScreen.style.display = "none";
@@ -644,13 +643,12 @@ function openMenu(id){
 function openSalesMenu(){
   CURRENT_VIEW = "sales";
   document.getElementById("topTitle").textContent = "مبيعات (عرض فقط)";
-  countStateWrap.style.display = "none";            // لا نحتاج راديو الجرد
+  countStateWrap.style.display = "none";
   document.getElementById("scanBtn").disabled = true;
 
   mainScreen.style.display = "none";
   appScreen.style.display  = "block";
 
-  // تحميل من السيرفر إذا أول مرة
   if(!SALES_DATA || SALES_DATA.length === 0){
     fetch(API + "?mode=sales")
       .then(r=>r.json())
@@ -778,7 +776,7 @@ function runSearchInventory(){
 function runSearchSales(){
   const q = (pContains.value || "").trim().toLowerCase();
   const nQ = (nContains.value || "").trim().toLowerCase();
-  const locQ = (locFrom.value || "").trim().toLowerCase(); // نستخدم حقل الموقع من كفرع
+  const locQ = (locFrom.value || "").trim().toLowerCase();
 
   if(!q && !nQ && !locQ){
     renderSales(SALES_DATA.slice(0,50));
@@ -891,7 +889,7 @@ function renderSales(data){
 
 /* DETAIL MODAL + زر حفظ (للجرد فقط) */
 function openDetail(part){
-  if(CURRENT_VIEW !== "inventory") return; // لا يسمح بالتعديل في المبيعات
+  if(CURRENT_VIEW !== "inventory") return;
 
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(!r) return;
@@ -944,7 +942,7 @@ function openDetail(part){
         class="detail-save"
         disabled
         style="opacity:0.5;cursor:not-allowed"
-        onclick="saveCount('${String(r.part).replace(/'/g,\"\\\\'\")}', ${Number(systemQty)})">
+        onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
         حفظ التعديل
       </button>
     </div>
