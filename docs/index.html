@@ -21,7 +21,6 @@
   --border:#d1d5db;
 }
 
-/* منع تكبير iOS: حجم خط الحقول 16px */
 body{
   margin:0;
   font-family:system-ui,-apple-system;
@@ -283,7 +282,7 @@ input, textarea, button{
 .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .status{font-size:12px;margin-top:4px}
 
-/* DETAIL */
+/* DETAIL (لشاشة الجرد فقط) */
 .detail-overlay{
   position:fixed;
   inset:0;
@@ -406,6 +405,15 @@ input, textarea, button{
         </span>
         <span class="main-arrow">دخول</span>
       </button>
+
+      <!-- زر المبيعات الجديد -->
+      <button class="main-btn" onclick="openSalesMenu()">
+        <span class="left">
+          <span class="main-icon">💰</span>
+          <span>مبيعات</span>
+        </span>
+        <span class="main-arrow">عرض</span>
+      </button>
     </div>
   </div>
 </div>
@@ -414,7 +422,7 @@ input, textarea, button{
 <div id="appScreen">
 
   <div class="top-bar">
-    <div class="top-title">تعديل بيانات الأصناف</div>
+    <div class="top-title" id="topTitle">تعديل بيانات الأصناف</div>
     <button class="icon-btn" onclick="backToMain()">عودة</button>
   </div>
 
@@ -426,7 +434,7 @@ input, textarea, button{
         <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
       </div>
 
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;font-size:11px">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;font-size:11px" id="countStateWrap">
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="all" checked style="margin:0">
           <span>الكل</span>
@@ -494,9 +502,13 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
+// عرض: inventory أو sales
+let CURRENT_VIEW = "inventory";
+
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
+let SALES_DATA = [];
 let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
@@ -510,7 +522,7 @@ let lastTouchEnd = 0;
 document.addEventListener("touchend", function (e) {
   const now = Date.now();
   if (now - lastTouchEnd <= 300) {
-    e.preventDefault(); // يمنع double-tap zoom
+    e.preventDefault();
   }
   lastTouchEnd = now;
 }, { passive: false });
@@ -554,7 +566,6 @@ function login(){
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({
-      mode:"login",
       name: user,
       pass: pass
     })
@@ -573,7 +584,7 @@ function login(){
     enablePullBlock();
 
     loginLoading.textContent = "جاري تحميل بيانات المخزون...";
-    loadDataAfterLogin();
+    loadInventoryAfterLogin();
   })
   .catch(()=>{
     loginLoading.style.display="none";
@@ -586,9 +597,9 @@ function backToMain(){
   mainScreen.style.display = "flex";
 }
 
-/* DATA */
-function loadDataAfterLogin(){
-  fetch(API)
+/* DATA – المخزون */
+function loadInventoryAfterLogin(){
+  fetch(API + "?mode=inventory")
     .then(r => r.json())
     .then(d => {
       ALL_DATA = Array.isArray(d) ? d : [];
@@ -605,21 +616,50 @@ function loadDataAfterLogin(){
     });
 }
 
-/* MENU */
+/* MENU (الجرد) */
 function openMenu(id){
   if(id === 3){
+    CURRENT_VIEW = "inventory";
+    document.getElementById("topTitle").textContent = "تعديل بيانات الأصناف";
+    countStateWrap.style.display = "flex";          // تظهر فلاتر الجرد
+    document.getElementById("scanBtn").disabled = false;
+
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
 
     if(!LAST_RENDER || !LAST_RENDER.length){
       const initial = ALL_DATA.slice(0, 50);
       LAST_RENDER = initial;
-      render(initial);
+      renderInventory(initial);
     }else{
-      render(LAST_RENDER);
+      renderInventory(LAST_RENDER);
     }
   }else{
     alert("هذه القائمة لم يجرد");
+  }
+}
+
+/* فتح شاشة المبيعات */
+function openSalesMenu(){
+  CURRENT_VIEW = "sales";
+  document.getElementById("topTitle").textContent = "مبيعات (عرض فقط)";
+  countStateWrap.style.display = "none";            // لا نحتاج راديو الجرد
+  document.getElementById("scanBtn").disabled = true;
+
+  mainScreen.style.display = "none";
+  appScreen.style.display  = "block";
+
+  // تحميل من السيرفر إذا أول مرة
+  if(!SALES_DATA || SALES_DATA.length === 0){
+    fetch(API + "?mode=sales")
+      .then(r=>r.json())
+      .then(d=>{
+        SALES_DATA = Array.isArray(d) ? d : [];
+        renderSales(SALES_DATA.slice(0,50));
+      })
+      .catch(()=>{ alert("فشل تحميل بيانات المبيعات"); });
+  }else{
+    renderSales(SALES_DATA.slice(0,50));
   }
 }
 
@@ -636,22 +676,33 @@ let searchTimer = null;
 document.querySelectorAll(".filter-input").forEach(inp=>{
   inp.addEventListener("input", ()=>{
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(runSearch, 300);
+    searchTimer = setTimeout(()=>{
+      if(CURRENT_VIEW === "inventory") runSearchInventory();
+      else runSearchSales();
+    }, 300);
   });
 });
 
 document.querySelectorAll('input[name="countState"]').forEach(r=>{
-  r.addEventListener("change", runSearch);
+  r.addEventListener("change", ()=>{
+    if(CURRENT_VIEW === "inventory") runSearchInventory();
+  });
 });
 
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>i.value="");
   const allRadio = document.querySelector('input[name="countState"][value="all"]');
   if(allRadio) allRadio.checked = true;
-  runSearch();
+
+  if(CURRENT_VIEW === "inventory"){
+    runSearchInventory();
+  }else{
+    runSearchSales();
+  }
 }
 
-function runSearch(){
+/* ======= بحث المخزون (مع الجرد) ======= */
+function runSearchInventory(){
   const pc = (pContains.value || "").trim().toLowerCase();
   const pe = (pEnds.value || "").trim().toLowerCase();
   const ns = (nStarts.value || "").trim().toLowerCase();
@@ -669,7 +720,7 @@ function runSearch(){
   if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
     const initial = ALL_DATA.slice(0, 50);
     LAST_RENDER = initial;
-    render(initial);
+    renderInventory(initial);
     return;
   }
 
@@ -719,7 +770,34 @@ function runSearch(){
   }
 
   LAST_RENDER = res;
-  render(res);
+  renderInventory(res);
+}
+
+/* ======= بحث المبيعات (عرض فقط) ======= */
+function runSearchSales(){
+  const q = (pContains.value || "").trim().toLowerCase();
+  const nQ = (nContains.value || "").trim().toLowerCase();
+  const locQ = (locFrom.value || "").trim().toLowerCase(); // نستخدم حقل الموقع من كفرع
+
+  if(!q && !nQ && !locQ){
+    renderSales(SALES_DATA.slice(0,50));
+    return;
+  }
+
+  const res = [];
+  for(const r of SALES_DATA){
+    const p = String(r.part ?? "").toLowerCase();
+    const n = String(r.name ?? "").toLowerCase();
+    const br= String(r.branch ?? "").toLowerCase();
+
+    if(q && !p.includes(q)) continue;
+    if(nQ && !n.includes(nQ)) continue;
+    if(locQ && !br.includes(locQ)) continue;
+
+    res.push(r);
+    if(res.length >= 100) break;
+  }
+  renderSales(res);
 }
 
 /* DATE FORMAT */
@@ -735,8 +813,8 @@ function fmtDate(d){
   return `${day}/${month}/${year} ${hour}:${min}`;
 }
 
-/* RENDER مع تنبيه فرق ≥5 */
-function render(data){
+/* ======= RENDER المخزون ======= */
+function renderInventory(data){
   results.innerHTML = data.map(r=>{
     const qtySysNum   = Number(r.qty ?? 0);
     const qtyCountNum = Number(r.lastCountQty ?? 0);
@@ -788,8 +866,32 @@ function render(data){
   }).join("");
 }
 
-/* DETAIL MODAL + زر حفظ مشروط */
+/* ======= RENDER المبيعات (عرض فقط) ======= */
+function renderSales(data){
+  results.innerHTML = data.map(r=>{
+    const availTxt = r.available > 0 ? "متوفر" : "غير متوفر";
+    const availCls = r.available > 0 ? "ok" : "warn";
+
+    return `
+<div class="item">
+  <div class="part-row">
+    <div class="part ${availCls}">${r.part}</div>
+    <div class="location"><b>الفرع:</b> ${r.branch}</div>
+  </div>
+  <div class="name">${r.name}</div>
+  <div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between">
+    <span>الحالة: <b>${availTxt}</b> (كمية: ${r.available.toLocaleString("ar-SA")})</span>
+    <span>التكلفة: <b>${r.cost.toLocaleString("ar-SA")}</b></span>
+    <span>أعلى سعر: <b>${r.maxPrice.toLocaleString("ar-SA")}</b></span>
+  </div>
+</div>`;
+  }).join("");
+}
+
+/* DETAIL MODAL + زر حفظ (للجرد فقط) */
 function openDetail(part){
+  if(CURRENT_VIEW !== "inventory") return; // لا يسمح بالتعديل في المبيعات
+
   const r = ALL_DATA.find(x => String(x.part) === String(part));
   if(!r) return;
 
@@ -826,7 +928,7 @@ function openDetail(part){
 
       <div class="detail-label">كمية التعديل</div>
       <div class="detail-qty-box">
-        <button onclick="chg(-1);updateDetailSaveState()">−</button>
+        <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
         <input id="cq" type="number" value="${currentCount}" data-original="${currentCount}">
         <button onclick="chg(1);updateDetailSaveState()">+</button>
       </div>
@@ -841,7 +943,7 @@ function openDetail(part){
         class="detail-save"
         disabled
         style="opacity:0.5;cursor:not-allowed"
-        onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
+        onclick="saveCount('${String(r.part).replace(/'/g,\"\\\\'\")}', ${Number(systemQty)})">
         حفظ التعديل
       </button>
     </div>
@@ -886,10 +988,7 @@ function updateDetailSaveState(){
   }
 }
 
-/* SAVE COUNT
-   - لو غيّر الكمية: يعتمد الكمية الجديدة.
-   - لو ما غيّر الكمية (أو تركها فاضية) لكنه غيّر الموقع/ملاحظة:
-       countedQty = systemQty (جرد مطابق للنظام). */
+/* SAVE COUNT */
 function saveCount(part, systemQty){
   const cqEl   = document.getElementById("cq");
   const noteEl = document.getElementById("note");
@@ -932,14 +1031,13 @@ function saveCount(part, systemQty){
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
 
-  runSearch();
+  runSearchInventory();
   playBeep();
 
   fetch(API,{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
     body:new URLSearchParams({
-      mode: "save",
       part: String(part),
       systemQty: String(systemQty),
       countedQty: String(counted),
@@ -961,7 +1059,7 @@ let isScanning = false;
 document.getElementById("scanBtn").addEventListener("click", startScan);
 
 function startScan(){
-  if(isScanning) return;
+  if(isScanning || CURRENT_VIEW === "sales") return;
 
   const container = document.getElementById("scannerContainer");
   container.style.display = "block";
@@ -994,7 +1092,6 @@ function startScan(){
     }
 
     isScanning = true;
-
     html5QrCode.start(
       cameraId,
       config,
@@ -1006,7 +1103,7 @@ function startScan(){
         }
         document.getElementById("barcode").value = cleaned;
         stopScan();
-        runSearch();
+        runSearchInventory();
       },
       errorMessage =>{}
     );
