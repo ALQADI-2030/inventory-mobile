@@ -354,7 +354,7 @@ input, textarea, button{
   font-size:20px;
   cursor:pointer;
   background:#e5e7eb;
-  color:var(--text);
+  color:#text;
 }
 .detail-qty-box input{
   flex:1;
@@ -465,13 +465,13 @@ input, textarea, button{
         <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
       </div>
 
-      <!-- فلتر الفرع أعلى حالة الجرد -->
       <div class="filter-row" style="margin-bottom:6px">
         <select id="branchFilter" class="filter-input small">
           <option value="">كل الفروع</option>
-          <option value="الفرع الاول">الفرع الأول</option>
+          <option value="المستودع الرئيسي">المستودع الرئيسي</option>
           <option value="الفرع الثاني">الفرع الثاني</option>
           <option value="الفرع الثالث">الفرع الثالث</option>
+          <option value="مستودع فرع 3">مستودع فرع 3</option>
         </select>
       </div>
 
@@ -652,7 +652,6 @@ function loadInventoryAfterLogin(){
       const initial = ALL_DATA.slice(0, 100);
       LAST_RENDER = initial;
 
-      // تهيئة بيانات المبيعات من نفس ALL_DATA
       SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
 
       loginScreen.style.display="none";
@@ -688,7 +687,7 @@ function openMenu(id){
   }
 }
 
-/* فتح شاشة المبيعات من نفس بيانات المخزون */
+/* SALES VIEW من نفس البيانات */
 function openSalesMenu(){
   CURRENT_VIEW = "sales";
   document.getElementById("topTitle").textContent = "مبيعات";
@@ -777,7 +776,7 @@ function runSearchInventory(){
     const p  = String(r.part ?? "").toLowerCase();
     const n  = String(r.name ?? "").toLowerCase();
     const l  = String(r.location ?? "").toLowerCase();
-    const br = String(r.branch ?? "").toLowerCase();
+    const br = String(r.branch ?? "").trim().toLowerCase();
     const bRaw = String(r.barcode ?? "");
     const bNorm = normalizeBarcode(bRaw);
 
@@ -839,7 +838,7 @@ function runSearchSales(){
   for(const r of SALES_DATA){
     const p  = String(r.part ?? "").toLowerCase();
     const n  = String(r.name ?? "").toLowerCase();
-    const br = String(r.branch ?? "").toLowerCase();
+    const br = String(r.branch ?? "").trim().toLowerCase();
 
     if(q   && !p.includes(q)) continue;
     if(nQ  && !n.includes(nQ)) continue;
@@ -907,7 +906,7 @@ function renderInventory(data){
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
   <div class="meta" style="margin-top:2px">
-    <span>فرع: <b>${r.branch || ""}</b> | باركود: <b>${r.barcode || ""}</b></span>
+    <span>فرع: <b>${r.branch || ""}</b></span>
   </div>
   <div style="display:flex;justify-content:flex-end;margin-top:6px">
     <button
@@ -941,9 +940,6 @@ function renderSales(data){
     <span>الحالة: <b>${availTxt}</b> (Qty: ${qtyTxt})</span>
     <span>التكلفة: <b>${costTxt}</b></span>
     <span>سعر الشركة: <b>${maxTxt}</b></span>
-  </div>
-  <div class="meta" style="margin-top:2px">
-    <span>باركود: <b>${r.barcode || ""}</b></span>
   </div>
 </div>`;
   }).join("");
