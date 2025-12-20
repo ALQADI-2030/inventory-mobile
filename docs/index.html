@@ -135,7 +135,7 @@ input, textarea, button{
   box-shadow:
     0 14px 32px rgba(37,99,235,0.55),
     0 0 0 1px rgba(129,140,248,0.65);
-  transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  transition:transform .12s ease, box-shadow .12s.ease, opacity .12s.ease;
 }
 .login-btn:hover{
   transform:translateY(-1px);
@@ -246,7 +246,7 @@ input, textarea, button{
     rgba(248,250,252,0.98);
   color:var(--text);
   box-shadow:0 4px 12px rgba(15,23,42,0.08);
-  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  transition:transform .12s ease, box-shadow .12s.ease, background .12s.ease;
 }
 .main-btn span.left{
   display:flex;
@@ -320,7 +320,7 @@ input, textarea, button{
   display:flex;
   align-items:center;
   gap:4px;
-  transition:background .12s ease, transform .12s ease, box-shadow .12s ease;
+  transition:background .12s ease, transform .12s.ease, box-shadow .12s.ease;
 }
 .icon-btn:hover{
   background:#eff6ff;
@@ -365,7 +365,7 @@ input, textarea, button{
   border-radius:999px;
   padding:4px 10px;
   cursor:pointer;
-  transition:background .12s ease, transform .12s ease;
+  transition:background .12s.ease, transform .12s.ease;
 }
 .clear-btn:hover{
   background:#e0e7ff;
@@ -509,7 +509,7 @@ input, textarea, button{
   cursor:pointer;
   background:#e5e7eb;
   color:#0f172a;
-  transition:background .12s ease, transform .12s.ease;
+  transition:background .12s.ease, transform .12s.ease;
 }
 .detail-qty-box button:hover{
   background:#dbeafe;
@@ -538,7 +538,7 @@ input, textarea, button{
   background:linear-gradient(135deg,#2563eb,#7c3aed);
   color:#fff;
   cursor:pointer;
-  transition:opacity .12s ease, transform .12s ease, box-shadow .12s ease;
+  transition:opacity .12s.ease, transform .12s.ease, box-shadow .12s.ease;
   box-shadow:
     0 12px 26px rgba(37,99,235,0.45),
     0 0 0 1px rgba(129,140,248,0.75);
@@ -738,9 +738,7 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
-// عرض: inventory أو sales
 let CURRENT_VIEW = "inventory";
-
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
@@ -748,8 +746,8 @@ let SALES_DATA = [];
 let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
-let loadingInterval = null;     // للعداد المئوي
-let autoRefreshTimer = null;   // للتحديث الآلي كل 60 ثانية
+let loadingInterval = null;
+let autoRefreshTimer = null;
 
 /* منع pinch/double-tap zoom في iOS */
 document.addEventListener("gesturestart", function (e) {
@@ -1129,7 +1127,7 @@ function renderInventory(data){
         cls += " warn";
         const bigDiff = diffAbs >= 5;
         const alertIcon = bigDiff ? "🚨" : "⚠";
-        status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("en-US")} | نهائي: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
+        status = `${alertIcon} الفرق ${diffAbs} | كمية الجرد: ${qtyCountNum.toLocaleString("en-US")} | الكمية المتوفرة: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
       }
     }else{
       status = "لم يجرد";
@@ -1150,7 +1148,7 @@ function renderInventory(data){
   </div>
   <div class="name">${r.name ?? ""}</div>
   <div class="meta" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between">
-    <span>الكمية النهائية: <b>${qtySysTxt}</b></span>
+    <span>الكمية المتوفرة: <b>${qtySysTxt}</b></span>
     <span>كمية الجرد: <b>${qtyCountTxt}</b></span>
   </div>
   ${status ? `<div class="status">${status}</div>` : ""}
@@ -1232,14 +1230,28 @@ function openDetail(part){
         data-original="${countLoc.replace(/"/g,'&quot;')}"
         style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
 
-      <div class="detail-label">الكمية النهائية (بعد خصم المحجوز)</div>
+      <div class="detail-label">الكمية المتوفرة </div>
       <div><b>${systemQty}</b></div>
 
-      <div class="detail-label">كمية التعديل</div>
+      <div class="detail-label">كمية الجرد</div>
       <div class="detail-qty-box">
-        <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
+        <button
+          onmousedown="startHoldChange(-1);updateDetailSaveState()"
+          onmouseup="stopHoldChange()"
+          onmouseleave="stopHoldChange()"
+          ontouchstart="startHoldChange(-1);updateDetailSaveState()"
+          ontouchend="stopHoldChange()">
+          &minus;
+        </button>
         <input id="cq" type="number" value="${currentCount}" data-original="${currentCount}">
-        <button onclick="chg(1);updateDetailSaveState()">+</button>
+        <button
+          onmousedown="startHoldChange(1);updateDetailSaveState()"
+          onmouseup="stopHoldChange()"
+          onmouseleave="stopHoldChange()"
+          ontouchstart="startHoldChange(1);updateDetailSaveState()"
+          ontouchend="stopHoldChange()">
+          +
+        </button>
       </div>
 
       <div class="detail-label">ملاحظات</div>
@@ -1253,7 +1265,7 @@ function openDetail(part){
         disabled
         style="opacity:0.5;cursor:not-allowed"
         onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
-        حفظ التعديل
+        حفظ 
       </button>
     </div>
   `;
@@ -1264,9 +1276,35 @@ function openDetail(part){
   document.getElementById("note").addEventListener("input", updateDetailSaveState);
 }
 
+/* زيادة/نقص الكمية مع دعم الضغط المستمر */
 function chg(d){
   const i = document.getElementById("cq");
-  i.value = Math.max(0, (+i.value || 0) + d);
+  if(!i) return;
+  const cur = +i.value || 0;
+  i.value = Math.max(0, cur + d);
+}
+
+let holdTimer = null;
+let holdInterval = null;
+
+function startHoldChange(d){
+  chg(d); // أول ضغطة
+  holdTimer = setTimeout(()=>{
+    holdInterval = setInterval(()=>{
+      chg(d);
+    }, 60); // سرعة التكرار
+  }, 200);
+}
+
+function stopHoldChange(){
+  if(holdTimer){
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }
+  if(holdInterval){
+    clearInterval(holdInterval);
+    holdInterval = null;
+  }
 }
 
 /* enable/disable save */
