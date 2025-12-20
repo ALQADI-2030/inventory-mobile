@@ -656,6 +656,7 @@ input, textarea, button{
 
       <div class="filter-row" style="margin-bottom:6px">
         <select id="branchFilter" class="filter-input small" required>
+          <option value="" disabled selected>اختر الفرع</option>
           <option value="*">كل الفروع</option>
           <option value="مستودع الرئيسي">مستودع الرئيسي</option>
           <option value="الفرع الثاني">الفرع الثاني</option>
@@ -745,6 +746,7 @@ let SALES_DATA = [];
 let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
+let loadingInterval = null;   // للعداد المئوي
 
 /* منع pinch/double-tap zoom في iOS */
 document.addEventListener("gesturestart", function (e) {
@@ -816,7 +818,7 @@ function login(){
 
     enablePullBlock();
 
-    loginLoading.textContent = "جاري تحميل بيانات المخزون...";
+    loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
     loadInventoryAfterLogin();
   })
   .catch(()=>{
@@ -830,22 +832,36 @@ function backToMain(){
   mainScreen.style.display = "flex";
 }
 
-/* DATA – المخزون */
+/* DATA – المخزون مع عداد مئوي */
 function loadInventoryAfterLogin(){
+  let progress = 0;
+  loginLoading.style.display = "block";
+  loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
+
+  loadingInterval = setInterval(()=>{
+    if(progress < 95){
+      progress += 3;
+      loginLoading.textContent = "جاري تحميل بيانات المخزون " + progress + "%...";
+    }
+  }, 150);
+
   fetch(API + "?mode=inventory")
     .then(r => r.json())
     .then(d => {
       ALL_DATA = Array.isArray(d) ? d : [];
-      const initial = ALL_DATA.slice(0, 100);
-      LAST_RENDER = initial;
-
       SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
 
-      loginScreen.style.display="none";
-      loginLoading.style.display="none";
-      mainScreen.style.display="flex";
+      if(loadingInterval) clearInterval(loadingInterval);
+      loginLoading.textContent = "جاري تحميل بيانات المخزون 100%...";
+
+      setTimeout(()=>{
+        loginScreen.style.display="none";
+        loginLoading.style.display="none";
+        mainScreen.style.display="flex";
+      }, 400);
     })
     .catch(() => {
+      if(loadingInterval) clearInterval(loadingInterval);
       loginLoading.style.display="none";
       loginError.textContent = "فشل تحميل بيانات المخزون";
     });
@@ -862,13 +878,7 @@ function openMenu(id){
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
 
-    if(!LAST_RENDER || !LAST_RENDER.length){
-      const initial = ALL_DATA.slice(0, 100);
-      LAST_RENDER = initial;
-      renderInventory(initial);
-    }else{
-      renderInventory(LAST_RENDER);
-    }
+    runSearchInventory(); // يعتمد الآن على اختيار الفرع
   }else{
     alert("هذه القائمة لم تفعل");
   }
@@ -890,7 +900,7 @@ function openSalesMenu(){
   if(!SALES_DATA || SALES_DATA.length === 0){
     SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
   }
-  renderSales(SALES_DATA.slice(0,100));
+  runSearchSales();
 }
 
 /* barcode normalize */
@@ -953,8 +963,20 @@ function runSearchInventory(){
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
+  // لو لسه ما اختار فرع
+  if(!branchVal){
+    results.innerHTML = "";
+    return;
+  }
+
+  // بدون فلاتر أخرى
   if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
-    const initial = ALL_DATA.slice(0, 100);
+    const all = ALL_DATA.filter(r=>{
+      const br = String(r.branch ?? "").trim().toLowerCase();
+      if(branchVal === "*") return true;
+      return br === branchVal;
+    });
+    const initial = all.slice(0,100);
     LAST_RENDER = initial;
     renderInventory(initial);
     return;
@@ -1017,6 +1039,12 @@ function runSearchSales(){
   const q    = (pContains.value || "").trim().toLowerCase();
   const nQ   = (nContains.value || "").trim().toLowerCase();
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
+
+  // لو ما اختار فرع، لا تعرض شيء
+  if(!branchVal){
+    results.innerHTML = "";
+    return;
+  }
 
   if(!q && !nQ){
     let base = SALES_DATA.slice(0,100);
