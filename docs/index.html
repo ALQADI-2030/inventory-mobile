@@ -466,8 +466,9 @@ input, textarea, button{
       </div>
 
       <div class="filter-row" style="margin-bottom:6px">
-        <select id="branchFilter" class="filter-input small">
-          <option value="">كل الفروع</option>
+        <!-- الفرع: افتراضي كل الفروع، ويُعتبر اختيار صحيح -->
+        <select id="branchFilter" class="filter-input small" required>
+          <option value="*">كل الفروع</option>
           <option value="مستودع الرئيسي">مستودع الرئيسي</option>
           <option value="الفرع الثاني">الفرع الثاني</option>
           <option value="الفرع الثالث">الفرع الثالث</option>
@@ -524,7 +525,8 @@ input, textarea, button{
   <div id="scannerContainer">
     <div id="reader" style="width:100%;"></div>
     <button type="button"
-            onclick="stopScan()"
+            onclick="stopScan()
+            "
             style="width:100%;border:none;background:#eee;padding:6px;
                    font-size:14px;cursor:pointer">
       إغلاق الكاميرا
@@ -733,12 +735,18 @@ document.querySelectorAll('input[name="countState"]').forEach(r=>{
   });
 });
 
+/* مسح كل الفلاتر ما عدا الفرع */
 function clearFilters(){
-  document.querySelectorAll(".filter-input").forEach(i=>i.value="");
+  document.querySelectorAll(".filter-input").forEach(i=>{
+    if(i.id !== "branchFilter"){ // لا تمسح اختيار الفرع
+      i.value = "";
+    }
+  });
+
   const allRadio = document.querySelector('input[name="countState"][value="all"]');
   if(allRadio) allRadio.checked = true;
-  const bf = document.getElementById("branchFilter");
-  if(bf) bf.value = "";
+
+  // لا تلمس branchFilter هنا حتى يبقى ثابت
 
   if(CURRENT_VIEW === "inventory"){
     runSearchInventory();
@@ -757,14 +765,15 @@ function runSearchInventory(){
   const ltRaw = (locTo.value || "").trim().toLowerCase();
   const bcInput = (barcode.value || "").trim();
   const bcNorm  = normalizeBarcode(bcInput);
-  const branchQ = (branchFilter.value || "").trim().toLowerCase();
+  const branchVal = (branchFilter.value || "").trim().toLowerCase();
 
   const stateEl = document.querySelector('input[name="countState"]:checked');
   const state = stateEl ? stateEl.value : "all";
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
-  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && !branchQ && state==="all"){
+  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
+    // هنا لا نتحقق من branchVal حتى لو كان "كل الفروع" أو فرع معين
     const initial = ALL_DATA.slice(0, 100);
     LAST_RENDER = initial;
     renderInventory(initial);
@@ -785,7 +794,8 @@ function runSearchInventory(){
     const qtyCountNum = Number(r.lastCountQty ?? 0);
     const isEqual     = hasCount && qtySysNum === qtyCountNum;
 
-    if(branchQ && br !== branchQ) continue;
+    // تصفية الفرع: قيمة * تعني كل الفروع، أي لا تصفية بالفرع
+    if(branchVal && branchVal !== "*" && br !== branchVal) continue;
 
     if(state === "counted" && !hasCount) continue;
     if(state === "diff"    && !(hasCount && !isEqual)) continue;
@@ -827,10 +837,15 @@ function runSearchInventory(){
 function runSearchSales(){
   const q    = (pContains.value || "").trim().toLowerCase();
   const nQ   = (nContains.value || "").trim().toLowerCase();
-  const brQ  = (branchFilter.value || "").trim().toLowerCase();
+  const branchVal  = (branchFilter.value || "").trim().toLowerCase();
 
-  if(!q && !nQ && !brQ){
-    renderSales(SALES_DATA.slice(0,100));
+  if(!q && !nQ){
+    // لو الفرع كل الفروع أو فرع معيّن، الفلترة تتم لاحقاً
+    let base = SALES_DATA.slice(0,100);
+    if(branchVal && branchVal !== "*"){
+      base = base.filter(r => String(r.branch ?? "").trim().toLowerCase() === branchVal);
+    }
+    renderSales(base);
     return;
   }
 
@@ -842,7 +857,7 @@ function runSearchSales(){
 
     if(q   && !p.includes(q)) continue;
     if(nQ  && !n.includes(nQ)) continue;
-    if(brQ && br !== brQ) continue;
+    if(branchVal && branchVal !== "*" && br !== branchVal) continue;
 
     res.push(r);
     if(res.length >= 100) break;
