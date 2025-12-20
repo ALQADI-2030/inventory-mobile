@@ -385,7 +385,7 @@ input, textarea, button{
   background:#f9fafb;
   color:var(--text);
   font-size:14px;
-  transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  transition:border-color .15s ease, box-shadow .15s ease, background .15s.ease;
 }
 .filter-input.small{
   flex:1 1 30%;
@@ -509,7 +509,7 @@ input, textarea, button{
   cursor:pointer;
   background:#e5e7eb;
   color:#0f172a;
-  transition:background .12s ease, transform .12s ease;
+  transition:background .12s ease, transform .12s.ease;
 }
 .detail-qty-box button:hover{
   background:#dbeafe;
@@ -738,7 +738,9 @@ document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
+// عرض: inventory أو sales
 let CURRENT_VIEW = "inventory";
+
 const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
 
 let ALL_DATA = [];
@@ -746,7 +748,8 @@ let SALES_DATA = [];
 let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
-let loadingInterval = null;   // للعداد المئوي
+let loadingInterval = null;     // للعداد المئوي
+let autoRefreshTimer = null;   // للتحديث الآلي كل 60 ثانية
 
 /* منع pinch/double-tap zoom في iOS */
 document.addEventListener("gesturestart", function (e) {
@@ -830,6 +833,7 @@ function login(){
 function backToMain(){
   appScreen.style.display = "none";
   mainScreen.style.display = "flex";
+  stopAutoRefresh();
 }
 
 /* DATA – المخزون مع عداد مئوي */
@@ -867,6 +871,31 @@ function loadInventoryAfterLogin(){
     });
 }
 
+/* تحديث آلي أثناء العمل داخل الشاشات */
+function startAutoRefresh(){
+  stopAutoRefresh();
+  autoRefreshTimer = setInterval(()=>{
+    fetch(API + "?mode=inventory")
+      .then(r=>r.json())
+      .then(d=>{
+        ALL_DATA = Array.isArray(d) ? d : [];
+        SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
+        if(CURRENT_VIEW === "inventory"){
+          runSearchInventory();
+        }else if(CURRENT_VIEW === "sales"){
+          runSearchSales();
+        }
+      })
+      .catch(()=>{});
+  }, 60000); // كل 60 ثانية
+}
+function stopAutoRefresh(){
+  if(autoRefreshTimer){
+    clearInterval(autoRefreshTimer);
+    autoRefreshTimer = null;
+  }
+}
+
 /* MENU (الجرد) */
 function openMenu(id){
   if(id === 3){
@@ -878,7 +907,8 @@ function openMenu(id){
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
 
-    runSearchInventory(); // يعتمد الآن على اختيار الفرع
+    startAutoRefresh();
+    runSearchInventory();
   }else{
     alert("هذه القائمة لم تفعل");
   }
@@ -900,6 +930,7 @@ function openSalesMenu(){
   if(!SALES_DATA || SALES_DATA.length === 0){
     SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
   }
+  startAutoRefresh();
   runSearchSales();
 }
 
@@ -963,13 +994,11 @@ function runSearchInventory(){
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
-  // لو لسه ما اختار فرع
   if(!branchVal){
     results.innerHTML = "";
     return;
   }
 
-  // بدون فلاتر أخرى
   if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
     const all = ALL_DATA.filter(r=>{
       const br = String(r.branch ?? "").trim().toLowerCase();
@@ -1040,7 +1069,6 @@ function runSearchSales(){
   const nQ   = (nContains.value || "").trim().toLowerCase();
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
 
-  // لو ما اختار فرع، لا تعرض شيء
   if(!branchVal){
     results.innerHTML = "";
     return;
