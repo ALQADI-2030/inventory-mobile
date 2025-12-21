@@ -354,7 +354,7 @@ input, textarea, button{
   font-size:20px;
   cursor:pointer;
   background:#e5e7eb;
-  color:var(--text);
+  color:#text;
 }
 .detail-qty-box input{
   flex:1;
@@ -525,7 +525,8 @@ input, textarea, button{
   <div id="scannerContainer">
     <div id="reader" style="width:100%;"></div>
     <button type="button"
-            onclick="stopScan()"
+            onclick="stopScan()
+            "
             style="width:100%;border:none;background:#eee;padding:6px;
                    font-size:14px;cursor:pointer">
       إغلاق الكاميرا
@@ -568,3 +569,640 @@ document.addEventListener("gesturestart", function (e) {
 let lastTouchEnd = 0;
 document.addEventListener("touchend", function (e) {
   const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, { passive: false });
+
+/* منع pull-to-refresh بعد الدخول فقط */
+let lastTouchY = 0;
+let preventPullToRefresh = false;
+function enablePullBlock(){ preventPullToRefresh = true; }
+window.addEventListener("touchstart", function(e){
+  if(!preventPullToRefresh) return;
+  if(e.touches.length !== 1) return;
+  lastTouchY = e.touches[0].clientY;
+}, {passive:false});
+window.addEventListener("touchmove", function(e){
+  if(!preventPullToRefresh) return;
+  if(window.scrollY > 0) return;
+  const touchY = e.touches[0].clientY;
+  const deltaY = touchY - lastTouchY;
+  lastTouchY = touchY;
+  if(deltaY > 0) e.preventDefault();
+}, {passive:false});
+
+/* beep */
+function playBeep(){
+  const a = document.getElementById("beepAudio");
+  if(!a) return;
+  a.currentTime = 0;
+  a.play().catch(()=>{});
+}
+
+/* LOGIN */
+function login(){
+  loginError.textContent="";
+  loginLoading.style.display="block";
+  loginLoading.textContent = "جاري التحقق من البيانات...";
+
+  const user = loginUser.value.trim();
+  const pass = loginPass.value.trim();
+
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      name: user,
+      pass: pass
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(!res.ok){
+      loginLoading.style.display="none";
+      loginError.textContent = res.error || "فشل تسجيل الدخول";
+      return;
+    }
+
+    CURRENT_USER = res.user && res.user.name ? res.user.name : user;
+    CURRENT_ROLE = res.user && res.user.role ? res.user.role : "User";
+
+    enablePullBlock();
+
+    loginLoading.textContent = "جاري تحميل بيانات المخزون...";
+    loadInventoryAfterLogin();
+  })
+  .catch(()=>{
+    loginLoading.style.display="none";
+    loginError.textContent="تعذر الاتصال بالسيرفر";
+  });
+}
+
+function backToMain(){
+  appScreen.style.display = "none";
+  mainScreen.style.display = "flex";
+}
+
+/* DATA – المخزون */
+function loadInventoryAfterLogin(){
+  fetch(API + "?mode=inventory")
+    .then(r => r.json())
+    .then(d => {
+      ALL_DATA = Array.isArray(d) ? d : [];
+      const initial = ALL_DATA.slice(0, 100);
+      LAST_RENDER = initial;
+
+      SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
+
+      loginScreen.style.display="none";
+      loginLoading.style.display="none";
+      mainScreen.style.display="flex";
+    })
+    .catch(() => {
+      loginLoading.style.display="none";
+      loginError.textContent = "فشل تحميل بيانات المخزون";
+    });
+}
+
+/* MENU (الجرد) */
+function openMenu(id){
+  if(id === 3){
+    CURRENT_VIEW = "inventory";
+    document.getElementById("topTitle").textContent = "تعديل بيانات الأصناف";
+    countStateWrap.style.display = "flex";
+    document.getElementById("scanBtn").disabled = false;
+
+    mainScreen.style.display = "none";
+    appScreen.style.display  = "block";
+
+    if(!LAST_RENDER || !LAST_RENDER.length){
+      const initial = ALL_DATA.slice(0, 100);
+      LAST_RENDER = initial;
+      renderInventory(initial);
+    }else{
+      renderInventory(LAST_RENDER);
+    }
+  }else{
+    alert("هذه القائمة لم تفعل");
+  }
+}
+
+/* SALES VIEW من نفس البيانات */
+function openSalesMenu(){
+  CURRENT_VIEW = "sales";
+  document.getElementById("topTitle").textContent = "مبيعات";
+  countStateWrap.style.display = "none";
+  document.getElementById("scanBtn").disabled = true;
+
+  mainScreen.style.display = "none";
+  appScreen.style.display  = "block";
+
+  const loadingEl = document.getElementById("salesLoading");
+  if(loadingEl) loadingEl.style.display = "none";
+
+  if(!SALES_DATA || SALES_DATA.length === 0){
+    SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
+  }
+
+  renderSales(SALES_DATA.slice(0,100));
+}
+
+/* barcode normalize */
+function normalizeBarcode(text){
+  if(!text) return "";
+  const digits = String(text).replace(/\D/g, "");
+  return digits.substring(0, 10);
+}
+
+/* FILTERS */
+let searchTimer = null;
+
+document.querySelectorAll(".filter-input").forEach(inp=>{
+  inp.addEventListener("input", ()=>{
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(()=>{
+      if(CURRENT_VIEW === "inventory") runSearchInventory();
+      else runSearchSales();
+    }, 300);
+  });
+});
+
+document.querySelectorAll('input[name="countState"]').forEach(r=>{
+  r.addEventListener("change", ()=>{
+    if(CURRENT_VIEW === "inventory") runSearchInventory();
+  });
+});
+
+/* مسح كل الفلاتر ما عدا الفرع */
+function clearFilters(){
+  document.querySelectorAll(".filter-input").forEach(i=>{
+    if(i.id !== "branchFilter"){ // لا تمسح اختيار الفرع
+      i.value = "";
+    }
+  });
+
+  const allRadio = document.querySelector('input[name="countState"][value="all"]');
+  if(allRadio) allRadio.checked = true;
+
+  // لا تلمس branchFilter هنا حتى يبقى ثابت
+
+  if(CURRENT_VIEW === "inventory"){
+    runSearchInventory();
+  }else{
+    runSearchSales();
+  }
+}
+
+/* ======= بحث المخزون (مع الجرد) ======= */
+function runSearchInventory(){
+  const pc = (pContains.value || "").trim().toLowerCase();
+  const pe = (pEnds.value || "").trim().toLowerCase();
+  const ns = (nStarts.value || "").trim().toLowerCase();
+  const nc = (nContains.value || "").trim().toLowerCase();
+  const lfRaw = (locFrom.value || "").trim().toLowerCase();
+  const ltRaw = (locTo.value || "").trim().toLowerCase();
+  const bcInput = (barcode.value || "").trim();
+  const bcNorm  = normalizeBarcode(bcInput);
+  const branchVal = (branchFilter.value || "").trim().toLowerCase();
+
+  const stateEl = document.querySelector('input[name="countState"]:checked');
+  const state = stateEl ? stateEl.value : "all";
+
+  const hasLocFilter = !!(lfRaw || ltRaw);
+
+  if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
+    // هنا لا نتحقق من branchVal حتى لو كان "كل الفروع" أو فرع معين
+    const initial = ALL_DATA.slice(0, 100);
+    LAST_RENDER = initial;
+    renderInventory(initial);
+    return;
+  }
+
+  const res = [];
+  for(const r of ALL_DATA){
+    const p  = String(r.part ?? "").toLowerCase();
+    const n  = String(r.name ?? "").toLowerCase();
+    const l  = String(r.location ?? "").toLowerCase();
+    const br = String(r.branch ?? "").trim().toLowerCase();
+    const bRaw = String(r.barcode ?? "");
+    const bNorm = normalizeBarcode(bRaw);
+
+    const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
+    const qtySysNum   = Number(r.qty ?? 0);
+    const qtyCountNum = Number(r.lastCountQty ?? 0);
+    const isEqual     = hasCount && qtySysNum === qtyCountNum;
+
+    // تصفية الفرع: قيمة * تعني كل الفروع، أي لا تصفية بالفرع
+    if(branchVal && branchVal !== "*" && br !== branchVal) continue;
+
+    if(state === "counted" && !hasCount) continue;
+    if(state === "diff"    && !(hasCount && !isEqual)) continue;
+    if(state === "not"     && hasCount) continue;
+
+    if(pc && !p.includes(pc)) continue;
+    if(pe && !p.endsWith(pe)) continue;
+    if(ns && !n.startsWith(ns)) continue;
+    if(nc && !n.includes(nc)) continue;
+
+    if(bcNorm && bcNorm !== bNorm) continue;
+
+    if(hasLocFilter){
+      const lf = lfRaw || l;
+      const lt = ltRaw || l;
+      if(l < lf) continue;
+      if(l > lt) continue;
+    }
+
+    res.push(r);
+    if(res.length >= 100) break;
+  }
+
+  if(hasLocFilter){
+    res.sort((a,b)=>{
+      const la = String(a.location ?? "").toLowerCase();
+      const lb = String(b.location ?? "").toLowerCase();
+      if(la < lb) return -1;
+      if(la > lb) return 1;
+      return 0;
+    });
+  }
+
+  LAST_RENDER = res;
+  renderInventory(res);
+}
+
+/* ======= بحث المبيعات (عرض فقط) ======= */
+function runSearchSales(){
+  const q    = (pContains.value || "").trim().toLowerCase();
+  const nQ   = (nContains.value || "").trim().toLowerCase();
+  const branchVal  = (branchFilter.value || "").trim().toLowerCase();
+
+  if(!q && !nQ){
+    // لو الفرع كل الفروع أو فرع معيّن، الفلترة تتم لاحقاً
+    let base = SALES_DATA.slice(0,100);
+    if(branchVal && branchVal !== "*"){
+      base = base.filter(r => String(r.branch ?? "").trim().toLowerCase() === branchVal);
+    }
+    renderSales(base);
+    return;
+  }
+
+  const res = [];
+  for(const r of SALES_DATA){
+    const p  = String(r.part ?? "").toLowerCase();
+    const n  = String(r.name ?? "").toLowerCase();
+    const br = String(r.branch ?? "").trim().toLowerCase();
+
+    if(q   && !p.includes(q)) continue;
+    if(nQ  && !n.includes(nQ)) continue;
+    if(branchVal && branchVal !== "*" && br !== branchVal) continue;
+
+    res.push(r);
+    if(res.length >= 100) break;
+  }
+  renderSales(res);
+}
+
+/* DATE FORMAT */
+function fmtDate(d){
+  if(!d) return "";
+  const dt = new Date(d);
+  if (isNaN(dt)) return "";
+  const day   = String(dt.getDate()).padStart(2,"0");
+  const month = String(dt.getMonth()+1).padStart(2,"0");
+  const year  = dt.getFullYear();
+  const hour  = String(dt.getHours()).padStart(2,"0");
+  const min   = String(dt.getMinutes()).padStart(2,"0");
+  return `${day}/${month}/${year} ${hour}:${min}`;
+}
+
+/* ======= RENDER المخزون ======= */
+function renderInventory(data){
+  results.innerHTML = data.map(r=>{
+    const qtySysNum   = Number(r.qty ?? 0);
+    const qtyCountNum = Number(r.lastCountQty ?? 0);
+
+    let cls="part", status="";
+    const hasCount = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
+    if(hasCount){
+      const diffAbs = Math.abs(qtySysNum - qtyCountNum);
+      if(qtySysNum === qtyCountNum){
+        cls += " ok";
+        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
+      }else{
+        cls += " warn";
+        const bigDiff = diffAbs >= 5;
+        const alertIcon = bigDiff ? "🚨" : "⚠";
+        status = `${alertIcon} فرق ${diffAbs} | جرد: ${qtyCountNum.toLocaleString("en-US")} | نهائي: ${qtySysNum.toLocaleString("en-US")} | ${fmtDate(r.lastCountedAt)} - ${r.countedBy || ""}`;
+      }
+    }else{
+      status = "لم يجرد";
+    }
+
+    const qtySysTxt   = qtySysNum.toLocaleString("en-US");
+    const qtyCountTxt = qtyCountNum ? qtyCountNum.toLocaleString("en-US") : "";
+
+    const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5
+      ? "border:2px solid #f97316;background:#fff7ed;"
+      : "";
+
+    return `
+<div class="item" style="${itemStyle}">
+  <div class="part-row">
+    <div class="${cls}">${r.part ?? ""}</div>
+    <div class="location"><b>الموقع:</b> ${r.location ?? ""}</div>
+  </div>
+  <div class="name">${r.name ?? ""}</div>
+  <div class="meta" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between">
+    <span>الكمية النهائية: <b>${qtySysTxt}</b></span>
+    <span>كمية الجرد: <b>${qtyCountTxt}</b></span>
+  </div>
+  ${status ? `<div class="status">${status}</div>` : ""}
+  <div class="meta" style="margin-top:2px">
+    <span>فرع: <b>${r.branch || ""}</b></span>
+  </div>
+  <div style="display:flex;justify-content:flex-end;margin-top:6px">
+    <button
+      onclick='openDetail(${JSON.stringify(r.part ?? "")})'
+      style="border:none;background:#1976d2;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">
+      ✏️ تعديل
+    </button>
+  </div>
+</div>`;
+  }).join("");
+}
+
+/* ======= RENDER المبيعات  ======= */
+function renderSales(data){
+  results.innerHTML = data.map(r=>{
+    const availTxt = r.qty > 0 ? "متوفر" : "غير متوفر";
+    const availCls = r.qty > 0 ? "ok" : "warn";
+
+    const qtyTxt  = Number(r.qty || 0).toLocaleString("en-US");
+    const costTxt = Number(r.cost || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+    const maxTxt  = Number(r.maxPrice || 0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+    return `
+<div class="item sales-item">
+  <div class="part-row">
+    <div class="part ${availCls}">${r.part}</div>
+    <div class="location"><b>الفرع:</b> ${r.branch || ""}</div>
+  </div>
+  <div class="name">${r.name}</div>
+  <div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:space-between">
+    <span>الحالة: <b>${availTxt}</b> (Qty: ${qtyTxt})</span>
+    <span>التكلفة: <b>${costTxt}</b></span>
+    <span>سعر الشركة: <b>${maxTxt}</b></span>
+  </div>
+</div>`;
+  }).join("");
+}
+
+/* DETAIL MODAL + زر حفظ (للجرد فقط) */
+function openDetail(part){
+  if(CURRENT_VIEW !== "inventory") return;
+
+  const r = ALL_DATA.find(x => String(x.part) === String(part));
+  if(!r) return;
+
+  const ov = document.createElement("div");
+  ov.className = "detail-overlay";
+
+  const currentCount = (r.lastCountQty ?? "");
+  const systemQty = (r.qty ?? 0);
+  const realLoc = r.location || "";
+  const countLoc = r.countLocation || "";
+  const currentNote = r.note || "";
+
+  ov.innerHTML = `
+    <div class="detail-card">
+      <div class="detail-header">
+        <span>تعديل بيانات الصنف</span>
+        <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
+      </div>
+
+      <div class="detail-label">رقم الصنف</div>
+      <div><b>${r.part}</b></div>
+
+      <div class="detail-label">الفرع</div>
+      <div><b>${r.branch || ""}</b></div>
+
+      <div class="detail-label">الموقع</div>
+      <div><b>${realLoc}</b></div>
+
+      <div class="detail-label">موقع الجرد</div>
+      <input id="newLoc"
+        value="${countLoc}"
+        data-original="${countLoc.replace(/"/g,'&quot;')}"
+        style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
+
+      <div class="detail-label">الكمية النهائية (بعد خصم المحجوز)</div>
+      <div><b>${systemQty}</b></div>
+
+      <div class="detail-label">كمية التعديل</div>
+      <div class="detail-qty-box">
+        <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
+        <input id="cq" type="number" value="${currentCount}" data-original="${currentCount}">
+        <button onclick="chg(1);updateDetailSaveState()">+</button>
+      </div>
+
+      <div class="detail-label">ملاحظات</div>
+      <textarea id="note"
+        data-original="${currentNote.replace(/"/g,'&quot;')}"
+        style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;background:#f9fafb;color:var(--text)">${currentNote}</textarea>
+
+      <button
+        id="detailSaveBtn"
+        class="detail-save"
+        disabled
+        style="opacity:0.5;cursor:not-allowed"
+        onclick="saveCount('${String(r.part).replace(/'/g,"\\'")}', ${Number(systemQty)})">
+        حفظ التعديل
+      </button>
+    </div>
+  `;
+  document.body.appendChild(ov);
+
+  document.getElementById("newLoc").addEventListener("input", updateDetailSaveState);
+  document.getElementById("cq").addEventListener("input", updateDetailSaveState);
+  document.getElementById("note").addEventListener("input", updateDetailSaveState);
+}
+
+function chg(d){
+  const i = document.getElementById("cq");
+  i.value = Math.max(0, (+i.value || 0) + d);
+}
+
+/* enable/disable save */
+function updateDetailSaveState(){
+  const btn  = document.getElementById("detailSaveBtn");
+  if(!btn) return;
+
+  const cq   = document.getElementById("cq");
+  const note = document.getElementById("note");
+  const loc  = document.getElementById("newLoc");
+
+  const origCount = cq.getAttribute("data-original") ?? "";
+  const origNote  = note.getAttribute("data-original") ?? "";
+  const origLoc   = loc.getAttribute("data-original") ?? "";
+
+  const changedCount = String(cq.value || "") !== String(origCount);
+  const changedNote  = String(note.value || "") !== String(origNote);
+  const changedLoc   = String(loc.value || "") !== String(origLoc);
+
+  if(changedCount || changedNote || changedLoc){
+    btn.disabled = false;
+    btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+  }else{
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+  }
+}
+
+/* SAVE COUNT */
+function saveCount(part, systemQty){
+  const cqEl   = document.getElementById("cq");
+  const noteEl = document.getElementById("note");
+  const locEl  = document.getElementById("newLoc");
+
+  const countedRaw = cqEl.value;
+  const noteVal = noteEl.value || "";
+  const newLoc  = locEl ? locEl.value.trim() : "";
+
+  const origCount = cqEl.getAttribute("data-original") ?? "";
+  const origNote  = noteEl.getAttribute("data-original") ?? "";
+  const origLoc   = locEl.getAttribute("data-original") ?? "";
+
+  const changedCount = String(countedRaw || "") !== String(origCount);
+  const changedNote  = String(noteVal   || "") !== String(origNote);
+  const changedLoc   = String(newLoc    || "") !== String(origLoc);
+
+  if(!changedCount && !changedNote && !changedLoc){
+    const ov0 = document.querySelector(".detail-overlay");
+    if(ov0) ov0.remove();
+    return;
+  }
+
+  let counted;
+  if(changedCount && countedRaw !== ""){
+    counted = Number(countedRaw) || 0;
+  }else{
+    counted = Number(systemQty) || 0;
+  }
+
+  const r = ALL_DATA.find(x => String(x.part) === String(part));
+  if(r){
+    r.lastCountedAt = new Date().toISOString();
+    r.lastCountQty  = counted;
+    r.note          = noteVal;
+    r.countedBy     = CURRENT_USER || "";
+    r.countLocation = newLoc;
+  }
+
+  const ov = document.querySelector(".detail-overlay");
+  if(ov) ov.remove();
+
+  runSearchInventory();
+  playBeep();
+
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      part: String(part),
+      systemQty: String(systemQty),
+      countedQty: String(counted),
+      note: noteVal,
+      user: CURRENT_USER || "",
+      role: CURRENT_ROLE || "User",
+      newLocation: newLoc,
+      branch: r && r.branch ? r.branch : ""
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{})
+  .catch(()=>{});
+}
+
+/* CAMERA */
+let html5QrCode = null;
+let isScanning = false;
+
+document.getElementById("scanBtn").addEventListener("click", startScan);
+
+function startScan(){
+  if(isScanning || CURRENT_VIEW === "sales") return;
+
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "block";
+
+  const qrRegionId = "reader";
+  html5QrCode = new Html5Qrcode(qrRegionId);
+
+  const config = {
+    fps: 10,
+    qrbox: { width: 250, height: 150 }
+  };
+
+  Html5Qrcode.getCameras().then(cameras => {
+    if (!cameras || cameras.length === 0) {
+      alert("لم يتم العثور على كاميرا");
+      container.style.display = "none";
+      return;
+    }
+
+    let cameraId = cameras[0].id;
+    const backCam = cameras.find(c =>
+      c.label.toLowerCase().includes("back") ||
+      c.label.toLowerCase().includes("rear") ||
+      c.label.toLowerCase().includes("environment")
+    );
+    if (backCam) {
+      cameraId = backCam.id;
+    } else if (cameras.length > 1) {
+      cameraId = cameras[cameras.length - 1].id;
+    }
+
+    isScanning = true;
+    html5QrCode.start(
+      cameraId,
+      config,
+      decodedText => {
+        const cleaned = normalizeBarcode(decodedText);
+        if(!cleaned){
+          alert("لم يتم العثور على أرقام صالحة في الباركود");
+          return;
+        }
+        document.getElementById("barcode").value = cleaned;
+        stopScan();
+        runSearchInventory();
+      },
+      errorMessage =>{}
+    );
+  }).catch(err => {
+    alert("تعذر فتح الكاميرا");
+    container.style.display = "none";
+  });
+}
+
+function stopScan(){
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "none";
+
+  if(html5QrCode && isScanning){
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      isScanning = false;
+    }).catch(err => {
+      isScanning = false;
+    });
+  }
+}
+</script>
+
+</body>
+</html>
