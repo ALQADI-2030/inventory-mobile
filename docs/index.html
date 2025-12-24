@@ -13,9 +13,9 @@
 :root{
   --bg:#f3f4fb;
   --card:rgba(255,255,255,0.94);
-  --primary:#2563eb;          /* أزرق كهربائي مريح */
+  --primary:#2563eb;
   --primary-soft:rgba(37,99,235,0.10);
-  --accent:#7c3aed;           /* بنفسجي لدعم الجنون */
+  --accent:#7c3aed;
   --ok:#16a34a;
   --warn:#dc2626;
   --text:#0f172a;
@@ -224,8 +224,6 @@ input, textarea, button{
   border-radius:999px;
   box-shadow:0 0 0 1px rgba(129,140,248,0.55);
 }
-
-/* بطاقات القائمة */
 .main-list{
   margin-top:4px;
   display:flex;
@@ -405,7 +403,7 @@ input, textarea, button{
   .filter-input.small{flex:1 1 30%}
 }
 
-/* ITEM (المخزون والمبيعات) */
+/* ITEM */
 .item{
   background:var(--card);
   border-radius:16px;
@@ -448,13 +446,11 @@ input, textarea, button{
   font-size:12px;
   margin-top:4px;
 }
-
-/* نتائج المبيعات: المتوفر أزرق */
+/* مبيعات */
 .sales-item .part.ok{
   color:var(--primary);
 }
-
-/* إبراز الفرق الكبير في الجرد */
+/* إبراز فرق كبير */
 .item[style*="border:2px solid"]{
   background:#fff7ed;
 }
@@ -549,16 +545,12 @@ input, textarea, button{
     0 16px 34px rgba(37,99,235,0.55),
     0 0 0 1px rgba(129,140,248,0.9);
 }
-
-/* مدخلات داخل المودال */
-#newLoc,
-#note{
+#newLoc,#note{
   background:#f9fafb;
   border:1px solid var(--border);
   color:var(--text);
 }
-#newLoc:focus,
-#note:focus{
+#newLoc:focus,#note:focus{
   outline:none;
   border-color:var(--primary);
   box-shadow:0 0 0 1px rgba(37,99,235,0.45);
@@ -644,6 +636,9 @@ input, textarea, button{
   <div class="top-bar">
     <div class="top-title" id="topTitle">تعديل بيانات الأصناف</div>
     <button class="icon-btn" onclick="backToMain()">عودة</button>
+    <!-- يمكن إضافة زر خروج هنا لو حبيت:
+    <button class="icon-btn" onclick="logoutUser()">خروج</button>
+    -->
   </div>
 
   <div class="filter-wrap">
@@ -697,7 +692,6 @@ input, textarea, button{
       <div class="filter-row">
         <input id="locFrom" class="filter-input small" placeholder="الموقع من">
         <input id="locTo"   class="filter-input small" placeholder="إلى">
-
         <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
           <input id="barcode" class="filter-input small" placeholder="باركود">
           <button type="button"
@@ -747,6 +741,31 @@ let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
 let loadingInterval = null;   // للعداد المئوي
+let AUTO_REFRESH = null;      // للتحديث كل 30 ثانية
+
+// استرجاع الجلسة من المتصفح عند فتح الصفحة
+window.addEventListener("load", () => {
+  try {
+    const savedUser = localStorage.getItem("stockUser");
+    const savedRole = localStorage.getItem("stockRole");
+
+    if (savedUser && savedRole) {
+      CURRENT_USER = savedUser;
+      CURRENT_ROLE = savedRole;
+
+      // إخفاء شاشة الدخول وفتح القائمة
+      loginScreen.style.display = "none";
+      mainScreen.style.display = "flex";
+
+      // تحميل بيانات المخزون إذا ما كانت محمّلة
+      if (!ALL_DATA || ALL_DATA.length === 0) {
+        loadInventoryAfterLogin();
+      }
+    }
+  } catch (e) {
+    // نتجاهل أي خطأ في localStorage
+  }
+});
 
 /* منع pinch/double-tap zoom في iOS */
 document.addEventListener("gesturestart", function (e) {
@@ -816,6 +835,12 @@ function login(){
     CURRENT_USER = res.user && res.user.name ? res.user.name : user;
     CURRENT_ROLE = res.user && res.user.role ? res.user.role : "User";
 
+    // حفظ الجلسة في المتصفح
+    try {
+      localStorage.setItem("stockUser", CURRENT_USER);
+      localStorage.setItem("stockRole", CURRENT_ROLE);
+    } catch (e) {}
+
     enablePullBlock();
 
     loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
@@ -858,6 +883,9 @@ function loadInventoryAfterLogin(){
         loginScreen.style.display="none";
         loginLoading.style.display="none";
         mainScreen.style.display="flex";
+
+        // تشغيل التحديث التلقائي كل 30 ثانية
+        startAutoRefresh();
       }, 400);
     })
     .catch(() => {
@@ -865,6 +893,35 @@ function loadInventoryAfterLogin(){
       loginLoading.style.display="none";
       loginError.textContent = "فشل تحميل بيانات المخزون";
     });
+}
+
+// تشغيل التحديث التلقائي
+function startAutoRefresh(){
+  if (AUTO_REFRESH){
+    clearInterval(AUTO_REFRESH);
+    AUTO_REFRESH = null;
+  }
+
+  AUTO_REFRESH = setInterval(() => {
+    const mode = (CURRENT_VIEW === "sales") ? "sales" : "inventory";
+
+    fetch(API + "?mode=" + mode)
+      .then(r => r.json())
+      .then(d => {
+        if (!d || !Array.isArray(d)) return;
+
+        if (mode === "sales") {
+          SALES_DATA = d.slice();
+          runSearchSales();
+        } else {
+          ALL_DATA = d.slice();
+          runSearchInventory();
+        }
+      })
+      .catch(() => {
+        // تجاهل الخطأ
+      });
+  }, 30000); // 30 ثانية
 }
 
 /* MENU (الجرد) */
@@ -878,7 +935,7 @@ function openMenu(id){
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
 
-    runSearchInventory(); // يعتمد الآن على اختيار الفرع
+    runSearchInventory();
   }else{
     alert("هذه القائمة لم تفعل");
   }
@@ -906,7 +963,7 @@ function openSalesMenu(){
 /* barcode normalize */
 function normalizeBarcode(text){
   if(!text) return "";
-  const digits = String(text).replace(/D/g, "");
+  const digits = String(text).replace(/\D/g, "");
   return digits.substring(0, 10);
 }
 
@@ -963,13 +1020,11 @@ function runSearchInventory(){
 
   const hasLocFilter = !!(lfRaw || ltRaw);
 
-  // لو لسه ما اختار فرع
   if(!branchVal){
     results.innerHTML = "";
     return;
   }
 
-  // بدون فلاتر أخرى
   if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
     const all = ALL_DATA.filter(r=>{
       const br = String(r.branch ?? "").trim().toLowerCase();
@@ -1040,7 +1095,6 @@ function runSearchSales(){
   const nQ   = (nContains.value || "").trim().toLowerCase();
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
 
-  // لو ما اختار فرع، لا تعرض شيء
   if(!branchVal){
     results.innerHTML = "";
     return;
@@ -1407,6 +1461,26 @@ function stopScan(){
       isScanning = false;
     });
   }
+}
+
+// (اختياري) دالة خروج
+function logoutUser(){
+  try {
+    localStorage.removeItem("stockUser");
+    localStorage.removeItem("stockRole");
+  } catch (e) {}
+
+  CURRENT_USER = "";
+  CURRENT_ROLE = "";
+
+  if (AUTO_REFRESH){
+    clearInterval(AUTO_REFRESH);
+    AUTO_REFRESH = null;
+  }
+
+  appScreen.style.display  = "none";
+  mainScreen.style.display = "none";
+  loginScreen.style.display = "flex";
 }
 </script>
 
