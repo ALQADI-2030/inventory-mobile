@@ -973,44 +973,9 @@ function openSalesMenu(){
 /* barcode normalize */
 function normalizeBarcode(text){
   if(!text) return "";
+  // نحذف كل ما ليس رقم ثم نأخذ أول 10 أرقام فقط
   const digits = String(text).replace(/\D/g, "");
   return digits.substring(0, 10);
-}
-
-/* FILTERS */
-let searchTimer = null;
-
-document.querySelectorAll(".filter-input").forEach(inp=>{
-  inp.addEventListener("input", ()=>{
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(()=>{
-      if(CURRENT_VIEW === "inventory") runSearchInventory();
-      else runSearchSales();
-    }, 300);
-  });
-});
-
-document.querySelectorAll('input[name="countState"]').forEach(r=>{
-  r.addEventListener("change", ()=>{
-    if(CURRENT_VIEW === "inventory") runSearchInventory();
-  });
-});
-
-function clearFilters(){
-  document.querySelectorAll(".filter-input").forEach(i=>{
-    if(i.id !== "branchFilter"){
-      i.value = "";
-    }
-  });
-
-  const allRadio = document.querySelector('input[name="countState"][value="all"]');
-  if(allRadio) allRadio.checked = true;
-
-  if(CURRENT_VIEW === "inventory"){
-    runSearchInventory();
-  }else{
-    runSearchSales();
-  }
 }
 
 /* ======= بحث المخزون ======= */
@@ -1021,8 +986,11 @@ function runSearchInventory(){
   const nc = (nContains.value || "").trim().toLowerCase();
   const lfRaw = (locFrom.value || "").trim().toLowerCase();
   const ltRaw = (locTo.value || "").trim().toLowerCase();
+
+  // إدخال الباركود كما في الحقل
   const bcInput = (barcode.value || "").trim();
-  const bcNorm  = normalizeBarcode(bcInput);
+  const bcNorm  = normalizeBarcode(bcInput);   // أول 10 أرقام من أي مكان في النص
+
   const branchVal = (branchFilter.value || "").trim().toLowerCase();
 
   const stateEl = document.querySelector('input[name="countState"]:checked');
@@ -1035,6 +1003,7 @@ function runSearchInventory(){
     return;
   }
 
+  // أول 100 صنف للفرع بدون فلاتر أخرى
   if(!pc && !pe && !ns && !nc && !lfRaw && !ltRaw && !bcNorm && state==="all"){
     const all = ALL_DATA.filter(r=>{
       const br = String(r.branch ?? "").trim().toLowerCase();
@@ -1054,7 +1023,7 @@ function runSearchInventory(){
     const l  = String(r.location ?? "").toLowerCase();
     const br = String(r.branch ?? "").trim().toLowerCase();
     const bRaw = String(r.barcode ?? "");
-    const bNorm = normalizeBarcode(bRaw);
+    const bNorm = normalizeBarcode(bRaw);   // أول 10 أرقام من باركود المخزون
 
     const hasCount    = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
     const qtySysNum   = Number(r.qty ?? 0);
@@ -1072,7 +1041,8 @@ function runSearchInventory(){
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
 
-    if(bcNorm && bcNorm !== bNorm) continue;
+    // هنا التعديل: البحث بالباركود بنمط "يحتوي على"
+    if(bcNorm && !bNorm.includes(bcNorm)) continue;
 
     if(hasLocFilter){
       const lf = lfRaw || l;
@@ -1098,6 +1068,7 @@ function runSearchInventory(){
   LAST_RENDER = res;
   renderInventory(res);
 }
+
 
 /* ======= بحث المبيعات ======= */
 function runSearchSales(){
