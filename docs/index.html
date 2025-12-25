@@ -172,64 +172,69 @@ input, textarea, button{
   justify-content:center;
   align-items:center;
 }
+
 .main-card{
   width:100%;
   max-width:380px;
-  background:var(--card);
+  background:#0f172a;
   border-radius:28px;
   padding:18px 16px 16px;
   box-shadow:
-    0 24px 55px rgba(15,23,42,0.22),
-    0 0 0 1px rgba(148,163,184,0.40);
-  color:var(--text);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
+    0 24px 55px rgba(15,23,42,0.5),
+    0 0 0 1px rgba(15,23,42,0.8);
+  color:#e5e7eb;
   position:relative;
   overflow:hidden;
 }
+
 .main-card::before{
   content:"";
   position:absolute;
-  inset:-35%;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(59,130,246,0.16) 0, transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(56,189,248,0.16) 0, transparent 55%);
-  opacity:0.6;
+  inset:0;
+  background:none;
+  opacity:1;
   pointer-events:none;
-  mix-blend-mode:soft-light;
 }
+
 .main-card > *{
   position:relative;
   z-index:1;
 }
+
 .main-header{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
   margin-bottom:12px;
 }
+
 .main-title{
   font-size:18px;
   font-weight:800;
+  color:#ffffff;
 }
+
 .main-sub{
   font-size:11px;
-  color:var(--muted);
+  color:#cbd5f5;
 }
+
 .main-badge{
   font-size:11px;
-  background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(37,99,235,0.16));
-  color:#1d4ed8;
+  background:#1d4ed8;
+  color:#e5e7eb;
   padding:4px 10px;
   border-radius:999px;
-  box-shadow:0 0 0 1px rgba(129,140,248,0.55);
+  box-shadow:0 0 0 1px rgba(37,99,235,0.7);
 }
+
 .main-list{
   margin-top:4px;
   display:flex;
   flex-direction:column;
   gap:10px;
 }
+
 .main-btn{
   width:100%;
   border:none;
@@ -239,18 +244,18 @@ input, textarea, button{
   align-items:center;
   justify-content:space-between;
   cursor:pointer;
-  background:
-    radial-gradient(circle at top left, rgba(129,140,248,0.12) 0, transparent 55%),
-    rgba(248,250,252,0.98);
-  color:var(--text);
-  box-shadow:0 4px 12px rgba(15,23,42,0.08);
+  background:#1d4ed8;
+  color:#f9fafb;
+  box-shadow:0 4px 12px rgba(15,23,42,0.4);
   transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
 }
+
 .main-btn span.left{
   display:flex;
   align-items:center;
   gap:10px;
 }
+
 .main-icon{
   width:32px;
   height:32px;
@@ -259,34 +264,34 @@ input, textarea, button{
   align-items:center;
   justify-content:center;
   font-size:18px;
-  background:radial-gradient(circle at 30% 30%, #22d3ee 0, #0ea5e9 45%, #2563eb 100%);
+  background:rgba(15,23,42,0.25);
   color:#f9fafb;
-  box-shadow:0 0 0 1px rgba(15,23,42,0.12);
-}
-.main-arrow{
-  font-size:13px;
-  color:#9ca3af;
-  font-weight:600;
-}
-.main-btn:hover{
-  transform:translateY(-1px);
-  box-shadow:0 10px 22px rgba(15,23,42,0.16);
-  background:
-    radial-gradient(circle at top left, rgba(129,140,248,0.16) 0, transparent 55%),
-    #ffffff;
-}
-.main-btn.primary{
-  background:linear-gradient(135deg,#6366f1,#2563eb);
-  color:#ffffff;
-  box-shadow:
-    0 14px 30px rgba(79,70,229,0.55),
-    0 0 0 1px rgba(191,219,254,0.65);
-}
-.main-btn.primary .main-icon{
-  background:rgba(255,255,255,0.20);
-  color:#ffffff;
   box-shadow:none;
 }
+
+.main-arrow{
+  font-size:13px;
+  color:#e5e7eb;
+  font-weight:600;
+}
+
+.main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(15,23,42,0.6);
+  background:#2563eb;
+}
+
+.main-btn.primary{
+  background:#1d4ed8;
+  color:#ffffff;
+  box-shadow:0 14px 30px rgba(15,23,42,0.6);
+}
+
+.main-btn.primary .main-icon{
+  background:rgba(15,23,42,0.25);
+  color:#ffffff;
+}
+
 .main-btn.primary .main-arrow{
   color:#e5e7eb;
 }
@@ -741,28 +746,10 @@ let SALES_DATA = [];
 let LAST_RENDER = [];
 let CURRENT_USER = "";
 let CURRENT_ROLE = "";
-let loadingInterval = null;   
-let AUTO_REFRESH = null;      
+let loadingInterval = null;
+let AUTO_REFRESH = null;
 let CURRENT_DETAIL_PART   = null;
 let CURRENT_DETAIL_BRANCH = null;
-
-// --- معالجة الباركود الذكية ---
-function normalizeBarcode(text) {
-  if (!text) return "";
-  let val = String(text).trim().toLowerCase();
-  
-  // إذا بدأ برقم: نطبق قاعدة العشر خانات الرقمية الصرفة
-  if (/^\d/.test(val)) {
-    let digitsOnly = val.replace(/\D/g, "");
-    if (digitsOnly.length >= 10) {
-      return digitsOnly.substring(0, 10);
-    }
-    return digitsOnly;
-  }
-  
-  // إذا احتوى على حروف أو رموز: ننظف المسافات فقط ونبقي الحساسية
-  return val.replace(/\s+/g, "");
-}
 
 // استرجاع الجلسة
 window.addEventListener("load", () => {
@@ -781,7 +768,7 @@ window.addEventListener("load", () => {
   } catch (e) {}
 });
 
-/* منع الزووم والسحب للأسفل */
+/* منع الزووم */
 document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
 let lastTouchEnd = 0;
 document.addEventListener("touchend", function (e) {
@@ -790,6 +777,7 @@ document.addEventListener("touchend", function (e) {
   lastTouchEnd = now;
 }, { passive: false });
 
+/* منع السحب للأسفل */
 let lastTouchY = 0;
 let preventPullToRefresh = false;
 function enablePullBlock(){ preventPullToRefresh = true; }
@@ -807,11 +795,23 @@ window.addEventListener("touchmove", function(e){
   if(deltaY > 0) e.preventDefault();
 }, {passive:false});
 
+/* صوت */
 function playBeep(){
   const a = document.getElementById("beepAudio");
   if(!a) return;
   a.currentTime = 0;
   a.play().catch(()=>{});
+}
+
+// تعديل دالة النورماليز الجديدة للمطالب
+function normalizeBarcode(text) {
+  if (!text) return "";
+  let val = String(text).trim();
+  // إذا بدأ برقم، خذ أول 10 خانات فقط
+  if (/^\d/.test(val)) {
+    return val.substring(0, 10);
+  }
+  return val;
 }
 
 /* LOGIN */
@@ -841,6 +841,7 @@ function login(){
       localStorage.setItem("stockRole", CURRENT_ROLE);
     } catch (e) {}
     enablePullBlock();
+    loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
     loadInventoryAfterLogin();
   })
   .catch(()=>{
@@ -857,6 +858,7 @@ function backToMain(){
 function loadInventoryAfterLogin(){
   let progress = 0;
   loginLoading.style.display = "block";
+  loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
   loadingInterval = setInterval(()=>{
     if(progress < 95){
       progress += 3;
@@ -893,9 +895,11 @@ function startAutoRefresh(){
       .then(d => {
         if (!d || !Array.isArray(d)) return;
         if (mode === "sales") {
-          SALES_DATA = d.slice(); runSearchSales();
+          SALES_DATA = d.slice();
+          runSearchSales();
         } else {
-          ALL_DATA = d.slice(); runSearchInventory();
+          ALL_DATA = d.slice();
+          runSearchInventory();
         }
       }).catch(() => {});
   }, 30000);
@@ -920,13 +924,15 @@ function openSalesMenu(){
   document.getElementById("scanBtn").disabled = true;
   mainScreen.style.display = "none";
   appScreen.style.display  = "block";
+  const loadingEl = document.getElementById("salesLoading");
+  if(loadingEl) loadingEl.style.display = "none";
   if(!SALES_DATA || SALES_DATA.length === 0){
     SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
   }
   runSearchSales();
 }
 
-/* FILTERS - البحث المباشر */
+/* FILTERS */
 let searchTimer = null;
 document.querySelectorAll(".filter-input").forEach(inp=>{
   inp.addEventListener("input", ()=>{
@@ -934,7 +940,7 @@ document.querySelectorAll(".filter-input").forEach(inp=>{
     searchTimer = setTimeout(()=>{
       if(CURRENT_VIEW === "inventory") runSearchInventory();
       else runSearchSales();
-    }, 150); 
+    }, 150);
   });
 });
 
@@ -946,10 +952,10 @@ function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>{ if(i.id !== "branchFilter"){ i.value = ""; } });
   const allRadio = document.querySelector('input[name="countState"][value="all"]');
   if(allRadio) allRadio.checked = true;
-  if(CURRENT_VIEW === "inventory") runSearchInventory(); else runSearchSales();
+  if(CURRENT_VIEW === "inventory"){ runSearchInventory(); }else{ runSearchSales(); }
 }
 
-/* ======= بحث المخزون الذكي ======= */
+/* ======= بحث المخزون (المعدل) ======= */
 function runSearchInventory(){
   const pc = (pContains.value || "").trim().toLowerCase();
   const pe = (pEnds.value || "").trim().toLowerCase();
@@ -958,7 +964,6 @@ function runSearchInventory(){
   const lfRaw = (locFrom.value || "").trim().toLowerCase();
   const ltRaw = (locTo.value || "").trim().toLowerCase();
   
-  // تنقية مدخل الباركود
   const bcInput = (barcode.value || "").trim();
   const bcNorm  = normalizeBarcode(bcInput);
   
@@ -976,7 +981,6 @@ function runSearchInventory(){
     const l  = String(r.location ?? "").toLowerCase();
     const br = String(r.branch ?? "").trim().toLowerCase();
     
-    // تنقية باركود الصنف في الداتا
     const bRaw = String(r.barcode ?? "");
     const bNormItem = normalizeBarcode(bRaw);
 
@@ -995,17 +999,7 @@ function runSearchInventory(){
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
 
-    // محرك البحث الذكي للباركود (التشابه والاحتواء النسبي)
-    if(bcNorm){
-      let match = bNormItem.includes(bcNorm) || bcNorm.includes(bNormItem);
-      // معالجة الرموز مثل - للبحث النسبي
-      let simpleItem = bNormItem.replace(/[-.]/g, "");
-      let simpleInput = bcNorm.replace(/[-.]/g, "");
-      if (!match && (simpleItem.includes(simpleInput) || simpleInput.includes(simpleItem))) {
-        match = true;
-      }
-      if (!match) continue;
-    }
+    if(bcNorm && !bNormItem.includes(bcNorm)) continue;
 
     if(hasLocFilter){
       const lf = lfRaw || l; const lt = ltRaw || l;
@@ -1014,26 +1008,27 @@ function runSearchInventory(){
     res.push(r);
     if(res.length >= 100) break;
   }
-  
   if(hasLocFilter){
     res.sort((a,b)=>{
       const la = String(a.location ?? "").toLowerCase();
       const lb = String(b.location ?? "").toLowerCase();
-      return la.localeCompare(lb);
+      if(la < lb) return -1; if(la > lb) return 1; return 0;
     });
   }
+  LAST_RENDER = res;
   renderInventory(res);
 }
 
+/* بحث المبيعات */
 function runSearchSales(){
-  const q = (pContains.value || "").trim().toLowerCase();
-  const nQ = (nContains.value || "").trim().toLowerCase();
-  const branchVal = (branchFilter.value || "").trim().toLowerCase();
+  const q    = (pContains.value || "").trim().toLowerCase();
+  const nQ   = (nContains.value || "").trim().toLowerCase();
+  const branchVal  = (branchFilter.value || "").trim().toLowerCase();
   if(!branchVal){ results.innerHTML = ""; return; }
   const res = [];
   for(const r of SALES_DATA){
-    const p = String(r.part ?? "").toLowerCase();
-    const n = String(r.name ?? "").toLowerCase();
+    const p  = String(r.part ?? "").toLowerCase();
+    const n  = String(r.name ?? "").toLowerCase();
     const br = String(r.branch ?? "").trim().toLowerCase();
     if(q && !p.includes(q)) continue;
     if(nQ && !n.includes(nQ)) continue;
@@ -1048,95 +1043,124 @@ function fmtDate(d){
   if(!d) return "";
   const dt = new Date(d);
   if (isNaN(dt)) return "";
-  return `${String(dt.getDate()).padStart(2,"0")}/${String(dt.getMonth()+1).padStart(2,"0")}/${dt.getFullYear()} ${String(dt.getHours()).padStart(2,"0")}:${String(dt.getMinutes()).padStart(2,"0")}`;
+  const day = String(dt.getDate()).padStart(2,"0");
+  const month = String(dt.getMonth()+1).padStart(2,"0");
+  const hour = String(dt.getHours()).padStart(2,"0");
+  const min = String(dt.getMinutes()).padStart(2,"0");
+  return `${day}/${month}/${dt.getFullYear()} ${hour}:${min}`;
 }
 
 function renderInventory(data){
   results.innerHTML = data.map(r=>{
-    const sys = Number(r.qty ?? 0), count = Number(r.lastCountQty ?? 0);
-    const hasC = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
-    let cls = "part", status = hasC ? (sys === count ? "✓ تم الجرد" : `🚨 فرق ${Math.abs(sys-count)}`) : "لم يجرد";
-    if(hasC) cls += (sys === count ? " ok" : " warn");
-    const itemStyle = hasC && Math.abs(sys-count) >= 5 ? "border:2px solid #f97316;background:#fff7ed;" : "";
-    
+    const qtySysNum = Number(r.qty ?? 0);
+    const qtyCountNum = Number(r.lastCountQty ?? 0);
+    let cls="part", status="";
+    const hasCount = (r.lastCountedAt && String(r.lastCountedAt).trim() !== "");
+    if(hasCount){
+      const diffAbs = Math.abs(qtySysNum - qtyCountNum);
+      if(qtySysNum === qtyCountNum){
+        cls += " ok";
+        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
+      }else{
+        cls += " warn";
+        status = `${diffAbs >= 5 ? "🚨":"⚠"} فرق ${diffAbs} | جرد: ${qtyCountNum} | نهائي: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
+      }
+    }else{ status = "لم يجرد"; }
+    const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5 ? "border:2px solid #f97316;background:#fff7ed;" : "";
     return `<div class="item" style="${itemStyle}">
       <div class="part-row"><div class="${cls}">${r.part ?? ""}</div><div class="location"><b>الموقع:</b> ${r.location ?? ""}</div></div>
       <div class="name">${r.name ?? ""}</div>
-      <div class="meta"><span>نهائي: <b>${sys}</b></span> | <span>جرد: <b>${count}</b></span></div>
-      <div class="status">${status} ${hasC ? `(${fmtDate(r.lastCountedAt)})` : ""}</div>
+      <div class="meta"><span>النهائية: <b>${qtySysNum}</b></span> | <span>الجرد: <b>${qtyCountNum || 0}</b></span></div>
+      <div class="status">${status}</div>
       <div style="display:flex;justify-content:flex-end;margin-top:6px">
-        <button onclick='openDetail(${JSON.stringify(r.part)})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">✏️ تعديل</button>
+        <button onclick='openDetail(${JSON.stringify(r.part ?? "")})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">✏️ تعديل</button>
       </div>
     </div>`;
   }).join("");
 }
 
 function renderSales(data){
-  results.innerHTML = data.map(r => `
-    <div class="item sales-item">
-      <div class="part-row"><div class="part ${r.qty > 0 ? "ok":"warn"}">${r.part}</div><div class="location"><b>الفرع:</b> ${r.branch || ""}</div></div>
+  results.innerHTML = data.map(r=>{
+    const availCls = r.qty > 0 ? "ok" : "warn";
+    return `<div class="item sales-item">
+      <div class="part-row"><div class="part ${availCls}">${r.part}</div><div class="location"><b>الفرع:</b> ${r.branch || ""}</div></div>
       <div class="name">${r.name}</div>
-      <div class="meta"><span>متوفر: ${r.qty}</span> | <span>سعر: ${r.maxPrice}</span></div>
-    </div>`).join("");
+      <div class="meta"><span>Qty: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span></div>
+    </div>`;
+  }).join("");
 }
 
 function openDetail(part){
-  const r = ALL_DATA.find(x => String(x.part) === String(part) && String(x.branch || "").trim().toLowerCase() === (branchFilter.value || "").toLowerCase());
-  if(!r) return;
+  if (CURRENT_VIEW !== "inventory") return;
+  const currentBranch = (branchFilter.value || "").trim().toLowerCase();
+  const r = ALL_DATA.find(x => String(x.part) === String(part) && String(x.branch || "").trim().toLowerCase() === currentBranch );
+  if (!r) return;
   CURRENT_DETAIL_PART = r.part; CURRENT_DETAIL_BRANCH = r.branch || "";
   const ov = document.createElement("div"); ov.className = "detail-overlay";
   ov.innerHTML = `<div class="detail-card">
-    <div class="detail-header"><span>تعديل الصنف</span><button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button></div>
-    <div class="detail-label">رقم الصنف: <b>${r.part}</b></div>
-    <div class="detail-label">موقع الجرد</div>
-    <input id="newLoc" value="${r.countLocation || ''}" data-original="${r.countLocation || ''}" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:4px">
-    <div class="detail-label">كمية التعديل</div>
-    <div class="detail-qty-box">
-      <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
-      <input id="cq" type="number" value="${r.lastCountQty ?? ''}" data-original="${r.lastCountQty ?? ''}">
-      <button onclick="chg(1);updateDetailSaveState()">+</button>
-    </div>
-    <div class="detail-label">ملاحظات</div>
-    <textarea id="note" data-original="${r.note || ''}" style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);">${r.note || ''}</textarea>
-    <button id="detailSaveBtn" class="detail-save" disabled style="opacity:0.5;cursor:not-allowed" onclick="saveCount('${String(r.part)}', ${r.qty})">حفظ التعديل</button>
-  </div>`;
+      <div class="detail-header"><span>تعديل الصنف</span><button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button></div>
+      <div class="detail-label">رقم الصنف: <b>${r.part}</b></div>
+      <div class="detail-label">موقع الجرد</div>
+      <input id="newLoc" value="${r.countLocation || ''}" data-original="${(r.countLocation || '')}" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:4px">
+      <div class="detail-label">كمية التعديل</div>
+      <div class="detail-qty-box">
+        <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
+        <input id="cq" type="number" value="${r.lastCountQty ?? ''}" data-original="${r.lastCountQty ?? ''}">
+        <button onclick="chg(1);updateDetailSaveState()">+</button>
+      </div>
+      <div class="detail-label">ملاحظات</div>
+      <textarea id="note" data-original="${(r.note || '')}" style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;">${r.note || ''}</textarea>
+      <button id="detailSaveBtn" class="detail-save" disabled style="opacity:0.5;cursor:not-allowed" onclick="saveCount('${String(r.part)}', ${r.qty})">حفظ التعديل</button>
+    </div>`;
   document.body.appendChild(ov);
   ["newLoc","cq","note"].forEach(id=>document.getElementById(id).addEventListener("input", updateDetailSaveState));
 }
 
 function chg(d){ const i = document.getElementById("cq"); i.value = Math.max(0, (+i.value || 0) + d); }
+
 function updateDetailSaveState(){
-  const btn = document.getElementById("detailSaveBtn"), cq = document.getElementById("cq"), note = document.getElementById("note"), loc = document.getElementById("newLoc");
+  const btn = document.getElementById("detailSaveBtn"); if(!btn) return;
+  const cq = document.getElementById("cq"), note = document.getElementById("note"), loc = document.getElementById("newLoc");
   const changed = (cq.value != cq.dataset.original) || (note.value != note.dataset.original) || (loc.value != loc.dataset.original);
   btn.disabled = !changed; btn.style.opacity = changed ? "1" : "0.5"; btn.style.cursor = changed ? "pointer" : "not-allowed";
 }
 
-function saveCount(part, sys){
-  const cqVal = document.getElementById("cq").value, noteV = document.getElementById("note").value, locV = document.getElementById("newLoc").value;
+function saveCount(part, systemQty){
+  const cqVal = document.getElementById("cq").value, noteVal = document.getElementById("note").value, locVal = document.getElementById("newLoc").value;
   const r = ALL_DATA.find(x => String(x.part) === String(CURRENT_DETAIL_PART) && String(x.branch || "") === String(CURRENT_DETAIL_BRANCH));
-  if(r){ Object.assign(r, { lastCountedAt: new Date().toISOString(), lastCountQty: Number(cqVal), note: noteV, countedBy: CURRENT_USER, countLocation: locV }); }
-  document.querySelector(".detail-overlay").remove();
+  if(r){ r.lastCountedAt = new Date().toISOString(); r.lastCountQty = Number(cqVal); r.note = noteVal; r.countedBy = CURRENT_USER; r.countLocation = locVal; }
+  const ov = document.querySelector(".detail-overlay"); if(ov) ov.remove();
   runSearchInventory(); playBeep();
-  fetch(API,{ method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, 
-    body:new URLSearchParams({ part, systemQty: sys, countedQty: cqVal, note: noteV, user: CURRENT_USER, newLocation: locV, branch: CURRENT_DETAIL_BRANCH })
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({ part: part, systemQty: systemQty, countedQty: cqVal, note: noteVal, user: CURRENT_USER, newLocation: locVal, branch: CURRENT_DETAIL_BRANCH })
   });
 }
 
-let html5QrCode = null;
+/* CAMERA */
+let html5QrCode = null; let isScanning = false;
+document.getElementById("scanBtn").addEventListener("click", startScan);
 function startScan(){
-  if(CURRENT_VIEW === "sales") return;
-  document.getElementById("scannerContainer").style.display = "block";
+  if(isScanning || CURRENT_VIEW === "sales") return;
+  const container = document.getElementById("scannerContainer"); container.style.display = "block";
   html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, decoded => {
-    barcode.value = normalizeBarcode(decoded); stopScan(); runSearchInventory();
-  }).catch(() => { alert("خطأ في الكاميرا"); stopScan(); });
+  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, decodedText => {
+    barcode.value = normalizeBarcode(decodedText);
+    stopScan(); runSearchInventory();
+  }).catch(() => { alert("تعذر فتح الكاميرا"); container.style.display = "none"; });
+  isScanning = true;
 }
 function stopScan(){
-  document.getElementById("scannerContainer").style.display = "none";
-  if(html5QrCode){ html5QrCode.stop().then(()=>html5QrCode.clear()); }
+  const container = document.getElementById("scannerContainer"); container.style.display = "none";
+  if(html5QrCode && isScanning){ html5QrCode.stop().then(() => { html5QrCode.clear(); isScanning = false; }); }
 }
 
-function logoutUser(){ localStorage.clear(); location.reload(); }
+function logoutUser(){
+  localStorage.clear();
+  if (AUTO_REFRESH) clearInterval(AUTO_REFRESH);
+  location.reload();
+}
 </script>
 </body>
 </html>
