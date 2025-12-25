@@ -602,31 +602,40 @@ input, textarea, button{
       <div class="main-badge">نظام الجرد والمبيعات</div>
     </div>
 
-    <div class="main-list">
-      <button class="main-btn" onclick="openMenu(2)">
-        <span class="left">
-          <span class="main-icon">🚗</span>
-          <span>بضاعة شركة تويوتا</span>
-        </span>
-        <span class="main-arrow">›</span>
-      </button>
+   <div class="main-list">
+  <button class="main-btn" onclick="openMenu(2)">
+    <span class="left">
+      <span class="main-icon">🚗</span>
+      <span>بضاعة شركة تويوتا</span>
+    </span>
+    <span class="main-arrow">›</span>
+  </button>
 
-      <button class="main-btn primary" onclick="openMenu(3)">
-        <span class="left">
-          <span class="main-icon">📋</span>
-          <span>الجرد المخزني </span>
-        </span>
-        <span class="main-arrow">›</span>
-      </button>
+  <button class="main-btn primary" onclick="openMenu(3)">
+    <span class="left">
+      <span class="main-icon">📋</span>
+      <span>الجرد المخزني </span>
+    </span>
+    <span class="main-arrow">›</span>
+  </button>
 
-      <button class="main-btn" onclick="openSalesMenu()">
-        <span class="left">
-          <span class="main-icon">💰</span>
-          <span>مبيعات</span>
-        </span>
-        <span class="main-arrow">›</span>
-      </button>
-    </div>
+  <button class="main-btn" onclick="openSalesMenu()">
+    <span class="left">
+      <span class="main-icon">💰</span>
+      <span>مبيعات</span>
+    </span>
+    <span class="main-arrow">›</span>
+  </button>
+
+  <button class="main-btn" onclick="logoutUser()">
+    <span class="left">
+      <span class="main-icon">🚪</span>
+      <span>خروج من النظام</span>
+    </span>
+    <span class="main-arrow">›</span>
+  </button>
+</div>
+
   </div>
 </div>
 
@@ -1222,25 +1231,35 @@ function renderSales(data){
 
 /* DETAIL MODAL */
 function openDetail(part){
-  if(CURRENT_VIEW !== "inventory") return;
+  if (CURRENT_VIEW !== "inventory") return;
 
-  const r = ALL_DATA.find(x => String(x.part) === String(part));
-  if(!r) return;
+  // الفرع المختار حالياً من الفلتر
+  const currentBranch = (branchFilter.value || "").trim().toLowerCase();
+
+  // نختار السطر المطابق لنفس الكود + نفس الفرع
+  const r = ALL_DATA.find(x =>
+    String(x.part) === String(part) &&
+    String(x.branch || "").trim().toLowerCase() === currentBranch
+  );
+  if (!r) return;
 
   const ov = document.createElement("div");
   ov.className = "detail-overlay";
 
   const currentCount = (r.lastCountQty ?? "");
-  const systemQty = (r.qty ?? 0);
-  const realLoc = r.location || "";
-  const countLoc = r.countLocation || "";
-  const currentNote = r.note || "";
+  const systemQty    = (r.qty ?? 0);
+  const realLoc      = r.location || "";
+  const countLoc     = r.countLocation || "";
+  const currentNote  = r.note || "";
 
   ov.innerHTML = `
     <div class="detail-card">
       <div class="detail-header">
         <span>تعديل بيانات الصنف</span>
-        <button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button>
+        <button class="detail-close"
+                onclick="this.closest('.detail-overlay').remove()">
+          ✕
+        </button>
       </div>
 
       <div class="detail-label">رقم الصنف</div>
@@ -1255,8 +1274,10 @@ function openDetail(part){
       <div class="detail-label">موقع الجرد</div>
       <input id="newLoc"
         value="${countLoc}"
-        data-original="${countLoc.replace(/"/g,'&quot;')}"
-        style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#f9fafb;color:var(--text);margin-top:4px">
+        data-original="${(countLoc || "").replace(/"/g,'&quot;')}"
+        style="width:100%;padding:8px;border-radius:8px;
+               border:1px solid var(--border);
+               background:#f9fafb;color:var(--text);margin-top:4px">
 
       <div class="detail-label">الكمية النهائية (بعد خصم المحجوز)</div>
       <div><b>${systemQty}</b></div>
@@ -1264,14 +1285,20 @@ function openDetail(part){
       <div class="detail-label">كمية التعديل</div>
       <div class="detail-qty-box">
         <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
-        <input id="cq" type="number" value="${currentCount}" data-original="${currentCount}">
+        <input id="cq" type="number"
+               value="${currentCount}"
+               data-original="${currentCount}">
         <button onclick="chg(1);updateDetailSaveState()">+</button>
       </div>
 
       <div class="detail-label">ملاحظات</div>
       <textarea id="note"
-        data-original="${currentNote.replace(/"/g,'&quot;')}"
-        style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;background:#f9fafb;color:var(--text)">${currentNote}</textarea>
+        data-original="${(currentNote || "").replace(/"/g,'&quot;')}"
+        style="width:100%;min-height:60px;border-radius:8px;
+               border:1px solid var(--border);
+               padding:6px;background:#f9fafb;color:var(--text)">
+${currentNote}
+      </textarea>
 
       <button
         id="detailSaveBtn"
@@ -1285,9 +1312,12 @@ function openDetail(part){
   `;
   document.body.appendChild(ov);
 
-  document.getElementById("newLoc").addEventListener("input", updateDetailSaveState);
-  document.getElementById("cq").addEventListener("input", updateDetailSaveState);
-  document.getElementById("note").addEventListener("input", updateDetailSaveState);
+  document.getElementById("newLoc")
+          .addEventListener("input", updateDetailSaveState);
+  document.getElementById("cq")
+          .addEventListener("input", updateDetailSaveState);
+  document.getElementById("note")
+          .addEventListener("input", updateDetailSaveState);
 }
 
 function chg(d){
@@ -1354,7 +1384,12 @@ function saveCount(part, systemQty){
     counted = Number(systemQty) || 0;
   }
 
-  const r = ALL_DATA.find(x => String(x.part) === String(part));
+ const currentBranch = (branchFilter.value || "").trim().toLowerCase();
+const r = ALL_DATA.find(x =>
+  String(x.part) === String(part) &&
+  String(x.branch || "").trim().toLowerCase() === currentBranch
+);
+
   if(r){
     r.lastCountedAt = new Date().toISOString();
     r.lastCountQty  = counted;
@@ -1463,12 +1498,11 @@ function stopScan(){
   }
 }
 
-// (اختياري) دالة خروج
 function logoutUser(){
-  try {
+  try{
     localStorage.removeItem("stockUser");
     localStorage.removeItem("stockRole");
-  } catch (e) {}
+  }catch(e){}
 
   CURRENT_USER = "";
   CURRENT_ROLE = "";
@@ -1481,6 +1515,9 @@ function logoutUser(){
   appScreen.style.display  = "none";
   mainScreen.style.display = "none";
   loginScreen.style.display = "flex";
+
+  loginUser.value = "";
+  loginPass.value = "";
 }
 </script>
 
