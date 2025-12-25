@@ -1247,8 +1247,6 @@ function openDetail(part){
   CURRENT_DETAIL_BRANCH = r.branch || "";
 
   const ov = document.createElement("div");
-  ...
-}
   ov.className = "detail-overlay";
 
   const currentCount = (r.lastCountQty ?? "");
@@ -1293,7 +1291,9 @@ function openDetail(part){
         <input id="cq" type="number"
                value="${currentCount}"
                data-original="${currentCount}">
-        <button onclick="chg(1);updateDetailSaveState()">+</button>
+        <button onclick="chg(1);updateDetailSaveState()">
+          +
+        </button>
       </div>
 
       <div class="detail-label">ملاحظات</div>
@@ -1324,6 +1324,7 @@ ${currentNote}
   document.getElementById("note")
           .addEventListener("input", updateDetailSaveState);
 }
+
 
 function chg(d){
   const i = document.getElementById("cq");
