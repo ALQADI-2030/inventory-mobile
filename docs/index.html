@@ -1390,7 +1390,7 @@ function saveCount(part, systemQty){
     counted = Number(systemQty) || 0;
   }
 
-    // نحدد السطر المفتوح سابقاً حسب الصنف + الفرع المحفوظين
+  // السطر المفتوح حسب القيم المحفوظة
   const r = ALL_DATA.find(x =>
     String(x.part) === String(CURRENT_DETAIL_PART) &&
     String(x.branch || "") === String(CURRENT_DETAIL_BRANCH)
@@ -1430,7 +1430,6 @@ function saveCount(part, systemQty){
   .then(res=>{})
   .catch(()=>{});
 
-  // بعد الإرسال نصفر القيم
   CURRENT_DETAIL_PART   = null;
   CURRENT_DETAIL_BRANCH = null;
 }
