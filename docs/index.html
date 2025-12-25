@@ -1390,7 +1390,7 @@ function saveCount(part, systemQty){
     counted = Number(systemQty) || 0;
   }
 
-  // نحدد السطر المفتوح سابقاً حسب الصنف + الفرع المحفوظين
+    // نحدد السطر المفتوح سابقاً حسب الصنف + الفرع المحفوظين
   const r = ALL_DATA.find(x =>
     String(x.part) === String(CURRENT_DETAIL_PART) &&
     String(x.branch || "") === String(CURRENT_DETAIL_BRANCH)
@@ -1404,9 +1404,37 @@ function saveCount(part, systemQty){
     r.countLocation = newLoc;
   }
 
-  // نصفر القيم بعد الاستخدام
+  const sendBranch = CURRENT_DETAIL_BRANCH || "";
+
+  const ov = document.querySelector(".detail-overlay");
+  if(ov) ov.remove();
+
+  runSearchInventory();
+  playBeep();
+
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({
+      part: String(part),
+      systemQty: String(systemQty),
+      countedQty: String(counted),
+      note: noteVal,
+      user: CURRENT_USER || "",
+      role: CURRENT_ROLE || "User",
+      newLocation: newLoc,
+      branch: sendBranch
+    })
+  })
+  .then(r=>r.json())
+  .then(res=>{})
+  .catch(()=>{});
+
+  // بعد الإرسال نصفر القيم
   CURRENT_DETAIL_PART   = null;
   CURRENT_DETAIL_BRANCH = null;
+}
+
 
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
