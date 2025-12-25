@@ -751,7 +751,8 @@ let CURRENT_USER = "";
 let CURRENT_ROLE = "";
 let loadingInterval = null;   // للعداد المئوي
 let AUTO_REFRESH = null;      // للتحديث كل 30 ثانية
-
+let CURRENT_DETAIL_PART   = null;
+let CURRENT_DETAIL_BRANCH = null;
 // استرجاع الجلسة من المتصفح عند فتح الصفحة
 window.addEventListener("load", () => {
   try {
@@ -1233,17 +1234,21 @@ function renderSales(data){
 function openDetail(part){
   if (CURRENT_VIEW !== "inventory") return;
 
-  // الفرع المختار حالياً من الفلتر
   const currentBranch = (branchFilter.value || "").trim().toLowerCase();
 
-  // نختار السطر المطابق لنفس الكود + نفس الفرع
   const r = ALL_DATA.find(x =>
     String(x.part) === String(part) &&
     String(x.branch || "").trim().toLowerCase() === currentBranch
   );
   if (!r) return;
 
+  // نحفظ القيم لاستخدامها وقت الحفظ
+  CURRENT_DETAIL_PART   = r.part;
+  CURRENT_DETAIL_BRANCH = r.branch || "";
+
   const ov = document.createElement("div");
+  ...
+}
   ov.className = "detail-overlay";
 
   const currentCount = (r.lastCountQty ?? "");
@@ -1384,11 +1389,11 @@ function saveCount(part, systemQty){
     counted = Number(systemQty) || 0;
   }
 
- const currentBranch = (branchFilter.value || "").trim().toLowerCase();
-const r = ALL_DATA.find(x =>
-  String(x.part) === String(part) &&
-  String(x.branch || "").trim().toLowerCase() === currentBranch
-);
+  // نحدد السطر المفتوح سابقاً حسب الصنف + الفرع المحفوظين
+  const r = ALL_DATA.find(x =>
+    String(x.part) === String(CURRENT_DETAIL_PART) &&
+    String(x.branch || "") === String(CURRENT_DETAIL_BRANCH)
+  );
 
   if(r){
     r.lastCountedAt = new Date().toISOString();
@@ -1397,6 +1402,10 @@ const r = ALL_DATA.find(x =>
     r.countedBy     = CURRENT_USER || "";
     r.countLocation = newLoc;
   }
+
+  // نصفر القيم بعد الاستخدام
+  CURRENT_DETAIL_PART   = null;
+  CURRENT_DETAIL_BRANCH = null;
 
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
@@ -1415,7 +1424,7 @@ const r = ALL_DATA.find(x =>
       user: CURRENT_USER || "",
       role: CURRENT_ROLE || "User",
       newLocation: newLoc,
-      branch: r && r.branch ? r.branch : ""
+      branch: CURRENT_DETAIL_BRANCH || ""   // أو استخدم r.branch لو تحب
     })
   })
   .then(r=>r.json())
