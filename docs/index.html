@@ -605,39 +605,39 @@ input, textarea, button{
       <div class="main-badge">نظام الجرد والمبيعات</div>
     </div>
 
-   <div class="main-list">
-  <button class="main-btn" onclick="openMenu(2)">
-    <span class="left">
-      <span class="main-icon">🚗</span>
-      <span>بضاعة شركة تويوتا</span>
-    </span>
-    <span class="main-arrow">›</span>
-  </button>
+    <div class="main-list">
+      <button class="main-btn" onclick="openMenu(2)">
+        <span class="left">
+          <span class="main-icon">🚗</span>
+          <span>بضاعة شركة تويوتا</span>
+        </span>
+        <span class="main-arrow">›</span>
+      </button>
 
-  <button class="main-btn primary" onclick="openMenu(3)">
-    <span class="left">
-      <span class="main-icon">📋</span>
-      <span>الجرد المخزني </span>
-    </span>
-    <span class="main-arrow">›</span>
-  </button>
+      <button class="main-btn primary" onclick="openMenu(3)">
+        <span class="left">
+          <span class="main-icon">📋</span>
+          <span>الجرد المخزني </span>
+        </span>
+        <span class="main-arrow">›</span>
+      </button>
 
-  <button class="main-btn" onclick="openSalesMenu()">
-    <span class="left">
-      <span class="main-icon">💰</span>
-      <span>مبيعات</span>
-    </span>
-    <span class="main-arrow">›</span>
-  </button>
+      <button class="main-btn" onclick="openSalesMenu()">
+        <span class="left">
+          <span class="main-icon">💰</span>
+          <span>مبيعات</span>
+        </span>
+        <span class="main-arrow">›</span>
+      </button>
 
-  <button class="main-btn" onclick="logoutUser()">
-    <span class="left">
-      <span class="main-icon">🚪</span>
-      <span>خروج من النظام</span>
-    </span>
-    <span class="main-arrow">›</span>
-  </button>
-</div>
+      <button class="main-btn" onclick="logoutUser()">
+        <span class="left">
+          <span class="main-icon">🚪</span>
+          <span>خروج من النظام</span>
+        </span>
+        <span class="main-arrow">›</span>
+      </button>
+    </div>
 
   </div>
 </div>
@@ -803,11 +803,10 @@ function playBeep(){
   a.play().catch(()=>{});
 }
 
-// تعديل دالة النورماليز الجديدة للمطالب
+// تعديل دالة النورماليز
 function normalizeBarcode(text) {
   if (!text) return "";
   let val = String(text).trim();
-  // إذا بدأ برقم، خذ أول 10 خانات فقط
   if (/^\d/.test(val)) {
     return val.substring(0, 10);
   }
@@ -821,6 +820,12 @@ function login(){
   loginLoading.textContent = "جاري التحقق من البيانات...";
   const user = loginUser.value.trim();
   const pass = loginPass.value.trim();
+
+  if(!user || !pass){
+    loginLoading.style.display="none";
+    loginError.textContent="فضلاً أدخل اسم المستخدم والرقم السري";
+    return;
+  }
 
   fetch(API,{
     method:"POST",
@@ -876,7 +881,6 @@ function loadInventoryAfterLogin(){
         loginScreen.style.display="none";
         loginLoading.style.display="none";
         mainScreen.style.display="flex";
-        startAutoRefresh();
       }, 400);
     })
     .catch(() => {
@@ -886,6 +890,8 @@ function loadInventoryAfterLogin(){
     });
 }
 
+// تم تعطيل التحديث التلقائي (ابقيناه ككومنت فقط)
+/*
 function startAutoRefresh(){
   if (AUTO_REFRESH){ clearInterval(AUTO_REFRESH); AUTO_REFRESH = null; }
   AUTO_REFRESH = setInterval(() => {
@@ -904,6 +910,7 @@ function startAutoRefresh(){
       }).catch(() => {});
   }, 30000);
 }
+*/
 
 function openMenu(id){
   if(id === 3){
@@ -914,7 +921,9 @@ function openMenu(id){
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
     runSearchInventory();
-  }else{ alert("هذه القائمة لم تفعل"); }
+  }else{
+    alert("هذه القائمة لم تفعل");
+  }
 }
 
 function openSalesMenu(){
@@ -955,7 +964,7 @@ function clearFilters(){
   if(CURRENT_VIEW === "inventory"){ runSearchInventory(); }else{ runSearchSales(); }
 }
 
-/* ======= بحث المخزون (المعدل) ======= */
+/* ======= بحث المخزون ======= */
 function runSearchInventory(){
   const pc = (pContains.value || "").trim().toLowerCase();
   const pe = (pEnds.value || "").trim().toLowerCase();
@@ -963,10 +972,10 @@ function runSearchInventory(){
   const nc = (nContains.value || "").trim().toLowerCase();
   const lfRaw = (locFrom.value || "").trim().toLowerCase();
   const ltRaw = (locTo.value || "").trim().toLowerCase();
-  
+
   const bcInput = (barcode.value || "").trim();
   const bcNorm  = normalizeBarcode(bcInput);
-  
+
   const branchVal = (branchFilter.value || "").trim().toLowerCase();
   const stateEl = document.querySelector('input[name="countState"]:checked');
   const state = stateEl ? stateEl.value : "all";
@@ -980,7 +989,7 @@ function runSearchInventory(){
     const n  = String(r.name ?? "").toLowerCase();
     const l  = String(r.location ?? "").toLowerCase();
     const br = String(r.branch ?? "").trim().toLowerCase();
-    
+
     const bRaw = String(r.barcode ?? "");
     const bNormItem = normalizeBarcode(bRaw);
 
@@ -1065,7 +1074,9 @@ function renderInventory(data){
         cls += " warn";
         status = `${diffAbs >= 5 ? "🚨":"⚠"} فرق ${diffAbs} | جرد: ${qtyCountNum} | نهائي: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
       }
-    }else{ status = "لم يجرد"; }
+    }else{
+      status = "لم يجرد";
+    }
     const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5 ? "border:2px solid #f97316;background:#fff7ed;" : "";
     return `<div class="item" style="${itemStyle}">
       <div class="part-row"><div class="${cls}">${r.part ?? ""}</div><div class="location"><b>الموقع:</b> ${r.location ?? ""}</div></div>
@@ -1093,10 +1104,15 @@ function renderSales(data){
 function openDetail(part){
   if (CURRENT_VIEW !== "inventory") return;
   const currentBranch = (branchFilter.value || "").trim().toLowerCase();
-  const r = ALL_DATA.find(x => String(x.part) === String(part) && String(x.branch || "").trim().toLowerCase() === currentBranch );
+  const r = ALL_DATA.find(x =>
+    String(x.part) === String(part) &&
+    String(x.branch || "").trim().toLowerCase() === currentBranch
+  );
   if (!r) return;
-  CURRENT_DETAIL_PART = r.part; CURRENT_DETAIL_BRANCH = r.branch || "";
-  const ov = document.createElement("div"); ov.className = "detail-overlay";
+  CURRENT_DETAIL_PART = r.part;
+  CURRENT_DETAIL_BRANCH = r.branch || "";
+  const ov = document.createElement("div");
+  ov.className = "detail-overlay";
   ov.innerHTML = `<div class="detail-card">
       <div class="detail-header"><span>تعديل الصنف</span><button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button></div>
       <div class="detail-label">رقم الصنف: <b>${r.part}</b></div>
@@ -1116,44 +1132,101 @@ function openDetail(part){
   ["newLoc","cq","note"].forEach(id=>document.getElementById(id).addEventListener("input", updateDetailSaveState));
 }
 
-function chg(d){ const i = document.getElementById("cq"); i.value = Math.max(0, (+i.value || 0) + d); }
+function chg(d){
+  const i = document.getElementById("cq");
+  i.value = Math.max(0, (+i.value || 0) + d);
+}
 
 function updateDetailSaveState(){
-  const btn = document.getElementById("detailSaveBtn"); if(!btn) return;
-  const cq = document.getElementById("cq"), note = document.getElementById("note"), loc = document.getElementById("newLoc");
-  const changed = (cq.value != cq.dataset.original) || (note.value != note.dataset.original) || (loc.value != loc.dataset.original);
-  btn.disabled = !changed; btn.style.opacity = changed ? "1" : "0.5"; btn.style.cursor = changed ? "pointer" : "not-allowed";
+  const btn = document.getElementById("detailSaveBtn");
+  if(!btn) return;
+  const cq = document.getElementById("cq"),
+        note = document.getElementById("note"),
+        loc = document.getElementById("newLoc");
+  const changed =
+    (cq.value  != cq.dataset.original) ||
+    (note.value!= note.dataset.original) ||
+    (loc.value != loc.dataset.original);
+  btn.disabled = !changed;
+  btn.style.opacity = changed ? "1" : "0.5";
+  btn.style.cursor  = changed ? "pointer" : "not-allowed";
 }
 
 function saveCount(part, systemQty){
-  const cqVal = document.getElementById("cq").value, noteVal = document.getElementById("note").value, locVal = document.getElementById("newLoc").value;
-  const r = ALL_DATA.find(x => String(x.part) === String(CURRENT_DETAIL_PART) && String(x.branch || "") === String(CURRENT_DETAIL_BRANCH));
-  if(r){ r.lastCountedAt = new Date().toISOString(); r.lastCountQty = Number(cqVal); r.note = noteVal; r.countedBy = CURRENT_USER; r.countLocation = locVal; }
-  const ov = document.querySelector(".detail-overlay"); if(ov) ov.remove();
-  runSearchInventory(); playBeep();
+  const cqVal   = document.getElementById("cq").value;
+  const noteVal = document.getElementById("note").value;
+  const locVal  = document.getElementById("newLoc").value;
+
+  const r = ALL_DATA.find(x =>
+    String(x.part)   === String(CURRENT_DETAIL_PART) &&
+    String(x.branch || "") === String(CURRENT_DETAIL_BRANCH)
+  );
+
+  if(r){
+    r.lastCountedAt = new Date().toISOString();
+    r.lastCountQty  = Number(cqVal);
+    r.note          = noteVal;
+    r.countedBy     = CURRENT_USER;
+    r.countLocation = locVal;
+  }
+
+  const ov = document.querySelector(".detail-overlay");
+  if(ov) ov.remove();
+
+  runSearchInventory();
+  playBeep();
+
   fetch(API,{
     method:"POST",
     headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body:new URLSearchParams({ part: part, systemQty: systemQty, countedQty: cqVal, note: noteVal, user: CURRENT_USER, newLocation: locVal, branch: CURRENT_DETAIL_BRANCH })
+    body:new URLSearchParams({
+      part:         part,
+      systemQty:    systemQty,
+      countedQty:   cqVal,
+      note:         noteVal,
+      user:         CURRENT_USER,
+      newLocation:  locVal,
+      branch:       CURRENT_DETAIL_BRANCH
+    })
   });
 }
 
 /* CAMERA */
-let html5QrCode = null; let isScanning = false;
+let html5QrCode = null;
+let isScanning = false;
 document.getElementById("scanBtn").addEventListener("click", startScan);
+
 function startScan(){
   if(isScanning || CURRENT_VIEW === "sales") return;
-  const container = document.getElementById("scannerContainer"); container.style.display = "block";
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "block";
   html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 150 } }, decodedText => {
-    barcode.value = normalizeBarcode(decodedText);
-    stopScan(); runSearchInventory();
-  }).catch(() => { alert("تعذر فتح الكاميرا"); container.style.display = "none"; });
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 250, height: 150 } },
+    decodedText => {
+      barcode.value = normalizeBarcode(decodedText);
+      stopScan();
+      runSearchInventory();
+    }
+  ).catch(() => {
+    alert("تعذر فتح الكاميرا");
+    container.style.display = "none";
+  });
   isScanning = true;
 }
+
 function stopScan(){
-  const container = document.getElementById("scannerContainer"); container.style.display = "none";
-  if(html5QrCode && isScanning){ html5QrCode.stop().then(() => { html5QrCode.clear(); isScanning = false; }); }
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "none";
+  if(html5QrCode && isScanning){
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      isScanning = false;
+    }).catch(() => {
+      isScanning = false;
+    });
+  }
 }
 
 function logoutUser(){
@@ -1162,5 +1235,6 @@ function logoutUser(){
   location.reload();
 }
 </script>
+
 </body>
 </html>
