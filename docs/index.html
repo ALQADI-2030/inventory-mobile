@@ -1030,23 +1030,37 @@ function runSearchInventory(){
 
 /* بحث المبيعات */
 function runSearchSales(){
-  const q    = (pContains.value || "").trim().toLowerCase();
-  const nQ   = (nContains.value || "").trim().toLowerCase();
+  const q          = (pContains.value || "").trim().toLowerCase();   // رقم صنف
+  const nameStarts = (nStarts.value   || "").trim().toLowerCase();   // اسم يبدأ
+  const nameContains = (nContains.value || "").trim().toLowerCase(); // اسم يحتوي
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
+
   if(!branchVal){ results.innerHTML = ""; return; }
+
   const res = [];
   for(const r of SALES_DATA){
-    const p  = String(r.part ?? "").toLowerCase();
-    const n  = String(r.name ?? "").toLowerCase();
-    const br = String(r.branch ?? "").trim().toLowerCase();
+    const p  = String(r.part  ?? "").toLowerCase();
+    const n  = String(r.name  ?? "").toLowerCase();
+    const br = String(r.branch?? "").trim().toLowerCase();
+
+    // رقم الصنف يحتوي
     if(q && !p.includes(q)) continue;
-    if(nQ && !n.includes(nQ)) continue;
+
+    // اسم يبدأ
+    if(nameStarts && !n.startsWith(nameStarts)) continue;
+
+    // اسم يحتوي
+    if(nameContains && !n.includes(nameContains)) continue;
+
+    // الفرع
     if(branchVal && branchVal !== "*" && br !== branchVal) continue;
+
     res.push(r);
     if(res.length >= 100) break;
   }
   renderSales(res);
 }
+
 
 function fmtDate(d){
   if(!d) return "";
@@ -1162,19 +1176,15 @@ function saveCount(part, systemQty){
     String(x.branch || "") === String(CURRENT_DETAIL_BRANCH)
   );
 
-  if(r){
-    r.lastCountedAt = new Date().toISOString();
-    r.lastCountQty  = Number(cqVal);
-    r.note          = noteVal;
-    r.countedBy     = CURRENT_USER;
-    r.countLocation = locVal;
+  if(!r){
+    alert("حدث خطأ: لم يتم العثور على الصنف في الذاكرة");
+    return;
   }
+
+  const currentVersion = r.version || 0;
 
   const ov = document.querySelector(".detail-overlay");
   if(ov) ov.remove();
-
-  runSearchInventory();
-  playBeep();
 
   fetch(API,{
     method:"POST",
@@ -1186,10 +1196,40 @@ function saveCount(part, systemQty){
       note:         noteVal,
       user:         CURRENT_USER,
       newLocation:  locVal,
-      branch:       CURRENT_DETAIL_BRANCH
+      branch:       CURRENT_DETAIL_BRANCH,
+      itemName:     r.name || "",
+      barcode:      r.barcode || "",
+      version:      currentVersion
     })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok){
+      r.lastCountedAt = new Date().toISOString();
+      r.lastCountQty  = Number(cqVal);
+      r.note          = noteVal;
+      r.countedBy     = CURRENT_USER;
+      r.countLocation = locVal;
+      r.version       = data.version || currentVersion + 1;
+
+      runSearchInventory();
+      playBeep();
+    } else {
+      if (data.conflict){
+        alert(data.error || "تم تعديل الصنف من مستخدم آخر، سيتم تحديث القائمة الآن");
+      } else {
+        alert(data.error || "فشل الحفظ");
+      }
+      runSearchInventory();
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("خطأ في الاتصال أثناء الحفظ، سيتم تحديث البيانات");
+    runSearchInventory();
   });
 }
+
 
 /* CAMERA */
 let html5QrCode = null;
