@@ -201,6 +201,25 @@ input, textarea, button{
   z-index:1;
 }
 
+.main-logout-btn{
+  position:absolute;
+  top:12px;
+  left:12px;
+  background:rgba(255,255,255,0.15);
+  color:#ffffff;
+  border:none;
+  border-radius:8px;
+  padding:6px 10px;
+  font-size:11px;
+  cursor:pointer;
+  transition:background .12s ease;
+  z-index:2;
+}
+
+.main-logout-btn:hover{
+  background:rgba(255,255,255,0.25);
+}
+
 .main-header{
   display:flex;
   align-items:flex-start;
@@ -217,6 +236,12 @@ input, textarea, button{
 .main-sub{
   font-size:11px;
   color:#cbd5f5;
+}
+
+.main-greeting{
+  font-size:12px;
+  color:#a5b4fc;
+  margin-top:4px;
 }
 
 .main-badge{
@@ -300,6 +325,7 @@ input, textarea, button{
 #appScreen{
   display:none;
 }
+
 .top-bar{
   max-width:430px;
   margin:0 auto 6px;
@@ -308,10 +334,18 @@ input, textarea, button{
   align-items:center;
   color:var(--text);
 }
+
 .top-title{
   font-weight:700;
   font-size:15px;
 }
+
+.top-actions{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+
 .icon-btn{
   border:none;
   border-radius:999px;
@@ -324,11 +358,18 @@ input, textarea, button{
   align-items:center;
   gap:4px;
   transition:background .12s ease, transform .12s ease, box-shadow .12s ease;
+  font-size:13px;
 }
+
 .icon-btn:hover{
   background:#eff6ff;
   transform:translateY(-1px);
   box-shadow:0 4px 10px rgba(148,163,184,.55);
+}
+
+.icon-btn.small{
+  padding:5px 8px;
+  font-size:12px;
 }
 
 /* FILTER + RESULTS */
@@ -336,11 +377,13 @@ input, textarea, button{
   max-width:430px;
   margin:0 auto 8px;
 }
+
 .filter-wrap{
   position:sticky;
   top:0;
   z-index:10;
 }
+
 .filter-card{
   background:var(--card);
   border-radius:16px;
@@ -351,15 +394,18 @@ input, textarea, button{
   -webkit-backdrop-filter:blur(14px);
   border:1px solid var(--border);
 }
+
 .filter-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-bottom:4px;
 }
+
 .filter-header strong{
   font-size:13px;
 }
+
 .clear-btn{
   font-size:12px;
   background:#e5e7eb;
@@ -370,15 +416,18 @@ input, textarea, button{
   cursor:pointer;
   transition:background .12s ease, transform .12s ease;
 }
+
 .clear-btn:hover{
   background:#e0e7ff;
   transform:translateY(-1px);
 }
+
 .filter-row{
   display:flex;
   gap:6px;
   margin-bottom:6px;
 }
+
 .filter-input{
   flex:1;
   min-width:0;
@@ -390,18 +439,22 @@ input, textarea, button{
   font-size:14px;
   transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
+
 .filter-input.small{
   flex:1 1 30%;
   padding:5px 6px;
   font-size:14px;
 }
+
 .filter-input::placeholder{color:#9ca3af}
+
 .filter-input:focus{
   outline:none;
   border-color:var(--primary);
   box-shadow:0 0 0 1px rgba(37,99,235,0.45);
   background:#ffffff;
 }
+
 @media(max-width:480px){
   .filter-row{flex-wrap:wrap}
   .filter-input{flex:1 1 48%}
@@ -418,43 +471,53 @@ input, textarea, button{
   color:var(--text);
   border:1px solid rgba(226,232,240,0.9);
 }
+
 .part-row{
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   gap:8px;
 }
+
 .part{
   font-weight:700;
   color:var(--primary);
 }
+
 .part.ok{
   color:var(--ok);
 }
+
 .part.warn{
   color:var(--warn);
 }
+
 .location{
   font-size:12px;
   color:var(--muted);
 }
+
 .name{
   font-size:13px;
   margin-top:2px;
 }
+
 .meta{
   font-size:12px;
   color:var(--muted);
   margin-top:4px;
 }
+
 .status{
   font-size:12px;
   margin-top:4px;
 }
+
 /* مبيعات */
 .sales-item .part.ok{
   color:var(--primary);
 }
+
 /* إبراز فرق كبير */
 .item[style*="border:2px solid"]{
   background:#fff7ed;
@@ -470,6 +533,7 @@ input, textarea, button{
   align-items:flex-end;
   z-index:9999;
 }
+
 .detail-card{
   width:100%;
   max-width:430px;
@@ -480,11 +544,13 @@ input, textarea, button{
   box-shadow:0 -8px 25px rgba(15,23,42,0.45);
   border-top:1px solid var(--border);
 }
+
 .detail-header{
   display:flex;
   justify-content:space-between;
   font-weight:600;
 }
+
 .detail-close{
   border:none;
   background:none;
@@ -492,16 +558,19 @@ input, textarea, button{
   cursor:pointer;
   color:var(--muted);
 }
+
 .detail-label{
   font-size:12px;
   color:var(--muted);
   margin-top:10px;
 }
+
 .detail-qty-box{
   display:flex;
   gap:8px;
   margin-top:6px;
 }
+
 .detail-qty-box button{
   width:40px;
   border:none;
@@ -512,10 +581,12 @@ input, textarea, button{
   color:#0f172a;
   transition:background .12s ease, transform .12s ease;
 }
+
 .detail-qty-box button:hover{
   background:#dbeafe;
   transform:translateY(-1px);
 }
+
 .detail-qty-box input{
   flex:1;
   text-align:center;
@@ -525,11 +596,13 @@ input, textarea, button{
   background:#f9fafb;
   color:var(--text);
 }
+
 .detail-qty-box input:focus{
   outline:none;
   border-color:var(--primary);
   box-shadow:0 0 0 1px rgba(37,99,235,0.45);
 }
+
 .detail-save{
   width:100%;
   margin-top:12px;
@@ -544,17 +617,20 @@ input, textarea, button{
     0 12px 26px rgba(37,99,235,0.45),
     0 0 0 1px rgba(129,140,248,0.75);
 }
+
 .detail-save:hover:enabled{
   transform:translateY(-1px);
   box-shadow:
     0 16px 34px rgba(37,99,235,0.55),
     0 0 0 1px rgba(129,140,248,0.9);
 }
+
 #newLoc,#note{
   background:#f9fafb;
   border:1px solid var(--border);
   color:var(--text);
 }
+
 #newLoc:focus,#note:focus{
   outline:none;
   border-color:var(--primary);
@@ -570,6 +646,33 @@ input, textarea, button{
   border-radius:14px;
   overflow:hidden;
   box-shadow:0 10px 28px rgba(15,23,42,0.65);
+}
+
+/* Success notification */
+.success-notify{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  max-width:400px;
+  background:#16a34a;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:10px;
+  box-shadow:0 8px 20px rgba(15,23,42,0.4);
+  animation:slideUp .3s ease;
+  z-index:9998;
+}
+
+@keyframes slideUp{
+  from{
+    opacity:0;
+    transform:translateY(20px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 </style>
 </head>
@@ -597,10 +700,13 @@ input, textarea, button{
 
 <div id="mainScreen">
   <div class="main-card">
+    <button class="main-logout-btn" onclick="logoutUser()">تسجيل خروج</button>
+    
     <div class="main-header">
       <div>
         <div class="main-title">القائمة الرئيسية</div>
         <div class="main-sub">اختر العملية المطلوبة</div>
+        <div class="main-greeting" id="userGreeting"></div>
       </div>
       <div class="main-badge">نظام الجرد والمبيعات</div>
     </div>
@@ -629,14 +735,6 @@ input, textarea, button{
         </span>
         <span class="main-arrow">›</span>
       </button>
-
-      <button class="main-btn" onclick="logoutUser()">
-        <span class="left">
-          <span class="main-icon">🚪</span>
-          <span>خروج من النظام</span>
-        </span>
-        <span class="main-arrow">›</span>
-      </button>
     </div>
 
   </div>
@@ -646,7 +744,10 @@ input, textarea, button{
 
   <div class="top-bar">
     <div class="top-title" id="topTitle">الجرد المخزني </div>
-    <button class="icon-btn" onclick="backToMain()">عودة</button>
+    <div class="top-actions">
+      <button class="icon-btn small" id="refreshBtn" onclick="refreshCurrentView()" title="تحديث يدوي">🔄</button>
+      <button class="icon-btn" onclick="backToMain()">عودة</button>
+    </div>
   </div>
 
   <div class="filter-wrap">
@@ -761,6 +862,7 @@ window.addEventListener("load", () => {
       CURRENT_ROLE = savedRole;
       loginScreen.style.display = "none";
       mainScreen.style.display = "flex";
+      updateGreeting();
       if (!ALL_DATA || ALL_DATA.length === 0) {
         loadInventoryAfterLogin();
       }
@@ -801,6 +903,18 @@ function playBeep(){
   if(!a) return;
   a.currentTime = 0;
   a.play().catch(()=>{});
+}
+
+/* ترحيب المستخدم */
+function updateGreeting(){
+  const greeting = document.getElementById("userGreeting");
+  if(greeting){
+    const hour = new Date().getHours();
+    let greeting_text = "صباح الخير";
+    if(hour >= 12 && hour < 18) greeting_text = "مساء الخير";
+    if(hour >= 18) greeting_text = "مساء الخير";
+    greeting.textContent = greeting_text + " " + CURRENT_USER;
+  }
 }
 
 // تعديل دالة النورماليز
@@ -858,6 +972,7 @@ function login(){
 function backToMain(){
   appScreen.style.display = "none";
   mainScreen.style.display = "flex";
+  updateGreeting();
 }
 
 function loadInventoryAfterLogin(){
@@ -881,6 +996,7 @@ function loadInventoryAfterLogin(){
         loginScreen.style.display="none";
         loginLoading.style.display="none";
         mainScreen.style.display="flex";
+        updateGreeting();
       }, 400);
     })
     .catch(() => {
@@ -890,32 +1006,40 @@ function loadInventoryAfterLogin(){
     });
 }
 
-// تم تعطيل التحديث التلقائي (ابقيناه ككومنت فقط)
-/*
-function startAutoRefresh(){
-  if (AUTO_REFRESH){ clearInterval(AUTO_REFRESH); AUTO_REFRESH = null; }
-  AUTO_REFRESH = setInterval(() => {
-    const mode = (CURRENT_VIEW === "sales") ? "sales" : "inventory";
-    fetch(API + "?mode=" + mode)
-      .then(r => r.json())
-      .then(d => {
-        if (!d || !Array.isArray(d)) return;
-        if (mode === "sales") {
-          SALES_DATA = d.slice();
-          runSearchSales();
-        } else {
-          ALL_DATA = d.slice();
-          runSearchInventory();
-        }
-      }).catch(() => {});
-  }, 30000);
+/* تحديث يدوي */
+function refreshCurrentView(){
+  const refreshBtn = document.getElementById("refreshBtn");
+  refreshBtn.style.transform = "rotate(360deg)";
+  refreshBtn.style.transition = "transform .6s ease";
+  
+  const mode = (CURRENT_VIEW === "sales") ? "sales" : "inventory";
+  fetch(API + "?mode=" + mode)
+    .then(r => r.json())
+    .then(d => {
+      if (!d || !Array.isArray(d)) return;
+      if (mode === "sales") {
+        SALES_DATA = d.slice();
+        runSearchSales();
+      } else {
+        ALL_DATA = d.slice();
+        runSearchInventory();
+      }
+      showNotification("تم تحديث البيانات بنجاح");
+      setTimeout(() => {
+        refreshBtn.style.transform = "rotate(0deg)";
+      }, 600);
+    })
+    .catch(() => {
+      setTimeout(() => {
+        refreshBtn.style.transform = "rotate(0deg)";
+      }, 600);
+    });
 }
-*/
 
 function openMenu(id){
   if(id === 3){
     CURRENT_VIEW = "inventory";
-    document.getElementById("topTitle").textContent = "تعديل بيانات الأصناف";
+    document.getElementById("topTitle").textContent = "الجرد المخزني";
     countStateWrap.style.display = "flex";
     document.getElementById("scanBtn").disabled = false;
     mainScreen.style.display = "none";
@@ -933,12 +1057,28 @@ function openSalesMenu(){
   document.getElementById("scanBtn").disabled = true;
   mainScreen.style.display = "none";
   appScreen.style.display  = "block";
-  const loadingEl = document.getElementById("salesLoading");
-  if(loadingEl) loadingEl.style.display = "none";
-  if(!SALES_DATA || SALES_DATA.length === 0){
-    SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
+  
+  // تحميل سريع من الذاكرة أولاً
+  if(SALES_DATA && SALES_DATA.length > 0){
+    runSearchSales();
+  } else {
+    const loadingEl = document.getElementById("salesLoading");
+    if(loadingEl) loadingEl.style.display = "block";
+    
+    fetch(API + "?mode=sales")
+      .then(r => r.json())
+      .then(d => {
+        if(d && Array.isArray(d)){
+          SALES_DATA = d.slice();
+          runSearchSales();
+        }
+        if(loadingEl) loadingEl.style.display = "none";
+      })
+      .catch(() => {
+        if(loadingEl) loadingEl.style.display = "none";
+        runSearchSales();
+      });
   }
-  runSearchSales();
 }
 
 /* FILTERS */
@@ -1030,9 +1170,9 @@ function runSearchInventory(){
 
 /* بحث المبيعات */
 function runSearchSales(){
-  const q          = (pContains.value || "").trim().toLowerCase();   // رقم صنف
-  const nameStarts = (nStarts.value   || "").trim().toLowerCase();   // اسم يبدأ
-  const nameContains = (nContains.value || "").trim().toLowerCase(); // اسم يحتوي
+  const q          = (pContains.value || "").trim().toLowerCase();
+  const nameStarts = (nStarts.value   || "").trim().toLowerCase();
+  const nameContains = (nContains.value || "").trim().toLowerCase();
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
 
   if(!branchVal){ results.innerHTML = ""; return; }
@@ -1043,16 +1183,9 @@ function runSearchSales(){
     const n  = String(r.name  ?? "").toLowerCase();
     const br = String(r.branch?? "").trim().toLowerCase();
 
-    // رقم الصنف يحتوي
     if(q && !p.includes(q)) continue;
-
-    // اسم يبدأ
     if(nameStarts && !n.startsWith(nameStarts)) continue;
-
-    // اسم يحتوي
     if(nameContains && !n.includes(nameContains)) continue;
-
-    // الفرع
     if(branchVal && branchVal !== "*" && br !== branchVal) continue;
 
     res.push(r);
@@ -1060,7 +1193,6 @@ function runSearchSales(){
   }
   renderSales(res);
 }
-
 
 function fmtDate(d){
   if(!d) return "";
@@ -1125,19 +1257,22 @@ function openDetail(part){
   if (!r) return;
   CURRENT_DETAIL_PART = r.part;
   CURRENT_DETAIL_BRANCH = r.branch || "";
+  
   const ov = document.createElement("div");
   ov.className = "detail-overlay";
   ov.innerHTML = `<div class="detail-card">
       <div class="detail-header"><span>تعديل الصنف</span><button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button></div>
       <div class="detail-label">رقم الصنف: <b>${r.part}</b></div>
-      <div class="detail-label">موقع الجرد</div>
+      <div class="detail-label">اسم الصنف: <b>${r.name}</b></div>
+      <div class="detail-label">الموقع الجديد</div>
       <input id="newLoc" value="${r.countLocation || ''}" data-original="${(r.countLocation || '')}" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:4px">
-      <div class="detail-label">كمية التعديل</div>
+      <div class="detail-label">كمية الجرد</div>
       <div class="detail-qty-box">
         <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
-        <input id="cq" type="number" value="${r.lastCountQty ?? ''}" data-original="${r.lastCountQty ?? ''}">
+        <input id="cq" type="number" value="${r.lastCountQty ?? ''}" data-original="${r.lastCountQty ?? ''}" placeholder="أدخل الكمية">
         <button onclick="chg(1);updateDetailSaveState()">+</button>
       </div>
+      <div class="detail-label">الكمية متوفرة: <b>${r.qty}</b></div>
       <div class="detail-label">ملاحظات</div>
       <textarea id="note" data-original="${(r.note || '')}" style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;">${r.note || ''}</textarea>
       <button id="detailSaveBtn" class="detail-save" disabled style="opacity:0.5;cursor:not-allowed" onclick="saveCount('${String(r.part)}', ${r.qty})">حفظ التعديل</button>
@@ -1164,6 +1299,14 @@ function updateDetailSaveState(){
   btn.disabled = !changed;
   btn.style.opacity = changed ? "1" : "0.5";
   btn.style.cursor  = changed ? "pointer" : "not-allowed";
+}
+
+function showNotification(msg){
+  const notif = document.createElement("div");
+  notif.className = "success-notify";
+  notif.textContent = msg;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 3000);
 }
 
 function saveCount(part, systemQty){
@@ -1205,6 +1348,7 @@ function saveCount(part, systemQty){
   .then(res => res.json())
   .then(data => {
     if (data.ok){
+      // تحديث فوري في الذاكرة
       r.lastCountedAt = new Date().toISOString();
       r.lastCountQty  = Number(cqVal);
       r.note          = noteVal;
@@ -1212,8 +1356,10 @@ function saveCount(part, systemQty){
       r.countLocation = locVal;
       r.version       = data.version || currentVersion + 1;
 
+      // تحديث العرض فوراً (فقط في شاشة الجرد)
       runSearchInventory();
       playBeep();
+      showNotification("✓ تم حفظ التعديل بنجاح");
     } else {
       if (data.conflict){
         alert(data.error || "تم تعديل الصنف من مستخدم آخر، سيتم تحديث القائمة الآن");
@@ -1229,7 +1375,6 @@ function saveCount(part, systemQty){
     runSearchInventory();
   });
 }
-
 
 /* CAMERA */
 let html5QrCode = null;
