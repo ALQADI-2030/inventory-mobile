@@ -678,6 +678,42 @@ input, textarea, button{
   z-index:9998;
 }
 
+/* Update indicator */
+.update-badge{
+  position:fixed;
+  top:12px;
+  right:12px;
+  background:#2563eb;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+  box-shadow:0 4px 12px rgba(37,99,235,0.5);
+  animation:pulse .6s ease infinite;
+  z-index:100;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.8;transform:scale(1.05)}
+}
+
+.conflict-notify{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  max-width:400px;
+  background:#dc2626;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:10px;
+  box-shadow:0 8px 20px rgba(15,23,42,0.4);
+  animation:slideUp .3s ease;
+  z-index:9998;
+}
+
 @keyframes slideUp{
   from{
     opacity:0;
@@ -1006,6 +1042,9 @@ let loadingInterval = null;
 let AUTO_REFRESH = null;
 let CURRENT_DETAIL_PART   = null;
 let CURRENT_DETAIL_BRANCH = null;
+let LAST_SYNC_TIME = 0;
+let SYNC_INTERVAL = 30000; // 30 ثانية
+let JUST_UPDATED = false;
 
 // استرجاع الجلسة
 window.addEventListener("load", () => {
@@ -1145,6 +1184,7 @@ function loadInventoryAfterLogin(){
     .then(d => {
       ALL_DATA = Array.isArray(d) ? d : [];
       SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
+      LAST_SYNC_TIME = Date.now();
       if(loadingInterval) clearInterval(loadingInterval);
       loginLoading.textContent = "جاري تحميل بيانات المخزون 100%...";
       setTimeout(()=>{
@@ -1152,6 +1192,7 @@ function loadInventoryAfterLogin(){
         loginLoading.style.display="none";
         mainScreen.style.display="flex";
         updateGreeting();
+        startAutoSync();
       }, 400);
     })
     .catch(() => {
@@ -1159,6 +1200,86 @@ function loadInventoryAfterLogin(){
       loginLoading.style.display="none";
       loginError.textContent = "فشل تحميل بيانات المخزون";
     });
+}
+
+/* تزامن تلقائي */
+function startAutoSync(){
+  if(AUTO_REFRESH) clearInterval(AUTO_REFRESH);
+  AUTO_REFRESH = setInterval(()=>{
+    if(CURRENT_VIEW === "inventory"){
+      autoRefreshData("inventory");
+    } else if(CURRENT_VIEW === "sales"){
+      autoRefreshData("sales");
+    }
+  }, SYNC_INTERVAL);
+}
+
+function autoRefreshData(mode){
+  const now = Date.now();
+  if(now - LAST_SYNC_TIME < SYNC_INTERVAL) return;
+  
+  fetch(API + "?mode=" + mode)
+    .then(r => r.json())
+    .then(d => {
+      if(!d || !Array.isArray(d)) return;
+      
+      let hasChanges = false;
+      
+      if(mode === "inventory"){
+        // مقارنة البيانات
+        if(d.length !== ALL_DATA.length){
+          hasChanges = true;
+        } else {
+          for(let i = 0; i < d.length; i++){
+            if(JSON.stringify(d[i]) !== JSON.stringify(ALL_DATA[i])){
+              hasChanges = true;
+              break;
+            }
+          }
+        }
+        
+        if(hasChanges){
+          ALL_DATA = d.slice();
+          LAST_SYNC_TIME = now;
+          runSearchInventory();
+          showUpdateIndicator();
+        }
+      } else if(mode === "sales"){
+        if(d.length !== SALES_DATA.length){
+          hasChanges = true;
+        } else {
+          for(let i = 0; i < d.length; i++){
+            if(JSON.stringify(d[i]) !== JSON.stringify(SALES_DATA[i])){
+              hasChanges = true;
+              break;
+            }
+          }
+        }
+        
+        if(hasChanges){
+          SALES_DATA = d.slice();
+          LAST_SYNC_TIME = now;
+          runSearchSales();
+          showUpdateIndicator();
+        }
+      }
+    })
+    .catch(() => {});
+}
+
+function showUpdateIndicator(){
+  if(JUST_UPDATED) return;
+  JUST_UPDATED = true;
+  
+  const badge = document.createElement("div");
+  badge.className = "update-badge";
+  badge.textContent = "✓ تم تحديث البيانات";
+  document.body.appendChild(badge);
+  
+  setTimeout(()=>{
+    badge.remove();
+    JUST_UPDATED = false;
+  }, 3500);
 }
 
 /* تحديث يدوي */
@@ -1494,7 +1615,7 @@ function openSalesDetail(item){
       
       <div id="priceCalcResults" style="display:none" class="calc-results">
         <div class="calc-row">
-          <span class="calc-label">الربح (السعر - التكلفة):</span>
+          <span class="calc-label">الربح:</span>
           <span class="calc-value" id="profitValue">0.00</span>
         </div>
         <div class="calc-row">
@@ -1507,7 +1628,7 @@ function openSalesDetail(item){
         </div>
       </div>
       
-      <div id="noPriceCalc" class="no-calc">أدخل السعر الجديد لحساب الأرباح والضرائب</div>
+      <div id="noPriceCalc" class="no-calc"></div>
     </div>
   </div>`;
   
@@ -1616,17 +1737,22 @@ function saveCount(part, systemQty){
       r.countLocation = locVal;
       r.version       = data.version || currentVersion + 1;
 
-      // تحديث العرض فوراً (فقط في شاشة الجرد)
+      // تحديث العرض فوراً مع تزامن جديد
+      LAST_SYNC_TIME = Date.now();
       runSearchInventory();
       playBeep();
       showNotification("✓ تم حفظ التعديل بنجاح");
+      showUpdateIndicator();
     } else {
       if (data.conflict){
-        alert(data.error || "تم تعديل الصنف من مستخدم آخر، سيتم تحديث القائمة الآن");
+        // تضارب: مستخدم آخر عدل نفس الصنف
+        showConflictNotification(data.error || "تم تعديل الصنف من مستخدم آخر (من " + (data.conflictUser || "؟") + ")");
+        setTimeout(()=>{
+          runSearchInventory();
+        }, 1500);
       } else {
         alert(data.error || "فشل الحفظ");
       }
-      runSearchInventory();
     }
   })
   .catch(err => {
@@ -1634,6 +1760,14 @@ function saveCount(part, systemQty){
     alert("خطأ في الاتصال أثناء الحفظ، سيتم تحديث البيانات");
     runSearchInventory();
   });
+}
+
+function showConflictNotification(msg){
+  const notif = document.createElement("div");
+  notif.className = "conflict-notify";
+  notif.innerHTML = `⚠️ ${msg}`;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 4000);
 }
 
 /* CAMERA */
@@ -1677,6 +1811,7 @@ function stopScan(){
 function logoutUser(){
   localStorage.clear();
   if (AUTO_REFRESH) clearInterval(AUTO_REFRESH);
+  if(loadingInterval) clearInterval(loadingInterval);
   location.reload();
 }
 </script>
