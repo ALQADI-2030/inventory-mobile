@@ -865,6 +865,199 @@ input, textarea, button{
   padding:10px;
   font-size:12px;
 }
+
+/* CART MODAL */
+.cart-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.35);
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:9999;
+}
+
+.cart-card{
+  width:100%;
+  max-width:430px;
+  background:var(--card);
+  border-radius:18px 18px 0 0;
+  padding:12px;
+  color:var(--text);
+  box-shadow:0 -8px 25px rgba(15,23,42,0.45);
+  border-top:1px solid var(--border);
+  max-height:90vh;
+  overflow-y:auto;
+}
+
+.cart-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:600;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+
+.cart-close{
+  border:none;
+  background:none;
+  font-size:18px;
+  cursor:pointer;
+  color:var(--muted);
+}
+
+.cart-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  margin-bottom:8px;
+  background:#f9fafb;
+  border-radius:10px;
+  font-size:12px;
+}
+
+.cart-item-info{
+  flex:1;
+}
+
+.cart-item-part{
+  font-weight:700;
+  color:var(--primary);
+  font-size:13px;
+}
+
+.cart-item-name{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+
+.cart-item-price{
+  font-size:11px;
+  color:var(--text);
+  margin-top:2px;
+}
+
+.cart-item-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.cart-item-qty{
+  width:35px;
+  text-align:center;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:4px;
+  font-size:12px;
+}
+
+.cart-item-remove{
+  border:none;
+  background:#dc2626;
+  color:#fff;
+  padding:4px 8px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:11px;
+  transition:background .12s ease;
+}
+
+.cart-item-remove:hover{
+  background:#b91c1c;
+}
+
+.cart-empty{
+  text-align:center;
+  color:var(--muted);
+  padding:30px 10px;
+  font-size:13px;
+}
+
+.cart-totals{
+  margin-top:16px;
+  padding:12px;
+  background:#eff6ff;
+  border-radius:12px;
+  border:1px solid rgba(37,99,235,0.3);
+  font-size:13px;
+}
+
+.total-row{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid rgba(37,99,235,0.2);
+}
+
+.total-row:last-child{
+  border-bottom:none;
+  padding-top:10px;
+  border-top:2px solid rgba(37,99,235,0.3);
+  font-weight:700;
+  color:var(--primary);
+  font-size:14px;
+}
+
+.cart-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.cart-clear-btn{
+  flex:1;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:#fff;
+  color:var(--text);
+  cursor:pointer;
+  font-weight:600;
+  transition:background .12s ease;
+}
+
+.cart-clear-btn:hover{
+  background:#f9fafb;
+}
+
+.cart-checkout-btn{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:999px;
+  background:linear-gradient(135deg,#16a34a,#15803d);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+  transition:transform .12s ease, box-shadow .12s ease;
+  box-shadow:0 4px 12px rgba(22,163,74,0.3);
+}
+
+.cart-checkout-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(22,163,74,0.4);
+}
+
+.cart-badge{
+  position:absolute;
+  top:-8px;
+  right:-8px;
+  background:#dc2626;
+  color:#fff;
+  border-radius:999px;
+  width:24px;
+  height:24px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:700;
+}
 </style>
 </head>
 
@@ -936,6 +1129,10 @@ input, textarea, button{
   <div class="top-bar">
     <div class="top-title" id="topTitle">الجرد المخزني </div>
     <div class="top-actions">
+      <button class="icon-btn small" id="cartBtn" onclick="openCart()" title="عربة المبيعات" style="display:none;position:relative">
+        🛒
+        <span class="cart-badge" id="cartCount" style="display:none">0</span>
+      </button>
       <button class="icon-btn small" id="refreshBtn" onclick="refreshCurrentView()" title="تحديث يدوي">🔄</button>
       <button class="icon-btn" onclick="backToMain()">عودة</button>
     </div>
@@ -1045,6 +1242,7 @@ let CURRENT_DETAIL_BRANCH = null;
 let LAST_SYNC_TIME = 0;
 let SYNC_INTERVAL = 30000; // 30 ثانية
 let JUST_UPDATED = false;
+let SALES_CART = [];
 
 // استرجاع الجلسة
 window.addEventListener("load", () => {
@@ -1111,14 +1309,76 @@ function updateGreeting(){
   }
 }
 
-// تعديل دالة النورماليز
-function normalizeBarcode(text) {
+// معادلة تنظيف الباركود المحسنة (تتجاهل البادئات وتقص على 10 أرقام)
+function cleanBarcode(text) {
   if (!text) return "";
+  
   let val = String(text).trim();
-  if (/^\d/.test(val)) {
-    return val.substring(0, 10);
+  if (!val) return "";
+  
+  // الخطوة 1: إزالة الشرطات المائلة من البداية
+  while (val.startsWith('/')) {
+    val = val.substring(1).trim();
   }
-  return val;
+  
+  // الخطوة 2: إذا كان فيه ؛ (CSV)، استخرج أول جزء فيه أرقام
+  if (val.includes(';')) {
+    const parts = val.split(';');
+    for (const part of parts) {
+      const p = part.trim();
+      if (p && /\d/.test(p)) {
+        val = p;
+        break;
+      }
+    }
+  }
+  
+  // الخطوة 3: استخرج حتى أول فراغ
+  let core = "";
+  for (const char of val) {
+    if (char === ' ' || char === '\t') break;
+    core += char;
+  }
+  
+  // الخطوة 4: إزالة كل الشرطات من البداية
+  while (core.startsWith('-')) {
+    core = core.substring(1);
+  }
+  
+  // الخطوة 5: تجاهل البادئات المعروفة (حرفين + شرطة)
+  const knownPrefixes = ['MZ-', 'TO-', 'HO-', 'DA-', 'NS-', 'MS-', 'SU-', 'MI-', 'FU-', 'HY-'];
+  for (const prefix of knownPrefixes) {
+    if (core.toUpperCase().startsWith(prefix)) {
+      core = core.substring(prefix.length);
+      break;
+    }
+  }
+  
+  // أو إذا كانت البادئة حرفين فقط + شرطة (بدون قائمة)
+  if (core.length > 3 && core[2] === '-' && /^[A-Z]{2}/.test(core)) {
+    core = core.substring(3);
+  }
+  
+  // الخطوة 6: إزالة الشرطات من النهاية
+  while (core.endsWith('-')) {
+    core = core.substring(0, core.length - 1);
+  }
+  
+  // ⭐ الخطوة 7 الجديدة: استخراج أول 10 أرقام فقط
+  let digits = "";
+  for (const char of core.trim()) {
+    if (/\d/.test(char)) {
+      digits += char;
+      if (digits.length === 10) break; // توقف بعد 10 أرقام
+    }
+  }
+  
+  // لو أطول من 10 أرقام → ترجع فارغ (لا تطابق البحث)
+  if (digits.length > 10) {
+    return "";
+  }
+  
+  return digits;
 }
 
 /* LOGIN */
@@ -1390,7 +1650,7 @@ function runSearchInventory(){
   const ltRaw = (locTo.value || "").trim().toLowerCase();
 
   const bcInput = (barcode.value || "").trim();
-  const bcNorm  = normalizeBarcode(bcInput);
+  const bcNorm  = cleanBarcode(bcInput);
 
   const branchVal = (branchFilter.value || "").trim().toLowerCase();
   const stateEl = document.querySelector('input[name="countState"]:checked');
@@ -1407,7 +1667,7 @@ function runSearchInventory(){
     const br = String(r.branch ?? "").trim().toLowerCase();
 
     const bRaw = String(r.barcode ?? "");
-    const bNormItem = normalizeBarcode(bRaw);
+    const bNormItem = cleanBarcode(bRaw);
 
     const hasCount = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
     const qtySysNum   = Number(r.qty ?? 0);
@@ -1515,12 +1775,17 @@ function renderInventory(data){
 function renderSales(data){
   results.innerHTML = data.map(r=>{
     const availCls = r.qty > 0 ? "ok" : "warn";
+    const inCart = SALES_CART.find(c => c.part === r.part);
+    const btnText = inCart ? "✓ في العربة" : "➕ أضف";
+    const btnDisabled = inCart ? "disabled" : "";
+    const btnBg = inCart ? "#16a34a" : "#2563eb";
     return `<div class="item sales-item">
       <div class="part-row"><div class="part ${availCls}">${r.part}</div><div class="location"><b>الفرع:</b> ${r.branch || ""}</div></div>
       <div class="name">${r.name}</div>
       <div class="meta"><span>الكمية: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span></div>
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px">
-        <button onclick='openSalesDetail(${JSON.stringify(r)})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px">📋 تفصيل</button>
+        <button onclick='addToCart(${JSON.stringify(r)})' ${btnDisabled} style="border:none;background:${btnBg};color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;opacity:${inCart ? 0.6 : 1}">${btnText}</button>
+        <button onclick='openSalesDetail(${JSON.stringify(r)})' style="border:none;background:#7c3aed;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px">📋 تفصيل</button>
       </div>
     </div>`;
   }).join("");
@@ -1606,16 +1871,16 @@ function openSalesDetail(item){
     </div>
     
     <div class="price-section">
-      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">💰 حساب السعر الجديد</div>
+      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">💰 حساب السعر </div>
       
       <div class="price-input-group">
-        <label>السعر الجديد</label>
-        <input type="number" id="newPrice" placeholder="أدخل السعر الجديد" step="0.01" oninput="calculatePriceMetrics(${cost})">
+        <label>السعر </label>
+        <input type="number" id="newPrice" placeholder="أدخل السعر " step="0.01" oninput="calculatePriceMetrics(${cost})">
       </div>
       
       <div id="priceCalcResults" style="display:none" class="calc-results">
         <div class="calc-row">
-          <span class="calc-label">الربح:</span>
+          <span class="calc-label">الربح):</span>
           <span class="calc-value" id="profitValue">0.00</span>
         </div>
         <div class="calc-row">
@@ -1628,7 +1893,7 @@ function openSalesDetail(item){
         </div>
       </div>
       
-      <div id="noPriceCalc" class="no-calc"></div>
+      <div id="noPriceCalc" class="no-calc">أدخل السعر  لحساب الأرباح والضرائب</div>
     </div>
   </div>`;
   
@@ -1806,6 +2071,164 @@ function stopScan(){
       isScanning = false;
     });
   }
+}
+
+/* CART FUNCTIONS */
+function addToCart(item){
+  const existing = SALES_CART.find(c => c.part === item.part);
+  if(!existing){
+    SALES_CART.push({
+      ...item,
+      cartQty: 1
+    });
+    showNotification("✓ تم إضافة الصنف للعربة");
+    updateCartDisplay();
+    runSearchSales();
+  }
+}
+
+function removeFromCart(part){
+  SALES_CART = SALES_CART.filter(c => c.part !== part);
+  updateCartDisplay();
+  runSearchSales();
+}
+
+function updateCartQty(part, qty){
+  const item = SALES_CART.find(c => c.part === part);
+  if(item){
+    item.cartQty = Math.max(1, parseInt(qty) || 1);
+  }
+  updateCartDisplay();
+}
+
+function updateCartNewPrice(part, newPrice){
+  const item = SALES_CART.find(c => c.part === part);
+  if(item){
+    item.cartNewPrice = Math.max(0, parseFloat(newPrice) || Number(item.maxPrice) || 0);
+  }
+  // إعادة فتح العربة لتحديث الحسابات
+  const cartOverlay = document.querySelector(".cart-overlay");
+  if(cartOverlay) cartOverlay.remove();
+  openCart();
+}
+
+function updateCartDisplay(){
+  const cartBtn = document.getElementById("cartBtn");
+  const cartCount = document.getElementById("cartCount");
+  
+  if(SALES_CART.length > 0){
+    cartBtn.style.display = "flex";
+    cartCount.textContent = SALES_CART.length;
+    cartCount.style.display = "flex";
+  } else {
+    cartBtn.style.display = "none";
+    cartCount.style.display = "none";
+  }
+}
+
+function openCart(){
+  if(SALES_CART.length === 0){
+    showNotification("العربة فارغة!");
+    return;
+  }
+  
+  const ov = document.createElement("div");
+  ov.className = "cart-overlay";
+  
+  let totalCost = 0;
+  let totalNewPrice = 0;
+  
+  SALES_CART.forEach(item => {
+    const cost = (Number(item.cost) || 0) * item.cartQty;
+    const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * item.cartQty;
+    totalCost += cost;
+    totalNewPrice += newPrice;
+  });
+  
+  const totalProfit = totalNewPrice - totalCost;
+  const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+  const totalWithTax = totalNewPrice * 1.15;
+  
+  ov.innerHTML = `<div class="cart-card">
+    <div class="cart-header">
+      <span>🛒 عربة المبيعات</span>
+      <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
+    </div>
+    
+    <div id="cartItems" style="max-height:400px;overflow-y:auto">
+      ${SALES_CART.map(item => {
+        const cost = Number(item.cost) || 0;
+        const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
+        const profit = (newPrice - cost) * item.cartQty;
+        const profitPct = cost > 0 ? ((newPrice - cost) / cost) * 100 : 0;
+        const totalWithItemTax = newPrice * 1.15;
+        return `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-part">${item.part}</div>
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">
+              <b>التكلفة: ${cost.toFixed(2)}</b>
+            </div>
+            <div style="margin-top:6px;font-size:12px">
+              <label style="display:block;margin-bottom:4px;color:var(--muted)"><b>السعر :</b></label>
+              <div style="display:flex;gap:4px;align-items:center">
+                <input type="number" class="cart-item-new-price" value="${newPrice}" 
+                       onchange="updateCartNewPrice('${item.part}', this.value)" 
+                       step="0.01" min="0" style="flex:1;padding:4px;border:1px solid var(--border);border-radius:6px;font-size:12px;direction:ltr">
+              </div>
+              <div style="margin-top:6px;padding:6px;background:#f9fafb;border-radius:6px;font-size:11px;color:var(--muted)">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                  <span>ربح:</span>
+                  <span style="color:${profit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">${profit.toFixed(2)}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+                  <span>نسبة %:</span>
+                  <span style="color:${profitPct >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">${profitPct.toFixed(1)}%</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:3px">
+                  <span>مع ضريبة:</span>
+                  <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithItemTax.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cart-item-controls">
+            <input type="number" class="cart-item-qty" value="${item.cartQty}" 
+                   onchange="updateCartQty('${item.part}', this.value)" 
+                   min="1" max="999">
+            <button class="cart-item-remove" onclick="removeFromCart('${item.part}')">✕</button>
+          </div>
+        </div>
+      `}).join('')}
+    </div>
+    
+    <div class="cart-totals">
+      <div class="total-row">
+        <span>إجمالي التكلفة:</span>
+        <span>${totalCost.toFixed(2)}</span>
+      </div>
+      <div class="total-row">
+        <span>الاجمالي:</span>
+        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
+      </div>
+      <div class="total-row">
+        <span>إجمالي الربح:</span>
+        <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)</span>
+      </div>
+      <div class="total-row">
+        <span>مع الضريبة 15%:</span>
+        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
+      </div>
+    </div>
+    
+    <div class="cart-actions">
+      <button class="cart-clear-btn" onclick="SALES_CART=[];updateCartDisplay();this.closest('.cart-overlay').remove();runSearchSales()">مسح العربة</button>
+      <button class="cart-checkout-btn" onclick="alert('✓ تم تسجيل العملية!\\n\\nإجمالي الربح: ${totalProfit.toFixed(2)}\\nمع الضريبة: ${totalWithTax.toFixed(2)}')">✓ إنهاء</button>
+    </div>
+  </div>`;
+  
+  document.body.appendChild(ov);
 }
 
 function logoutUser(){
