@@ -816,7 +816,6 @@ input, textarea, button{
   background:#fff;
   color:var(--text);
   font-size:14px;
-  direction:ltr;
 }
 
 .price-input-group input:focus{
@@ -857,7 +856,6 @@ input, textarea, button{
 .calc-value{
   color:var(--text);
   font-weight:700;
-  direction:ltr;
   text-align:left;
 }
 
@@ -868,7 +866,7 @@ input, textarea, button{
   font-size:12px;
 }
 
-/* CART MODAL - NEW TABLE STYLE */
+/* CART MODAL */
 .cart-overlay{
   position:fixed;
   inset:0;
@@ -890,6 +888,8 @@ input, textarea, button{
   border-top:1px solid var(--border);
   max-height:90vh;
   overflow-y:auto;
+  display:flex;
+  flex-direction:column;
 }
 
 .cart-header{
@@ -905,176 +905,225 @@ input, textarea, button{
 .cart-close{
   border:none;
   background:none;
-  font-size:16px;
+  font-size:18px;
   cursor:pointer;
   color:var(--muted);
-  padding:0;
-  width:20px;
-  height:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
 }
 
-/* جدول السلة */
+.cart-table-wrapper{
+  flex:1;
+  overflow-y:auto;
+  margin-bottom:12px;
+}
+
 .cart-table{
   width:100%;
   border-collapse:collapse;
-  margin:12px 0;
   font-size:12px;
 }
 
-.cart-table-header{
-  background:#f3f4fb;
-  border-bottom:2px solid var(--border);
-}
-
-.cart-table-header th{
-  padding:10px 6px;
+.cart-table thead th{
+  background:#eff6ff;
+  color:var(--primary);
+  padding:8px 4px;
   text-align:right;
   font-weight:700;
-  color:var(--text);
-  border-right:1px solid var(--border);
+  border-bottom:2px solid rgba(37,99,235,0.3);
+  position:sticky;
+  top:0;
 }
 
-.cart-table-header th:last-child{
-  border-right:none;
+.cart-table-header-num,
+.cart-table-header-part,
+.cart-table-header-desc,
+.cart-table-header-qty,
+.cart-table-header-price,
+.cart-table-header-remove{
+  padding:8px 4px;
+  text-align:right;
 }
 
-.cart-row{
+.cart-table-header-num{width:30px}
+.cart-table-header-part{width:50px}
+.cart-table-header-desc{flex:1;min-width:80px}
+.cart-table-header-qty{width:50px}
+.cart-table-header-price{width:60px}
+.cart-table-header-remove{width:30px}
+
+.cart-table tbody tr{
   border-bottom:1px solid var(--border);
+  position:relative;
 }
 
-.cart-row td{
-  padding:8px 6px;
-  vertical-align:top;
-  border-right:1px solid var(--border);
-}
-
-.cart-row td:last-child{
-  border-right:none;
-}
-
-/* أعمدة الجدول */
-.col-seq{
-  width:35px;
-  text-align:center;
-  color:var(--muted);
-  font-weight:600;
-}
-
-.col-part{
-  width:80px;
-  font-weight:700;
-  color:var(--primary);
-  direction:ltr;
-  text-align:left;
-}
-
-.col-name{
-  flex:1;
-  min-width:100px;
-  color:var(--text);
-  word-break:break-word;
-}
-
-.col-qty{
-  width:60px;
-}
-
-.col-price{
-  width:70px;
-}
-
-.col-delete{
-  width:30px;
-  text-align:center;
-}
-
-/* مدخلات الجدول */
-.cart-qty-input,
-.cart-price-input{
-  width:100%;
-  padding:6px 4px;
-  border:1px solid var(--border);
-  border-radius:6px;
+.cart-table tbody tr.expanded{
   background:#f9fafb;
-  color:var(--text);
-  font-size:12px;
-  direction:ltr;
-  text-align:center;
 }
 
-.cart-qty-input:focus,
-.cart-price-input:focus{
-  outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 1px rgba(37,99,235,0.45);
-  background:#ffffff;
-}
-
-.cart-delete-btn{
-  border:none;
-  background:none;
-  color:var(--muted);
-  cursor:pointer;
-  font-size:14px;
-  padding:0;
-  width:20px;
-  height:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:color .12s ease;
-}
-
-.cart-delete-btn:hover{
-  color:var(--warn);
-}
-
-/* تفاصيل الربح - خفيفة تحت كل صف */
-.cart-details-row{
-  background:#f9fafb;
-  border-bottom:1px solid var(--border);
-  display:none;
-}
-
-.cart-details-row.show{
+.cart-table tbody tr.expanded + tr.cart-detail-row{
   display:table-row;
 }
 
-.cart-details-content{
-  padding:10px 6px;
+.cart-table tbody tr.cart-detail-row{
+  display:none;
+}
+
+.cart-table td{
+  padding:6px 4px;
+  vertical-align:top;
+}
+
+.cart-table-num{
+  text-align:center;
   color:var(--muted);
-  font-size:11px;
-  direction:ltr;
-  text-align:left;
-}
-
-.cart-details-content div{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:4px;
-}
-
-.cart-details-content div:last-child{
-  margin-bottom:0;
-  border-top:1px solid var(--border);
-  padding-top:4px;
-  color:var(--primary);
   font-weight:600;
 }
 
-/* الإجماليات الثابتة */
+.cart-table-part{
+  font-weight:700;
+  color:var(--primary);
+}
+
+.cart-table-desc{
+  color:var(--muted);
+  font-size:11px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.cart-table-qty-cell,
+.cart-table-price-cell{
+  text-align:center;
+}
+
+.cart-table-qty-input{
+  width:45px;
+  padding:4px 2px;
+  text-align:center;
+  border:1px solid var(--border);
+  border-radius:4px;
+  font-size:11px;
+}
+
+.cart-table-price-input{
+  width:55px;
+  padding:4px 2px;
+  text-align:center;
+  border:1px solid var(--border);
+  border-radius:4px;
+  font-size:11px;
+}
+
+.cart-detail-row td{
+  padding:0;
+  border:none;
+}
+
+.cart-detail-content{
+  padding:8px;
+  background:#ffffff;
+  border-bottom:2px solid var(--border);
+}
+
+.detail-info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:10px;
+  font-size:11px;
+}
+
+.detail-info-item{
+  display:flex;
+  justify-content:space-between;
+  padding:4px;
+  background:#f9fafb;
+  border-radius:4px;
+}
+
+.detail-info-label{
+  color:var(--muted);
+  font-weight:600;
+}
+
+.detail-info-value{
+  color:var(--text);
+  font-weight:700;
+}
+
+.detail-profit-section{
+  padding:8px;
+  background:#eff6ff;
+  border-radius:6px;
+  border:1px solid rgba(37,99,235,0.2);
+  margin-top:8px;
+}
+
+.detail-profit-row{
+  display:flex;
+  justify-content:space-between;
+  padding:4px 0;
+  font-size:11px;
+  border-bottom:1px solid rgba(37,99,235,0.15);
+}
+
+.detail-profit-row:last-child{
+  border-bottom:none;
+  font-weight:700;
+  color:var(--primary);
+}
+
+.detail-profit-label{
+  color:var(--muted);
+}
+
+.detail-profit-value{
+  font-weight:700;
+  direction:ltr;
+}
+
+.detail-profit-value.positive{
+  color:#16a34a;
+}
+
+.detail-profit-value.negative{
+  color:#dc2626;
+}
+
+.cart-item-remove{
+  border:none;
+  background:#dc2626;
+  color:#fff;
+  padding:4px;
+  border-radius:4px;
+  cursor:pointer;
+  font-size:10px;
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .12s ease;
+}
+
+.cart-item-remove:hover{
+  background:#b91c1c;
+}
+
+.cart-empty{
+  text-align:center;
+  color:var(--muted);
+  padding:30px 10px;
+  font-size:13px;
+}
+
 .cart-totals{
-  margin-top:16px;
+  margin-top:auto;
   padding:12px;
   background:#eff6ff;
   border-radius:12px;
   border:1px solid rgba(37,99,235,0.3);
-  font-size:13px;
-  direction:ltr;
-  text-align:left;
+  font-size:12px;
 }
 
 .total-row{
@@ -1090,20 +1139,7 @@ input, textarea, button{
   border-top:2px solid rgba(37,99,235,0.3);
   font-weight:700;
   color:var(--primary);
-  font-size:14px;
-}
-
-.total-label{
-  color:var(--muted);
-}
-
-.total-value{
-  font-weight:700;
-  color:var(--text);
-}
-
-.total-row:last-child .total-value{
-  color:var(--primary);
+  font-size:13px;
 }
 
 .cart-actions{
@@ -1969,16 +2005,16 @@ function openSalesDetail(item){
     </div>
     
     <div class="info-row">
-      <span class="info-label">سعر الشركة:</span>
+      <span class="info-label">السعر الحالي:</span>
       <span class="info-value">${maxPrice.toFixed(2)}</span>
     </div>
     
     <div class="price-section">
-      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">💰 حساب السعر</div>
+      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">💰 حساب السعر الجديد</div>
       
       <div class="price-input-group">
-        <label>السعر</label>
-        <input type="number" id="newPrice" placeholder="أدخل السعر" step="0.01" oninput="calculatePriceMetrics(${cost})">
+        <label>السعر الجديد</label>
+        <input type="number" id="newPrice" placeholder="أدخل السعر الجديد" step="0.01" oninput="calculatePriceMetrics(${cost})">
       </div>
       
       <div id="priceCalcResults" style="display:none" class="calc-results">
@@ -1996,7 +2032,7 @@ function openSalesDetail(item){
         </div>
       </div>
       
-      <div id="noPriceCalc" class="no-calc">أدخل السعر لحساب الأرباح والضرائب</div>
+      <div id="noPriceCalc" class="no-calc">أدخل السعر الجديد لحساب الأرباح والضرائب</div>
     </div>
   </div>`;
   
@@ -2209,35 +2245,10 @@ function updateCartNewPrice(part, newPrice){
   if(item){
     item.cartNewPrice = Math.max(0, parseFloat(newPrice) || Number(item.maxPrice) || 0);
   }
-  // تحديث التفاصيل فوراً
-  updateCartDetails(part);
-}
-
-function updateCartDetails(part){
-  const item = SALES_CART.find(c => c.part === part);
-  if(!item){
-    const detailsRow = document.querySelector(`[data-part="${part}"].cart-details-row`);
-    if(detailsRow) detailsRow.classList.remove("show");
-    return;
-  }
-  
-  const detailsRow = document.querySelector(`[data-part="${part}"].cart-details-row`);
-  if(!detailsRow) return;
-  
-  const cost = Number(item.cost) || 0;
-  const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
-  const qty = Number(item.cartQty) || 1;
-  
-  const profit = (newPrice - cost) * qty;
-  const profitPct = cost > 0 ? ((newPrice - cost) / cost) * 100 : 0;
-  const totalWithTax = newPrice * 1.15;
-  
-  const content = detailsRow.querySelector(".cart-details-content");
-  content.innerHTML = `
-    <div>ربح: <span>${profit.toFixed(2)}</span></div>
-    <div>نسبة: <span>${profitPct.toFixed(1)}%</span></div>
-    <div>شامل ضريبة: <span>${(totalWithTax * qty).toFixed(2)}</span></div>
-  `;
+  // إعادة فتح العربة لتحديث الحسابات
+  const cartOverlay = document.querySelector(".cart-overlay");
+  if(cartOverlay) cartOverlay.remove();
+  openCart();
 }
 
 function updateCartDisplay(){
@@ -2283,80 +2294,150 @@ function openCart(){
       <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
     </div>
     
-    <table class="cart-table">
-      <thead class="cart-table-header">
-        <tr>
-          <th class="col-seq">#</th>
-          <th class="col-part">الرقم</th>
-          <th class="col-name">الاسم</th>
-          <th class="col-qty">الكمية</th>
-          <th class="col-price">السعر</th>
-          <th class="col-delete"></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${SALES_CART.map((item, idx) => {
-          const cost = Number(item.cost) || 0;
-          const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
-          return `
-            <tr class="cart-row">
-              <td class="col-seq">${idx + 1}</td>
-              <td class="col-part">${item.part}</td>
-              <td class="col-name">${item.name}</td>
-              <td class="col-qty">
-                <input type="number" class="cart-qty-input" value="${item.cartQty}" 
+    <div class="cart-table-wrapper">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th class="cart-table-header-num">#</th>
+            <th class="cart-table-header-part">الصنف</th>
+            <th class="cart-table-header-desc">الوصف</th>
+            <th class="cart-table-header-qty">الكمية</th>
+            <th class="cart-table-header-price">السعر</th>
+            <th class="cart-table-header-remove"></th>
+          </tr>
+        </thead>
+        <tbody id="cartTableBody">
+          ${SALES_CART.map((item, idx) => {
+            const cost = Number(item.cost) || 0;
+            const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
+            const profit = (newPrice - cost) * item.cartQty;
+            const profitPct = cost > 0 ? ((newPrice - cost) / cost) * 100 : 0;
+            const itemTotalCost = cost * item.cartQty;
+            const itemTotalPrice = newPrice * item.cartQty;
+            const itemTotalWithTax = newPrice * 1.15;
+            
+            return `
+            <tr class="cart-row" data-part="${item.part}" onclick="toggleDetailRow('${item.part}')">
+              <td class="cart-table-num">${idx + 1}</td>
+              <td class="cart-table-part">${item.part}</td>
+              <td class="cart-table-desc">${item.name}</td>
+              <td class="cart-table-qty-cell">
+                <input type="number" class="cart-table-qty-input" value="${item.cartQty}" 
                        onchange="updateCartQty('${item.part}', this.value)" 
+                       onclick="event.stopPropagation()"
                        min="1" max="999">
               </td>
-              <td class="col-price">
-                <input type="number" class="cart-price-input" value="${newPrice.toFixed(2)}" 
+              <td class="cart-table-price-cell">
+                <input type="number" class="cart-table-price-input" value="${newPrice.toFixed(2)}" 
                        onchange="updateCartNewPrice('${item.part}', this.value)" 
+                       onclick="event.stopPropagation()"
                        step="0.01" min="0">
               </td>
-              <td class="col-delete">
-                <button class="cart-delete-btn" onclick="removeFromCart('${item.part}')">✕</button>
+              <td style="text-align:center">
+                <button class="cart-item-remove" onclick="event.stopPropagation(); removeFromCart('${item.part}')">✕</button>
               </td>
             </tr>
-            <tr class="cart-details-row" data-part="${item.part}">
+            <tr class="cart-detail-row" id="detail-${item.part}">
               <td colspan="6">
-                <div class="cart-details-content">
-                  <div>ربح: <span>${((newPrice - cost) * item.cartQty).toFixed(2)}</span></div>
-                  <div>نسبة: <span>${cost > 0 ? (((newPrice - cost) / cost) * 100).toFixed(1) : 0}%</span></div>
-                  <div>شامل ضريبة: <span>${(newPrice * 1.15 * item.cartQty).toFixed(2)}</span></div>
+                <div class="cart-detail-content">
+                  <div class="detail-info-grid">
+                    <div class="detail-info-item">
+                      <span class="detail-info-label">التكلفة:</span>
+                      <span class="detail-info-value">${cost.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-info-item">
+                      <span class="detail-info-label">الإجمالي (تكلفة):</span>
+                      <span class="detail-info-value">${itemTotalCost.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-info-item">
+                      <span class="detail-info-label">السعر الجديد:</span>
+                      <span class="detail-info-value">${newPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-info-item">
+                      <span class="detail-info-label">الإجمالي (سعر):</span>
+                      <span class="detail-info-value">${itemTotalPrice.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="detail-profit-section">
+                    <div class="detail-profit-row">
+                      <span class="detail-profit-label">الربح الواحد:</span>
+                      <span class="detail-profit-value ${(newPrice - cost) >= 0 ? 'positive' : 'negative'}">${(newPrice - cost).toFixed(2)}</span>
+                    </div>
+                    <div class="detail-profit-row">
+                      <span class="detail-profit-label">الربح الإجمالي:</span>
+                      <span class="detail-profit-value ${profit >= 0 ? 'positive' : 'negative'}">${profit.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-profit-row">
+                      <span class="detail-profit-label">نسبة الربح:</span>
+                      <span class="detail-profit-value ${profitPct >= 0 ? 'positive' : 'negative'}">${profitPct.toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-profit-row">
+                      <span class="detail-profit-label">مع الضريبة 15%:</span>
+                      <span class="detail-profit-value">${itemTotalWithTax.toFixed(2)}</span>
+                    </div>
+                  </div>
                 </div>
               </td>
             </tr>
-          `;
-        }).join('')}
-      </tbody>
-    </table>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
     
     <div class="cart-totals">
       <div class="total-row">
-        <span class="total-label">إجمالي التكلفة:</span>
-        <span class="total-value" dir="ltr">${totalCost.toFixed(2)}</span>
+        <span>إجمالي التكلفة:</span>
+        <span>${totalCost.toFixed(2)}</span>
       </div>
       <div class="total-row">
-        <span class="total-label">إجمالي السعر:</span>
-        <span class="total-value" dir="ltr">${totalNewPrice.toFixed(2)}</span>
+        <span>إجمالي السعر الجديد:</span>
+        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
       </div>
       <div class="total-row">
-        <span class="total-label">الربح الإجمالي:</span>
-        <span class="total-value" dir="ltr">${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)</span>
+        <span>إجمالي الربح:</span>
+        <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)</span>
       </div>
       <div class="total-row">
-        <span class="total-label">مع الضريبة 15%:</span>
-        <span class="total-value" dir="ltr">${totalWithTax.toFixed(2)}</span>
+        <span>مع الضريبة 15%:</span>
+        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
       </div>
     </div>
     
     <div class="cart-actions">
       <button class="cart-clear-btn" onclick="SALES_CART=[];updateCartDisplay();this.closest('.cart-overlay').remove();runSearchSales()">مسح العربة</button>
-      <button class="cart-checkout-btn" onclick="alert('✓ تم تسجيل العملية!\\n\\nالربح: ${totalProfit.toFixed(2)}\\nمع الضريبة: ${totalWithTax.toFixed(2)}')">✓ إنهاء</button>
+      <button class="cart-checkout-btn" onclick="alert('✓ تم تسجيل العملية!\\n\\nإجمالي الربح: ${totalProfit.toFixed(2)}\\nمع الضريبة: ${totalWithTax.toFixed(2)}')">✓ إنهاء</button>
     </div>
   </div>`;
   
   document.body.appendChild(ov);
+}
+
+function toggleDetailRow(part){
+  const detailRow = document.getElementById('detail-' + part);
+  const cartRow = document.querySelector(`[data-part="${part}"]`);
+  
+  // إغلاق جميع الصفوف الأخرى
+  document.querySelectorAll('.cart-row').forEach(row => {
+    if(row.dataset.part !== part){
+      row.classList.remove('expanded');
+      const otherDetail = document.getElementById('detail-' + row.dataset.part);
+      if(otherDetail) otherDetail.style.display = 'none';
+    }
+  });
+  
+  // تبديل الصف الحالي
+  if(detailRow){
+    const isExpanded = cartRow.classList.contains('expanded');
+    if(isExpanded){
+      cartRow.classList.remove('expanded');
+      detailRow.style.display = 'none';
+    } else {
+      cartRow.classList.add('expanded');
+      detailRow.style.display = 'table-row';
+    }
+  }
 }
 
 function logoutUser(){
