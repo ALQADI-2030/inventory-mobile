@@ -543,12 +543,15 @@ input, textarea, button{
   color:var(--text);
   box-shadow:0 -8px 25px rgba(15,23,42,0.45);
   border-top:1px solid var(--border);
+  max-height:90vh;
+  overflow-y:auto;
 }
 
 .detail-header{
   display:flex;
   justify-content:space-between;
   font-weight:600;
+  margin-bottom:10px;
 }
 
 .detail-close{
@@ -563,6 +566,17 @@ input, textarea, button{
   font-size:12px;
   color:var(--muted);
   margin-top:10px;
+  font-weight:600;
+}
+
+.detail-value{
+  font-size:13px;
+  color:var(--text);
+  margin-top:4px;
+  padding:8px;
+  background:#f9fafb;
+  border-radius:8px;
+  border:1px solid var(--border);
 }
 
 .detail-qty-box{
@@ -673,6 +687,147 @@ input, textarea, button{
     opacity:1;
     transform:translateY(0);
   }
+}
+
+/* SALES DETAIL MODAL */
+.sales-detail-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.35);
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:9999;
+}
+
+.sales-detail-card{
+  width:100%;
+  max-width:430px;
+  background:var(--card);
+  border-radius:18px 18px 0 0;
+  padding:12px;
+  color:var(--text);
+  box-shadow:0 -8px 25px rgba(15,23,42,0.45);
+  border-top:1px solid var(--border);
+  max-height:90vh;
+  overflow-y:auto;
+}
+
+.sales-detail-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight:600;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+
+.sales-detail-close{
+  border:none;
+  background:none;
+  font-size:18px;
+  cursor:pointer;
+  color:var(--muted);
+}
+
+.info-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  padding:8px;
+  background:#f9fafb;
+  border-radius:8px;
+  font-size:13px;
+}
+
+.info-label{
+  font-weight:600;
+  color:var(--muted);
+}
+
+.info-value{
+  color:var(--text);
+  font-weight:700;
+}
+
+.price-section{
+  margin-top:16px;
+  padding:12px;
+  background:#eff6ff;
+  border-radius:12px;
+  border:1px solid rgba(37,99,235,0.3);
+}
+
+.price-input-group{
+  margin-top:12px;
+}
+
+.price-input-group label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+  font-weight:600;
+}
+
+.price-input-group input{
+  width:100%;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  color:var(--text);
+  font-size:14px;
+}
+
+.price-input-group input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px rgba(37,99,235,0.45);
+}
+
+.calc-results{
+  margin-top:12px;
+  padding:10px;
+  background:#ffffff;
+  border-radius:10px;
+  border:1px solid var(--border);
+  font-size:12px;
+}
+
+.calc-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+  padding:6px 0;
+}
+
+.calc-row:last-child{
+  margin-bottom:0;
+  padding-top:8px;
+  border-top:2px solid var(--border);
+  font-weight:700;
+  font-size:13px;
+}
+
+.calc-label{
+  color:var(--muted);
+}
+
+.calc-value{
+  color:var(--text);
+  font-weight:700;
+  text-align:left;
+}
+
+.no-calc{
+  color:var(--muted);
+  text-align:center;
+  padding:10px;
+  font-size:12px;
 }
 </style>
 </head>
@@ -1242,7 +1397,10 @@ function renderSales(data){
     return `<div class="item sales-item">
       <div class="part-row"><div class="part ${availCls}">${r.part}</div><div class="location"><b>الفرع:</b> ${r.branch || ""}</div></div>
       <div class="name">${r.name}</div>
-      <div class="meta"><span>Qty: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span></div>
+      <div class="meta"><span>الكمية: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span></div>
+      <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px">
+        <button onclick='openSalesDetail(${JSON.stringify(r)})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px">📋 تفصيل</button>
+      </div>
     </div>`;
   }).join("");
 }
@@ -1279,6 +1437,108 @@ function openDetail(part){
     </div>`;
   document.body.appendChild(ov);
   ["newLoc","cq","note"].forEach(id=>document.getElementById(id).addEventListener("input", updateDetailSaveState));
+}
+
+function openSalesDetail(item){
+  if (CURRENT_VIEW !== "sales") return;
+  
+  const ov = document.createElement("div");
+  ov.className = "sales-detail-overlay";
+  
+  const cost = Number(item.cost) || 0;
+  const maxPrice = Number(item.maxPrice) || 0;
+  
+  ov.innerHTML = `<div class="sales-detail-card">
+    <div class="sales-detail-header">
+      <span>📋 تفاصيل الصنف</span>
+      <button class="sales-detail-close" onclick="this.closest('.sales-detail-overlay').remove()">✕</button>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">رقم الصنف:</span>
+      <span class="info-value">${item.part}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">اسم الصنف:</span>
+      <span class="info-value">${item.name}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">الفرع:</span>
+      <span class="info-value">${item.branch || "---"}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">الكمية المتوفرة:</span>
+      <span class="info-value">${item.qty}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">التكلفة:</span>
+      <span class="info-value">${cost.toFixed(2)}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">السعر الشركة:</span>
+      <span class="info-value">${maxPrice.toFixed(2)}</span>
+    </div>
+    
+    <div class="price-section">
+      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">💰 حساب السعر الجديد</div>
+      
+      <div class="price-input-group">
+        <label>السعر الجديد</label>
+        <input type="number" id="newPrice" placeholder="أدخل السعر الجديد" step="0.01" oninput="calculatePriceMetrics(${cost})">
+      </div>
+      
+      <div id="priceCalcResults" style="display:none" class="calc-results">
+        <div class="calc-row">
+          <span class="calc-label">الربح (السعر - التكلفة):</span>
+          <span class="calc-value" id="profitValue">0.00</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">نسبة الربح %:</span>
+          <span class="calc-value" id="profitPercentValue">0.00 %</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">الإجمالي شامل 15% ضريبة:</span>
+          <span class="calc-value" id="totalWithTaxValue">0.00</span>
+        </div>
+      </div>
+      
+      <div id="noPriceCalc" class="no-calc">أدخل السعر الجديد لحساب الأرباح والضرائب</div>
+    </div>
+  </div>`;
+  
+  document.body.appendChild(ov);
+}
+
+function calculatePriceMetrics(cost){
+  const newPriceInput = document.getElementById("newPrice");
+  const newPrice = Number(newPriceInput.value) || 0;
+  
+  if(newPrice <= 0){
+    document.getElementById("priceCalcResults").style.display = "none";
+    document.getElementById("noPriceCalc").style.display = "block";
+    return;
+  }
+  
+  document.getElementById("noPriceCalc").style.display = "none";
+  document.getElementById("priceCalcResults").style.display = "block";
+  
+  // حساب الربح
+  const profit = newPrice - cost;
+  
+  // حساب نسبة الربح
+  const profitPercent = cost > 0 ? (profit / cost) * 100 : 0;
+  
+  // الإجمالي شامل الضريبة
+  const totalWithTax = newPrice * 1.15;
+  
+  document.getElementById("profitValue").textContent = profit.toFixed(2);
+  document.getElementById("profitPercentValue").textContent = profitPercent.toFixed(2) + " %";
+  document.getElementById("totalWithTaxValue").textContent = totalWithTax.toFixed(2);
 }
 
 function chg(d){
