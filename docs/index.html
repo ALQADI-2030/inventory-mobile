@@ -865,6 +865,94 @@ input, textarea, button{
   padding:10px;
   font-size:12px;
 }
+/* CART MODAL – إضافات فوق القديم */
+.cart-row.selected{
+  background:#e0f2fe;
+}
+
+.cart-table-part-cell{
+  text-align:right;
+}
+.cart-part-code{
+  font-weight:700;
+  color:var(--primary);
+  font-size:12px;
+}
+.cart-part-name{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:140px;
+}
+
+.cart-qty-counter{
+  display:inline-flex;
+  align-items:center;
+  gap:2px;
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:1px 3px;
+  background:#ffffff;
+}
+.qty-btn{
+  width:18px;
+  height:18px;
+  border:none;
+  border-radius:6px;
+  background:#e5e7eb;
+  cursor:pointer;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.qty-btn:hover{
+  background:#dbeafe;
+}
+.cart-table-qty-input{
+  width:30px;
+  border:none;
+  text-align:center;
+  font-size:10px;
+  outline:none;
+}
+.cart-table-price-input{
+  width:80px;
+  padding:6px 4px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  text-align:center;
+  font-size:12px;
+  outline:none;
+}
+
+/* صندوق ربح الصنف */
+.current-item-profit{
+  margin-top:4px;
+  margin-bottom:4px;
+  padding:8px 10px;
+  background:#eef2ff;
+  border-radius:10px;
+  border:1px solid rgba(37,99,235,0.3);
+  font-size:12px;
+  display:none;
+}
+.current-item-title{
+  font-weight:700;
+  color:var(--primary);
+  margin-bottom:4px;
+}
+.current-item-values{
+  display:flex;
+  justify-content:space-between;
+  gap:6px;
+  font-weight:700;
+  direction:ltr;
+  font-size:11px;
+}
 
 /* CART MODAL */
 .cart-overlay{
@@ -1362,6 +1450,69 @@ input, textarea, button{
 </audio>
 
 <script>
+      document.getElementById("buildInfo").textContent =
+  "آخر تحديث للملف: " +
+  new Date(document.lastModified).toLocaleString("ar-SA");
+
+let CURRENT_VIEW = "inventory";
+const API="https://script.google.com/macros/s/AKfycbwJblWxDTa3sOUQQwm5xoX3Cua6ixm0nFPHuXqRGRU7I0iP4d86vVIdWrXJP2ei8_km/exec";
+
+let ALL_DATA = [];
+let SALES_DATA = [];
+let LAST_RENDER = [];
+let CURRENT_USER = "";
+let CURRENT_ROLE = "";
+let loadingInterval = null;
+let AUTO_REFRESH = null;
+let CURRENT_DETAIL_PART   = null;
+let CURRENT_DETAIL_BRANCH = null;
+let LAST_SYNC_TIME = 0;
+let SYNC_INTERVAL = 30000; // 30 ثانية
+let JUST_UPDATED = false;
+let SALES_CART = [];
+
+/* LOGIN */
+function login(){
+  loginError.textContent="";
+  loginLoading.style.display="block";
+  loginLoading.textContent = "جاري التحقق من البيانات...";
+  const user = loginUser.value.trim();
+  const pass = loginPass.value.trim();
+
+  if(!user || !pass){
+    loginLoading.style.display="none";
+    loginError.textContent="فضلاً أدخل اسم المستخدم والرقم السري";
+    return;
+  }
+
+  fetch(API,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:new URLSearchParams({ name: user, pass: pass })
+  })
+  .then(r=>r.json())
+  .then(res=>{
+    if(!res.ok){
+      loginLoading.style.display="none";
+      loginError.textContent = res.error || "فشل تسجيل الدخول";
+      return;
+    }
+    CURRENT_USER = res.user && res.user.name ? res.user.name : user;
+    CURRENT_ROLE = res.user && res.user.role ? res.user.role : "User";
+    try {
+      localStorage.setItem("stockUser", CURRENT_USER);
+      localStorage.setItem("stockRole", CURRENT_ROLE);
+    } catch (e) {}
+    enablePullBlock();
+    loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
+    loadInventoryAfterLogin();
+  })
+  .catch(()=>{
+    loginLoading.style.display="none";
+    loginError.textContent="تعذر الاتصال بالسيرفر";
+  });
+}
+
 document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
@@ -2229,14 +2380,24 @@ function addToCart(item){
 function removeFromCart(part){
   SALES_CART = SALES_CART.filter(c => c.part !== part);
   updateCartDisplay();
-  runSearchSales();
+  const cartOverlay = document.querySelector(".cart-overlay");
+  if(cartOverlay) cartOverlay.remove();
+  if (CURRENT_VIEW === "sales") runSearchSales();
 }
 
-function updateCartQty(part, qty){
-  const item = SALES_CART.find(c => c.part === part);
-  if(item){
-    item.cartQty = Math.max(1, parseInt(qty) || 1);
+function updateCartDisplay(){
+  const cartBtn   = document.getElementById("cartBtn");
+  const cartCount = document.getElementById("cartCount");
+  if(SALES_CART.length > 0){
+    cartBtn.style.display = "flex";
+    cartCount.textContent = SALES_CART.length;
+    cartCount.style.display = "flex";
+  }else{
+    cartBtn.style.display = "none";
+    cartCount.style.display = "none";
   }
+}
+
   updateCartDisplay();
 }
 
@@ -2266,184 +2427,223 @@ function updateCartDisplay(){
 }
 
 function openCart(){
-  if(SALES_CART.length === 0){
-    showNotification("العربة فارغة!");
+  if(!SALES_CART || SALES_CART.length === 0){
+    showNotification("السلة فارغة!");
     return;
   }
-  
+
+  const existing = document.querySelector(".cart-overlay");
+  if(existing) existing.remove();
+
   const ov = document.createElement("div");
   ov.className = "cart-overlay";
-  
+
   let totalCost = 0;
   let totalNewPrice = 0;
-  
+
   SALES_CART.forEach(item => {
-    const cost = (Number(item.cost) || 0) * item.cartQty;
-    const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * item.cartQty;
+    const cost = (Number(item.cost) || 0) * Number(item.cartQty || 1);
+    const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * Number(item.cartQty || 1);
     totalCost += cost;
     totalNewPrice += newPrice;
   });
-  
-  const totalProfit = totalNewPrice - totalCost;
-  const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
-  const totalWithTax = totalNewPrice * 1.15;
-  
-  ov.innerHTML = `<div class="cart-card">
-    <div class="cart-header">
-      <span>🛒 عربة المبيعات</span>
-      <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
-    </div>
-    
-    <div class="cart-table-wrapper">
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th class="cart-table-header-num">#</th>
-            <th class="cart-table-header-part">الصنف</th>
-            <th class="cart-table-header-desc">الوصف</th>
-            <th class="cart-table-header-qty">الكمية</th>
-            <th class="cart-table-header-price">السعر</th>
-            <th class="cart-table-header-remove"></th>
-          </tr>
-        </thead>
-        <tbody id="cartTableBody">
-          ${SALES_CART.map((item, idx) => {
-            const cost = Number(item.cost) || 0;
-            const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
-            const profit = (newPrice - cost) * item.cartQty;
-            const profitPct = cost > 0 ? ((newPrice - cost) / cost) * 100 : 0;
-            const itemTotalCost = cost * item.cartQty;
-            const itemTotalPrice = newPrice * item.cartQty;
-            const itemTotalWithTax = newPrice * 1.15;
-            
-            return `
-            <tr class="cart-row" data-part="${item.part}" onclick="toggleDetailRow('${item.part}')">
-              <td class="cart-table-num">${idx + 1}</td>
-              <td class="cart-table-part">${item.part}</td>
-              <td class="cart-table-desc">${item.name}</td>
-              <td class="cart-table-qty-cell">
-                <input type="number" class="cart-table-qty-input" value="${item.cartQty}" 
-                       onchange="updateCartQty('${item.part}', this.value)" 
-                       onclick="event.stopPropagation()"
-                       min="1" max="999">
-              </td>
-              <td class="cart-table-price-cell">
-                <input type="number" class="cart-table-price-input" value="${newPrice.toFixed(2)}" 
-                       onchange="updateCartNewPrice('${item.part}', this.value)" 
-                       onclick="event.stopPropagation()"
-                       step="0.01" min="0">
-              </td>
-              <td style="text-align:center">
-                <button class="cart-item-remove" onclick="event.stopPropagation(); removeFromCart('${item.part}')">✕</button>
-              </td>
+
+  const totalProfit   = totalNewPrice - totalCost;
+  const profitPercent = totalCost > 0 ? (totalProfit / totalCost * 100) : 0;
+  const totalWithTax  = totalNewPrice * 1.15;
+
+  ov.innerHTML = `
+    <div class="cart-card">
+      <div class="cart-header">
+        <span>سلة المبيعات</span>
+        <span>${SALES_CART.length} صنف</span>
+        <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">&times;</button>
+      </div>
+
+      <div class="cart-table-wrapper">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th class="cart-table-header-num">#</th>
+              <th class="cart-table-header-part">الصنف</th>
+              <th class="cart-table-header-qty">الكمية</th>
+              <th class="cart-table-header-price">Price</th>
+              <th class="cart-table-header-remove">✕</th>
             </tr>
-            <tr class="cart-detail-row" id="detail-${item.part}">
-              <td colspan="6">
-                <div class="cart-detail-content">
-                  <div class="detail-info-grid">
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">التكلفة:</span>
-                      <span class="detail-info-value">${cost.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">الإجمالي (تكلفة):</span>
-                      <span class="detail-info-value">${itemTotalCost.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">السعر الجديد:</span>
-                      <span class="detail-info-value">${newPrice.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">الإجمالي (سعر):</span>
-                      <span class="detail-info-value">${itemTotalPrice.toFixed(2)}</span>
-                    </div>
+          </thead>
+          <tbody id="cartTableBody">
+            ${SALES_CART.map((item, idx) => {
+              const newPrice = Number(item.cartNewPrice || item.maxPrice || 0);
+              return `
+              <tr class="cart-row" data-part="${item.part}" onclick="selectCartRow('${item.part}')">
+                <td class="cart-table-num">${idx + 1}</td>
+                <td class="cart-table-part-cell">
+                  <div class="cart-part-code">${item.part}</div>
+                  <div class="cart-part-name">${item.name || ''}</div>
+                </td>
+                <td class="cart-table-qty-cell">
+                  <div class="cart-qty-counter" onclick="event.stopPropagation()">
+                    <button type="button" class="qty-btn" onclick="changeCartQty('${item.part}', -1)">-</button>
+                    <input type="number"
+                           class="cart-table-qty-input"
+                           value="${item.cartQty}"
+                           min="1" max="999"
+                           onchange="updateCartQty('${item.part}', this.value)">
+                    <button type="button" class="qty-btn" onclick="changeCartQty('${item.part}', 1)">+</button>
                   </div>
-                  
-                  <div class="detail-profit-section">
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">الربح الواحد:</span>
-                      <span class="detail-profit-value ${(newPrice - cost) >= 0 ? 'positive' : 'negative'}">${(newPrice - cost).toFixed(2)}</span>
-                    </div>
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">الربح الإجمالي:</span>
-                      <span class="detail-profit-value ${profit >= 0 ? 'positive' : 'negative'}">${profit.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">نسبة الربح:</span>
-                      <span class="detail-profit-value ${profitPct >= 0 ? 'positive' : 'negative'}">${profitPct.toFixed(1)}%</span>
-                    </div>
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">مع الضريبة 15%:</span>
-                      <span class="detail-profit-value">${itemTotalWithTax.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
+                </td>
+                <td class="cart-table-price-cell">
+                  <input type="number"
+                         class="cart-table-price-input"
+                         value="${newPrice.toFixed(2)}"
+                         step="0.01" min="0"
+                         oninput="updateCartNewPrice('${item.part}', this.value, true)"
+                         onclick="event.stopPropagation(); selectCartRow('${item.part}')">
+                </td>
+                <td style="text-align:center">
+                  <button class="cart-item-remove"
+                          onclick="event.stopPropagation(); removeFromCart('${item.part}')">
+                    ×
+                  </button>
+                </td>
+              </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="current-item-profit" id="currentItemProfit">
+        <div class="current-item-title">Item profit</div>
+        <div class="current-item-values">
+          <span id="currentItemCost">Cost: 0.00</span>
+          <span id="currentItemProfitValue">Profit: 0.00</span>
+          <span id="currentItemProfitPercent">0.00%</span>
+        </div>
+      </div>
+
+      <div class="cart-totals">
+        <div class="total-row">
+          <span>إجمالي التكلفة</span>
+          <span>${totalCost.toFixed(2)}</span>
+        </div>
+        <div class="total-row">
+          <span>إجمالي البيع</span>
+          <span style="color: var(--primary); font-weight: 700; direction: ltr;">
+            ${totalNewPrice.toFixed(2)}
+          </span>
+        </div>
+        <div class="total-row">
+          <span>إجمالي الربح</span>
+          <span style="color: ${totalProfit >= 0 ? '#16a34a' : '#dc2626'}; font-weight:700; direction:ltr;">
+            ${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)
+          </span>
+        </div>
+        <div class="total-row">
+          <span>الإجمالي مع الضريبة 15%</span>
+          <span style="color: var(--primary); font-weight:700; direction:ltr;">
+            ${totalWithTax.toFixed(2)}
+          </span>
+        </div>
+      </div>
+
+      <div class="cart-actions">
+        <button class="cart-clear-btn"
+                onclick="SALES_CART = []; updateCartDisplay(); this.closest('.cart-overlay').remove(); runSearchSales()">
+          تفريغ السلة
+        </button>
+        <button class="cart-checkout-btn"
+                onclick="alert('الربح: ${totalProfit.toFixed(2)}\\nالإجمالي مع الضريبة: ${totalWithTax.toFixed(2)}')">
+          إتمام البيع
+        </button>
+      </div>
     </div>
-    
-    <div class="cart-totals">
-      <div class="total-row">
-        <span>إجمالي التكلفة:</span>
-        <span>${totalCost.toFixed(2)}</span>
-      </div>
-      <div class="total-row">
-        <span>إجمالي السعر الجديد:</span>
-        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
-      </div>
-      <div class="total-row">
-        <span>إجمالي الربح:</span>
-        <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)</span>
-      </div>
-      <div class="total-row">
-        <span>مع الضريبة 15%:</span>
-        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
-      </div>
-    </div>
-    
-    <div class="cart-actions">
-      <button class="cart-clear-btn" onclick="SALES_CART=[];updateCartDisplay();this.closest('.cart-overlay').remove();runSearchSales()">مسح العربة</button>
-      <button class="cart-checkout-btn" onclick="alert('✓ تم تسجيل العملية!\\n\\nإجمالي الربح: ${totalProfit.toFixed(2)}\\nمع الضريبة: ${totalWithTax.toFixed(2)}')">✓ إنهاء</button>
-    </div>
-  </div>`;
-  
+  `;
+
   document.body.appendChild(ov);
 }
 
-function toggleDetailRow(part){
-  const detailRow = document.getElementById('detail-' + part);
-  const cartRow = document.querySelector(`[data-part="${part}"]`);
-  
-  // إغلاق جميع الصفوف الأخرى
-  document.querySelectorAll('.cart-row').forEach(row => {
-    if(row.dataset.part !== part){
-      row.classList.remove('expanded');
-      const otherDetail = document.getElementById('detail-' + row.dataset.part);
-      if(otherDetail) otherDetail.style.display = 'none';
-    }
+/* لم نعد نحتاج toggleDetailRow لأن ما في صف تفاصيل تحت كل صنف */
+function selectCartRow(part){
+  document.querySelectorAll(".cart-row").forEach(row => {
+    row.classList.remove("selected");
   });
-  
-  // تبديل الصف الحالي
-  if(detailRow){
-    const isExpanded = cartRow.classList.contains('expanded');
-    if(isExpanded){
-      cartRow.classList.remove('expanded');
-      detailRow.style.display = 'none';
-    } else {
-      cartRow.classList.add('expanded');
-      detailRow.style.display = 'table-row';
-    }
+  const row = document.querySelector(`.cart-row[data-part="${part}"]`);
+  if(row){
+    row.classList.add("selected");
   }
+  updateCurrentItemProfit(part);
 }
 
+function updateCurrentItemProfit(part){
+  const item = SALES_CART.find(c => c.part === part);
+  if(!item) return;
+
+  const cost = Number(item.cost || 0);
+  const qty  = Number(item.cartQty || 1);
+
+  const priceInput = document.querySelector(
+    `.cart-row[data-part="${part}"] .cart-table-price-input`
+  );
+  const livePrice = priceInput
+    ? parseFloat(priceInput.value || 0)
+    : (item.cartNewPrice || item.maxPrice || 0);
+
+  const profitPerUnit = livePrice - cost;
+  const totalProfit   = profitPerUnit * qty;
+  const profitPercent = cost > 0 ? (profitPerUnit / cost * 100) : 0;
+
+  const box   = document.getElementById("currentItemProfit");
+  const costEl= document.getElementById("currentItemCost");
+  const valEl = document.getElementById("currentItemProfitValue");
+  const pctEl = document.getElementById("currentItemProfitPercent");
+
+  if(!box || !costEl || !valEl || !pctEl) return;
+
+  box.style.display = "block";
+  costEl.textContent = "Cost: " + cost.toFixed(2);
+  valEl.textContent  = "Profit: " + totalProfit.toFixed(2);
+  pctEl.textContent  = profitPercent.toFixed(1) + "%";
+}
+
+function changeCartQty(part, diff){
+  const item = SALES_CART.find(c => c.part === part);
+  if(!item) return;
+  const newQty = Math.max(1, (parseInt(item.cartQty || 1, 10) + diff));
+  item.cartQty = newQty;
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  openCart();
+}
+
+function updateCartQty(part, qty){
+  const item = SALES_CART.find(c => c.part === part);
+  if(!item) return;
+  const val = Math.max(1, parseInt(qty || 1, 10));
+  item.cartQty = val;
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  openCart();
+}
+
+/* live = true يعني تحديث الربح فقط بدون إعادة رسم */
+function updateCartNewPrice(part, newPrice, live = false){
+  const item = SALES_CART.find(c => c.part === part);
+  if(!item) return;
+  item.cartNewPrice = Math.max(0, parseFloat(newPrice || 0));
+  updateCurrentItemProfit(part);
+  if(!live){
+    const overlay = document.querySelector(".cart-overlay");
+    if(overlay) overlay.remove();
+    openCart();
+  }
+}
 function logoutUser(){
-  localStorage.clear();
+  try {
+    localStorage.clear();
+  } catch(e){}
   if (AUTO_REFRESH) clearInterval(AUTO_REFRESH);
-  if(loadingInterval) clearInterval(loadingInterval);
+  if (loadingInterval) clearInterval(loadingInterval);
   location.reload();
 }
 </script>
