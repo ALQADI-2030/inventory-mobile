@@ -1117,13 +1117,13 @@ input, textarea, button{
   font-weight:700;
 }
 
-/* Active Item Profit Panel */
+/* Active Item Profit Panel - Compact Version */
 .active-item-panel{
-  padding:10px;
+  padding:8px;
   background:#eff6ff;
-  border-radius:10px;
+  border-radius:8px;
   border:2px solid #2563eb;
-  margin-bottom:10px;
+  margin-bottom:8px;
   display:none;
 }
 
@@ -1131,38 +1131,52 @@ input, textarea, button{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 
 .active-item-panel-header strong{
   color:#2563eb;
+  font-size:13px;
 }
 
 .active-item-panel-badge{
   font-size:11px;
   background:#2563eb;
   color:white;
-  padding:2px 8px;
-  border-radius:10px;
+  padding:2px 6px;
+  border-radius:8px;
 }
 
-.active-item-panel-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
+.active-item-panel-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:white;
+  padding:6px 8px;
+  border-radius:6px;
   font-size:12px;
 }
 
-.active-item-panel-cell{
-  background:white;
-  padding:6px;
-  border-radius:6px;
+.active-item-panel-label{
+  color:#6b7280;
+  font-weight:600;
 }
 
-.active-item-panel-footer{
-  margin-top:8px;
-  padding-top:8px;
-  border-top:1px dashed #94a3b8;
+.active-item-panel-value{
+  font-weight:700;
+  direction:ltr;
+}
+
+.active-item-panel-profit{
+  color:#16a34a;
+  font-weight:700;
+  direction:ltr;
+}
+
+.active-item-panel-loss{
+  color:#dc2626;
+  font-weight:700;
+  direction:ltr;
 }
 </style>
 </head>
@@ -1886,10 +1900,14 @@ function renderSales(data){
     const btnText = inCart ? "✓ في العربة" : "➕ أضف";
     const btnDisabled = inCart ? "disabled" : "";
     const btnBg = inCart ? "#16a34a" : "#2563eb";
+    
+    // إضافة الموقع هنا
+    const locationText = r.location ? ` | <span>الموقع: ${r.location}</span>` : '';
+    
     return `<div class="item sales-item">
       <div class="part-row"><div class="part ${availCls}">${r.part}</div><div class="location"><b>الفرع:</b> ${r.branch || ""}</div></div>
       <div class="name">${r.name}</div>
-      <div class="meta"><span>الكمية: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span></div>
+      <div class="meta"><span>الكمية: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span>${locationText}</div>
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px">
         <button onclick='addToCart(${JSON.stringify(r)})' ${btnDisabled} style="border:none;background:${btnBg};color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;opacity:${inCart ? 0.6 : 1}">${btnText}</button>
         <button onclick='openSalesDetail(${JSON.stringify(r)})' style="border:none;background:#7c3aed;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px">📋 تفصيل</button>
@@ -1960,6 +1978,11 @@ function openSalesDetail(item){
     <div class="info-row">
       <span class="info-label">الفرع:</span>
       <span class="info-value">${item.branch || "---"}</span>
+    </div>
+    
+    <div class="info-row">
+      <span class="info-label">الموقع:</span>
+      <span class="info-value">${item.location || "---"}</span>
     </div>
     
     <div class="info-row">
@@ -2276,7 +2299,7 @@ function selectCartItem(part){
 }
 
 function calculateItemProfit(item){
-  if(!item) return { cost: 0, newPrice: 0, profit: 0, profitPercent: 0, totalWithTax: 0 };
+  if(!item) return { cost: 0, newPrice: 0, profit: 0 };
   
   const cost = Number(item.cost) || 0;
   const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
@@ -2285,9 +2308,6 @@ function calculateItemProfit(item){
   const totalCost = cost * qty;
   const totalPrice = newPrice * qty;
   const profit = totalPrice - totalCost;
-  const profitPercent = totalCost > 0 ? (profit / totalCost) * 100 : 0;
-  const priceWithTax = newPrice * 1.15;
-  const totalWithTax = priceWithTax * qty;
   
   return {
     cost: cost,
@@ -2295,10 +2315,7 @@ function calculateItemProfit(item){
     qty: qty,
     totalCost: totalCost,
     totalPrice: totalPrice,
-    profit: profit,
-    profitPercent: profitPercent,
-    priceWithTax: priceWithTax,
-    totalWithTax: totalWithTax
+    profit: profit
   };
 }
 
@@ -2321,44 +2338,18 @@ function updateProfitPanel(){
   profitPanel.style.display = 'block';
   
   profitPanel.innerHTML = `
-    <div style="padding:10px;background:#eff6ff;border-radius:10px;border:2px solid #2563eb;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong style="color:#2563eb">🧮 حساب الأرباح للصنف المحدد</strong>
-        <span style="font-size:11px;background:#2563eb;color:white;padding:2px 8px;border-radius:10px">${activeItem.part}</span>
+    <div class="active-item-panel">
+      <div class="active-item-panel-header">
+        <strong>🧮 حساب الأرباح</strong>
+        <span class="active-item-panel-badge">${activeItem.part}</span>
       </div>
-      
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">التكلفة:</span>
-          <br><strong style="direction:ltr">${profitData.cost.toFixed(2)}</strong>
-        </div>
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">السعر الجديد:</span>
-          <br><strong style="direction:ltr">${profitData.newPrice.toFixed(2)}</strong>
-        </div>
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">الربح للواحد:</span>
-          <br><strong style="color:${profitData.profit >= 0 ? '#16a34a' : '#dc2626'};direction:ltr">
-            ${(profitData.newPrice - profitData.cost).toFixed(2)}
-          </strong>
-        </div>
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">نسبة الربح:</span>
-          <br><strong style="color:${profitData.profitPercent >= 0 ? '#16a34a' : '#dc2626'};direction:ltr">
-            ${profitData.profitPercent.toFixed(1)}%
-          </strong>
-        </div>
+      <div class="active-item-panel-row">
+        <span class="active-item-panel-label">التكلفة:</span>
+        <span class="active-item-panel-value">${profitData.cost.toFixed(2)}</span>
       </div>
-      
-      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #94a3b8">
-        <div style="display:flex;justify-content:space-between;font-size:12px">
-          <span>الإجمالي (${profitData.qty} قطعة):</span>
-          <strong style="direction:ltr">${profitData.totalPrice.toFixed(2)}</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px">
-          <span>مع الضريبة 15%:</span>
-          <strong style="color:#7c3aed;direction:ltr">${profitData.totalWithTax.toFixed(2)}</strong>
-        </div>
+      <div class="active-item-panel-row">
+        <span class="active-item-panel-label">الربح (إجمالي):</span>
+        <span class="${profitData.profit >= 0 ? 'active-item-panel-profit' : 'active-item-panel-loss'}">${profitData.profit.toFixed(2)}</span>
       </div>
     </div>
   `;
@@ -2424,7 +2415,7 @@ function openCart(){
       <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
     </div>
     
-    <div id="activeItemProfitPanel" style="display:none;"></div>
+    <div id="activeItemProfitPanel" class="active-item-panel" style="display:none;"></div>
     
     <div class="cart-table-wrapper">
       <table class="cart-table">
