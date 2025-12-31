@@ -1155,6 +1155,11 @@ input, textarea, button{
   padding:6px 8px;
   border-radius:6px;
   font-size:12px;
+  margin-bottom:4px;
+}
+
+.active-item-panel-row:last-child{
+  margin-bottom:0;
 }
 
 .active-item-panel-label{
@@ -2233,15 +2238,11 @@ function updateCartQty(part, qty){
   const item = SALES_CART.find(c => c.part === part);
   if(item){
     item.cartQty = Math.max(1, parseInt(qty) || 1);
-    updateCartDisplay();
     
     // تحديث لوحة الأرباح إذا كان العنصر نشطًا
     if(ACTIVE_CART_ITEM === part){
-      const overlay = document.querySelector(".cart-overlay");
-      if(overlay){
-        updateProfitPanel();
-        updateTotals();
-      }
+      updateProfitPanel();
+      updateTotals();
     }
   }
 }
@@ -2253,11 +2254,8 @@ function updateCartNewPrice(part, newPrice){
     
     // تحديث فوري للأرباح
     if(ACTIVE_CART_ITEM === part){
-      const overlay = document.querySelector(".cart-overlay");
-      if(overlay){
-        updateProfitPanel();
-        updateTotals();
-      }
+      updateProfitPanel();
+      updateTotals();
     }
   }
 }
@@ -2335,24 +2333,25 @@ function updateProfitPanel(){
   const profitData = calculateItemProfit(activeItem);
   
   const profitPanel = document.getElementById('activeItemProfitPanel');
-  profitPanel.style.display = 'block';
-  
-  profitPanel.innerHTML = `
-    <div class="active-item-panel">
-      <div class="active-item-panel-header">
-        <strong>🧮 حساب الأرباح</strong>
-        <span class="active-item-panel-badge">${activeItem.part}</span>
+  if(profitPanel){
+    profitPanel.style.display = 'block';
+    profitPanel.innerHTML = `
+      <div class="active-item-panel">
+        <div class="active-item-panel-header">
+          <strong>🧮 حساب الأرباح</strong>
+          <span class="active-item-panel-badge">${activeItem.part}</span>
+        </div>
+        <div class="active-item-panel-row">
+          <span class="active-item-panel-label">التكلفة:</span>
+          <span class="active-item-panel-value">${profitData.cost.toFixed(2)}</span>
+        </div>
+        <div class="active-item-panel-row">
+          <span class="active-item-panel-label">الربح (إجمالي):</span>
+          <span class="${profitData.profit >= 0 ? 'active-item-panel-profit' : 'active-item-panel-loss'}">${profitData.profit.toFixed(2)}</span>
+        </div>
       </div>
-      <div class="active-item-panel-row">
-        <span class="active-item-panel-label">التكلفة:</span>
-        <span class="active-item-panel-value">${profitData.cost.toFixed(2)}</span>
-      </div>
-      <div class="active-item-panel-row">
-        <span class="active-item-panel-label">الربح (إجمالي):</span>
-        <span class="${profitData.profit >= 0 ? 'active-item-panel-profit' : 'active-item-panel-loss'}">${profitData.profit.toFixed(2)}</span>
-      </div>
-    </div>
-  `;
+    `;
+  }
 }
 
 function updateTotals(){
