@@ -914,6 +914,7 @@ input, textarea, button{
   flex:1;
   overflow-y:auto;
   margin-bottom:12px;
+  max-height:45vh;
 }
 
 .cart-table{
@@ -953,18 +954,18 @@ input, textarea, button{
 .cart-table tbody tr{
   border-bottom:1px solid var(--border);
   position:relative;
+  cursor:pointer;
+  transition:background-color 0.2s ease;
 }
 
-.cart-table tbody tr.expanded{
-  background:#f9fafb;
+.cart-table tbody tr:hover{
+  background-color:#f1f5f9;
 }
 
-.cart-table tbody tr.expanded + tr.cart-detail-row{
-  display:table-row;
-}
-
-.cart-table tbody tr.cart-detail-row{
-  display:none;
+.cart-table tbody tr.active{
+  background-color:#e0f2fe !important;
+  border-left:4px solid #2563eb !important;
+  box-shadow:inset 0 0 0 1px #93c5fd;
 }
 
 .cart-table td{
@@ -1003,6 +1004,13 @@ input, textarea, button{
   border:1px solid var(--border);
   border-radius:4px;
   font-size:11px;
+  -moz-appearance:textfield;
+}
+
+.cart-table-qty-input::-webkit-inner-spin-button,
+.cart-table-qty-input::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
 }
 
 .cart-table-price-input{
@@ -1012,102 +1020,13 @@ input, textarea, button{
   border:1px solid var(--border);
   border-radius:4px;
   font-size:11px;
+  -moz-appearance:textfield;
 }
 
-.cart-detail-row td{
-  padding:0;
-  border:none;
-}
-
-.cart-detail-content{
-  padding:8px;
-  background:#ffffff;
-  border-bottom:2px solid var(--border);
-}
-
-.detail-info-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-bottom:10px;
-  font-size:11px;
-}
-
-.detail-info-item{
-  display:flex;
-  justify-content:space-between;
-  padding:4px;
-  background:#f9fafb;
-  border-radius:4px;
-}
-
-.detail-info-label{
-  color:var(--muted);
-  font-weight:600;
-}
-
-.detail-info-value{
-  color:var(--text);
-  font-weight:700;
-}
-
-.detail-profit-section{
-  padding:8px;
-  background:#eff6ff;
-  border-radius:6px;
-  border:1px solid rgba(37,99,235,0.2);
-  margin-top:8px;
-}
-
-.detail-profit-row{
-  display:flex;
-  justify-content:space-between;
-  padding:4px 0;
-  font-size:11px;
-  border-bottom:1px solid rgba(37,99,235,0.15);
-}
-
-.detail-profit-row:last-child{
-  border-bottom:none;
-  font-weight:700;
-  color:var(--primary);
-}
-
-.detail-profit-label{
-  color:var(--muted);
-}
-
-.detail-profit-value{
-  font-weight:700;
-  direction:ltr;
-}
-
-.detail-profit-value.positive{
-  color:#16a34a;
-}
-
-.detail-profit-value.negative{
-  color:#dc2626;
-}
-
-.cart-item-remove{
-  border:none;
-  background:#dc2626;
-  color:#fff;
-  padding:4px;
-  border-radius:4px;
-  cursor:pointer;
-  font-size:10px;
-  width:28px;
-  height:28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:background .12s ease;
-}
-
-.cart-item-remove:hover{
-  background:#b91c1c;
+.cart-table-price-input::-webkit-inner-spin-button,
+.cart-table-price-input::-webkit-outer-spin-button{
+  -webkit-appearance:none;
+  margin:0;
 }
 
 .cart-empty{
@@ -1196,6 +1115,54 @@ input, textarea, button{
   justify-content:center;
   font-size:12px;
   font-weight:700;
+}
+
+/* Active Item Profit Panel */
+.active-item-panel{
+  padding:10px;
+  background:#eff6ff;
+  border-radius:10px;
+  border:2px solid #2563eb;
+  margin-bottom:10px;
+  display:none;
+}
+
+.active-item-panel-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+.active-item-panel-header strong{
+  color:#2563eb;
+}
+
+.active-item-panel-badge{
+  font-size:11px;
+  background:#2563eb;
+  color:white;
+  padding:2px 8px;
+  border-radius:10px;
+}
+
+.active-item-panel-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  font-size:12px;
+}
+
+.active-item-panel-cell{
+  background:white;
+  padding:6px;
+  border-radius:6px;
+}
+
+.active-item-panel-footer{
+  margin-top:8px;
+  padding-top:8px;
+  border-top:1px dashed #94a3b8;
 }
 </style>
 </head>
@@ -1382,6 +1349,7 @@ let LAST_SYNC_TIME = 0;
 let SYNC_INTERVAL = 30000; // 30 ثانية
 let JUST_UPDATED = false;
 let SALES_CART = [];
+let ACTIVE_CART_ITEM = null;
 
 // استرجاع الجلسة
 window.addEventListener("load", () => {
@@ -2216,10 +2184,13 @@ function stopScan(){
 function addToCart(item){
   const existing = SALES_CART.find(c => c.part === item.part);
   if(!existing){
-    SALES_CART.push({
+    const newItem = {
       ...item,
-      cartQty: 1
-    });
+      cartQty: 1,
+      cartNewPrice: Number(item.maxPrice) || 0,
+      isActive: false
+    };
+    SALES_CART.push(newItem);
     showNotification("✓ تم إضافة الصنف للعربة");
     updateCartDisplay();
     runSearchSales();
@@ -2227,6 +2198,9 @@ function addToCart(item){
 }
 
 function removeFromCart(part){
+  if(ACTIVE_CART_ITEM === part){
+    ACTIVE_CART_ITEM = null;
+  }
   SALES_CART = SALES_CART.filter(c => c.part !== part);
   updateCartDisplay();
   runSearchSales();
@@ -2236,19 +2210,33 @@ function updateCartQty(part, qty){
   const item = SALES_CART.find(c => c.part === part);
   if(item){
     item.cartQty = Math.max(1, parseInt(qty) || 1);
+    updateCartDisplay();
+    
+    // تحديث لوحة الأرباح إذا كان العنصر نشطًا
+    if(ACTIVE_CART_ITEM === part){
+      const overlay = document.querySelector(".cart-overlay");
+      if(overlay){
+        updateProfitPanel();
+        updateTotals();
+      }
+    }
   }
-  updateCartDisplay();
 }
 
 function updateCartNewPrice(part, newPrice){
   const item = SALES_CART.find(c => c.part === part);
   if(item){
     item.cartNewPrice = Math.max(0, parseFloat(newPrice) || Number(item.maxPrice) || 0);
+    
+    // تحديث فوري للأرباح
+    if(ACTIVE_CART_ITEM === part){
+      const overlay = document.querySelector(".cart-overlay");
+      if(overlay){
+        updateProfitPanel();
+        updateTotals();
+      }
+    }
   }
-  // إعادة فتح العربة لتحديث الحسابات
-  const cartOverlay = document.querySelector(".cart-overlay");
-  if(cartOverlay) cartOverlay.remove();
-  openCart();
 }
 
 function updateCartDisplay(){
@@ -2265,34 +2253,178 @@ function updateCartDisplay(){
   }
 }
 
-function openCart(){
-  if(SALES_CART.length === 0){
-    showNotification("العربة فارغة!");
+function selectCartItem(part){
+  // إلغاء تفعيل جميع العناصر الأخرى
+  SALES_CART.forEach(item => {
+    item.isActive = (item.part === part);
+  });
+  
+  ACTIVE_CART_ITEM = part;
+  
+  // تحديث عرض الجدول
+  const cartRows = document.querySelectorAll('.cart-row');
+  cartRows.forEach(row => {
+    if(row.dataset.part === part){
+      row.classList.add('active');
+    } else {
+      row.classList.remove('active');
+    }
+  });
+  
+  // تحديث لوحة الأرباح
+  updateProfitPanel();
+}
+
+function calculateItemProfit(item){
+  if(!item) return { cost: 0, newPrice: 0, profit: 0, profitPercent: 0, totalWithTax: 0 };
+  
+  const cost = Number(item.cost) || 0;
+  const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
+  const qty = Number(item.cartQty) || 1;
+  
+  const totalCost = cost * qty;
+  const totalPrice = newPrice * qty;
+  const profit = totalPrice - totalCost;
+  const profitPercent = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+  const priceWithTax = newPrice * 1.15;
+  const totalWithTax = priceWithTax * qty;
+  
+  return {
+    cost: cost,
+    newPrice: newPrice,
+    qty: qty,
+    totalCost: totalCost,
+    totalPrice: totalPrice,
+    profit: profit,
+    profitPercent: profitPercent,
+    priceWithTax: priceWithTax,
+    totalWithTax: totalWithTax
+  };
+}
+
+function updateProfitPanel(){
+  if(!ACTIVE_CART_ITEM){
+    // إذا لم يكن هناك عنصر نشط، إخفاء اللوحة
+    const profitPanel = document.getElementById('activeItemProfitPanel');
+    if(profitPanel){
+      profitPanel.style.display = 'none';
+    }
     return;
   }
   
-  const ov = document.createElement("div");
-  ov.className = "cart-overlay";
+  const activeItem = SALES_CART.find(c => c.part === ACTIVE_CART_ITEM);
+  if(!activeItem) return;
   
+  const profitData = calculateItemProfit(activeItem);
+  
+  const profitPanel = document.getElementById('activeItemProfitPanel');
+  profitPanel.style.display = 'block';
+  
+  profitPanel.innerHTML = `
+    <div style="padding:10px;background:#eff6ff;border-radius:10px;border:2px solid #2563eb;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong style="color:#2563eb">🧮 حساب الأرباح للصنف المحدد</strong>
+        <span style="font-size:11px;background:#2563eb;color:white;padding:2px 8px;border-radius:10px">${activeItem.part}</span>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
+        <div style="background:white;padding:6px;border-radius:6px">
+          <span style="color:#6b7280">التكلفة:</span>
+          <br><strong style="direction:ltr">${profitData.cost.toFixed(2)}</strong>
+        </div>
+        <div style="background:white;padding:6px;border-radius:6px">
+          <span style="color:#6b7280">السعر الجديد:</span>
+          <br><strong style="direction:ltr">${profitData.newPrice.toFixed(2)}</strong>
+        </div>
+        <div style="background:white;padding:6px;border-radius:6px">
+          <span style="color:#6b7280">الربح للواحد:</span>
+          <br><strong style="color:${profitData.profit >= 0 ? '#16a34a' : '#dc2626'};direction:ltr">
+            ${(profitData.newPrice - profitData.cost).toFixed(2)}
+          </strong>
+        </div>
+        <div style="background:white;padding:6px;border-radius:6px">
+          <span style="color:#6b7280">نسبة الربح:</span>
+          <br><strong style="color:${profitData.profitPercent >= 0 ? '#16a34a' : '#dc2626'};direction:ltr">
+            ${profitData.profitPercent.toFixed(1)}%
+          </strong>
+        </div>
+      </div>
+      
+      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #94a3b8">
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span>الإجمالي (${profitData.qty} قطعة):</span>
+          <strong style="direction:ltr">${profitData.totalPrice.toFixed(2)}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px">
+          <span>مع الضريبة 15%:</span>
+          <strong style="color:#7c3aed;direction:ltr">${profitData.totalWithTax.toFixed(2)}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function updateTotals(){
   let totalCost = 0;
   let totalNewPrice = 0;
+  let totalProfit = 0;
   
   SALES_CART.forEach(item => {
     const cost = (Number(item.cost) || 0) * item.cartQty;
     const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * item.cartQty;
     totalCost += cost;
     totalNewPrice += newPrice;
+    totalProfit += (newPrice - cost);
   });
   
-  const totalProfit = totalNewPrice - totalCost;
   const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
   const totalWithTax = totalNewPrice * 1.15;
+  
+  const totalsElement = document.querySelector('.cart-totals');
+  if(totalsElement){
+    totalsElement.innerHTML = `
+      <div class="total-row">
+        <span>إجمالي التكلفة:</span>
+        <span>${totalCost.toFixed(2)}</span>
+      </div>
+      <div class="total-row">
+        <span>إجمالي السعر الجديد:</span>
+        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
+      </div>
+      <div class="total-row">
+        <span>إجمالي الربح:</span>
+        <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">
+          ${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)
+        </span>
+      </div>
+      <div class="total-row">
+        <span>مع الضريبة 15%:</span>
+        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
+      </div>
+    `;
+  }
+}
+
+function openCart(){
+  if(SALES_CART.length === 0){
+    showNotification("العربة فارغة!");
+    return;
+  }
+  
+  // إعادة تعيين العنصر النشط
+  ACTIVE_CART_ITEM = null;
+  SALES_CART.forEach(item => item.isActive = false);
+  
+  const ov = document.createElement("div");
+  ov.className = "cart-overlay";
   
   ov.innerHTML = `<div class="cart-card">
     <div class="cart-header">
       <span>🛒 عربة المبيعات</span>
       <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
     </div>
+    
+    <div id="activeItemProfitPanel" style="display:none;"></div>
     
     <div class="cart-table-wrapper">
       <table class="cart-table">
@@ -2308,76 +2440,25 @@ function openCart(){
         </thead>
         <tbody id="cartTableBody">
           ${SALES_CART.map((item, idx) => {
-            const cost = Number(item.cost) || 0;
-            const newPrice = Number(item.cartNewPrice) || Number(item.maxPrice) || 0;
-            const profit = (newPrice - cost) * item.cartQty;
-            const profitPct = cost > 0 ? ((newPrice - cost) / cost) * 100 : 0;
-            const itemTotalCost = cost * item.cartQty;
-            const itemTotalPrice = newPrice * item.cartQty;
-            const itemTotalWithTax = newPrice * 1.15;
-            
             return `
-            <tr class="cart-row" data-part="${item.part}" onclick="toggleDetailRow('${item.part}')">
+            <tr class="cart-row" data-part="${item.part}" onclick="selectCartItem('${item.part}'); event.stopPropagation()">
               <td class="cart-table-num">${idx + 1}</td>
               <td class="cart-table-part">${item.part}</td>
               <td class="cart-table-desc">${item.name}</td>
               <td class="cart-table-qty-cell">
                 <input type="number" class="cart-table-qty-input" value="${item.cartQty}" 
-                       onchange="updateCartQty('${item.part}', this.value)" 
+                       oninput="updateCartQty('${item.part}', this.value)" 
                        onclick="event.stopPropagation()"
                        min="1" max="999">
               </td>
               <td class="cart-table-price-cell">
-                <input type="number" class="cart-table-price-input" value="${newPrice.toFixed(2)}" 
-                       onchange="updateCartNewPrice('${item.part}', this.value)" 
+                <input type="number" class="cart-table-price-input" value="${(item.cartNewPrice || item.maxPrice || 0).toFixed(2)}" 
+                       oninput="updateCartNewPrice('${item.part}', this.value)" 
                        onclick="event.stopPropagation()"
                        step="0.01" min="0">
               </td>
               <td style="text-align:center">
                 <button class="cart-item-remove" onclick="event.stopPropagation(); removeFromCart('${item.part}')">✕</button>
-              </td>
-            </tr>
-            <tr class="cart-detail-row" id="detail-${item.part}">
-              <td colspan="6">
-                <div class="cart-detail-content">
-                  <div class="detail-info-grid">
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">التكلفة:</span>
-                      <span class="detail-info-value">${cost.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">الإجمالي (تكلفة):</span>
-                      <span class="detail-info-value">${itemTotalCost.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">السعر الجديد:</span>
-                      <span class="detail-info-value">${newPrice.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-info-item">
-                      <span class="detail-info-label">الإجمالي (سعر):</span>
-                      <span class="detail-info-value">${itemTotalPrice.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  
-                  <div class="detail-profit-section">
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">الربح الواحد:</span>
-                      <span class="detail-profit-value ${(newPrice - cost) >= 0 ? 'positive' : 'negative'}">${(newPrice - cost).toFixed(2)}</span>
-                    </div>
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">الربح الإجمالي:</span>
-                      <span class="detail-profit-value ${profit >= 0 ? 'positive' : 'negative'}">${profit.toFixed(2)}</span>
-                    </div>
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">نسبة الربح:</span>
-                      <span class="detail-profit-value ${profitPct >= 0 ? 'positive' : 'negative'}">${profitPct.toFixed(1)}%</span>
-                    </div>
-                    <div class="detail-profit-row">
-                      <span class="detail-profit-label">مع الضريبة 15%:</span>
-                      <span class="detail-profit-value">${itemTotalWithTax.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
               </td>
             </tr>
             `;
@@ -2387,57 +2468,69 @@ function openCart(){
     </div>
     
     <div class="cart-totals">
-      <div class="total-row">
-        <span>إجمالي التكلفة:</span>
-        <span>${totalCost.toFixed(2)}</span>
-      </div>
-      <div class="total-row">
-        <span>إجمالي السعر الجديد:</span>
-        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
-      </div>
-      <div class="total-row">
-        <span>إجمالي الربح:</span>
-        <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)</span>
-      </div>
-      <div class="total-row">
-        <span>مع الضريبة 15%:</span>
-        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
-      </div>
+      <!-- سيتم ملؤه بواسطة updateTotals -->
     </div>
     
     <div class="cart-actions">
-      <button class="cart-clear-btn" onclick="SALES_CART=[];updateCartDisplay();this.closest('.cart-overlay').remove();runSearchSales()">مسح العربة</button>
-      <button class="cart-checkout-btn" onclick="alert('✓ تم تسجيل العملية!\\n\\nإجمالي الربح: ${totalProfit.toFixed(2)}\\nمع الضريبة: ${totalWithTax.toFixed(2)}')">✓ إنهاء</button>
+      <button class="cart-clear-btn" onclick="clearCart()">مسح العربة</button>
+      <button class="cart-checkout-btn" onclick="checkoutCart()">✓ إنهاء</button>
     </div>
   </div>`;
   
   document.body.appendChild(ov);
+  
+  // حساب الإجماليات الأولية
+  updateTotals();
+  
+  // تعيين أول عنصر كنشط افتراضيًا
+  if(SALES_CART.length > 0 && !ACTIVE_CART_ITEM){
+    setTimeout(() => {
+      selectCartItem(SALES_CART[0].part);
+    }, 100);
+  }
 }
 
-function toggleDetailRow(part){
-  const detailRow = document.getElementById('detail-' + part);
-  const cartRow = document.querySelector(`[data-part="${part}"]`);
+function clearCart(){
+  SALES_CART = [];
+  ACTIVE_CART_ITEM = null;
+  updateCartDisplay();
   
-  // إغلاق جميع الصفوف الأخرى
-  document.querySelectorAll('.cart-row').forEach(row => {
-    if(row.dataset.part !== part){
-      row.classList.remove('expanded');
-      const otherDetail = document.getElementById('detail-' + row.dataset.part);
-      if(otherDetail) otherDetail.style.display = 'none';
-    }
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  
+  runSearchSales();
+  showNotification("تم مسح العربة");
+}
+
+function checkoutCart(){
+  let totalCost = 0;
+  let totalNewPrice = 0;
+  let totalProfit = 0;
+  
+  SALES_CART.forEach(item => {
+    const cost = (Number(item.cost) || 0) * item.cartQty;
+    const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * item.cartQty;
+    totalCost += cost;
+    totalNewPrice += newPrice;
+    totalProfit += (newPrice - cost);
   });
   
-  // تبديل الصف الحالي
-  if(detailRow){
-    const isExpanded = cartRow.classList.contains('expanded');
-    if(isExpanded){
-      cartRow.classList.remove('expanded');
-      detailRow.style.display = 'none';
-    } else {
-      cartRow.classList.add('expanded');
-      detailRow.style.display = 'table-row';
-    }
-  }
+  const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
+  const totalWithTax = totalNewPrice * 1.15;
+  
+  const message = `✓ تم تسجيل العملية بنجاح!
+
+  • إجمالي التكلفة: ${totalCost.toFixed(2)}
+  • إجمالي السعر: ${totalNewPrice.toFixed(2)}
+  • إجمالي الربح: ${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)
+  • شامل الضريبة 15%: ${totalWithTax.toFixed(2)}
+
+  سيتم إرسال الفاتورة للبائع.`;
+  
+  alert(message);
+  
+  // مسح العربة بعد الإنهاء
+  clearCart();
 }
 
 function logoutUser(){
@@ -2445,6 +2538,11 @@ function logoutUser(){
   if (AUTO_REFRESH) clearInterval(AUTO_REFRESH);
   if(loadingInterval) clearInterval(loadingInterval);
   location.reload();
+}
+
+// دالة مساعدة لتطبيع الباركود (إن وجدت)
+function normalizeBarcode(text) {
+  return cleanBarcode(text);
 }
 </script>
 
