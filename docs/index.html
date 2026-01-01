@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>شركة القاضي</title>
+<title>شركة القاضي</title>function updateProfitPanel
 
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -2302,193 +2302,27 @@ function calculateItemProfit(item){
   };
 }
 
-function updateProfitPanel(){
-  if(!ACTIVE_CART_ITEM){
-    // إذا لم يكن هناك عنصر نشط، إخفاء اللوحة
-    const profitPanel = document.getElementById('activeItemProfitPanel');
-    if(profitPanel){
-      profitPanel.style.display = 'none';
-    }
+function updateProfitPanel() {
+  const panel = document.getElementById('activeItemProfitPanel');
+  if (!ACTIVECARTITEM || !panel) {
+    if (panel) panel.style.display = 'none';
     return;
   }
-  
-  const activeItem = SALES_CART.find(c => c.part === ACTIVE_CART_ITEM);
-  if(!activeItem) return;
-  
-  const profitData = calculateItemProfit(activeItem);
-  
-  const profitPanel = document.getElementById('activeItemProfitPanel');
-  profitPanel.style.display = 'block';
-  
-  profitPanel.innerHTML = `
-    <div style="padding:10px;background:#eff6ff;border-radius:10px;border:2px solid #2563eb;margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong style="color:#2563eb">🧮 حساب الأرباح للصنف المحدد</strong>
-        <span style="font-size:11px;background:#2563eb;color:white;padding:2px 8px;border-radius:10px">${activeItem.part}</span>
-      </div>
-      
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px">
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">التكلفة:</span>
-          <br><strong style="direction:ltr">${profitData.cost.toFixed(2)}</strong>
-        </div>
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">السعر الجديد:</span>
-          <br><strong style="direction:ltr">${profitData.newPrice.toFixed(2)}</strong>
-        </div>
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">الربح للواحد:</span>
-          <br><strong style="color:${profitData.profit >= 0 ? '#16a34a' : '#dc2626'};direction:ltr">
-            ${(profitData.newPrice - profitData.cost).toFixed(2)}
-          </strong>
-        </div>
-        <div style="background:white;padding:6px;border-radius:6px">
-          <span style="color:#6b7280">نسبة الربح:</span>
-          <br><strong style="color:${profitData.profitPercent >= 0 ? '#16a34a' : '#dc2626'};direction:ltr">
-            ${profitData.profitPercent.toFixed(1)}%
-          </strong>
-        </div>
-      </div>
-      
-      <div style="margin-top:8px;padding-top:8px;border-top:1px dashed #94a3b8">
-        <div style="display:flex;justify-content:space-between;font-size:12px">
-          <span>الإجمالي (${profitData.qty} قطعة):</span>
-          <strong style="direction:ltr">${profitData.totalPrice.toFixed(2)}</strong>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px">
-          <span>مع الضريبة 15%:</span>
-          <strong style="color:#7c3aed;direction:ltr">${profitData.totalWithTax.toFixed(2)}</strong>
-        </div>
-      </div>
+
+  const item = SALESCART.find(c => c.part === ACTIVECARTITEM);
+  if (!item) return;
+
+  const { cost, profit } = calculateItemProfit(item);
+
+  panel.style.display = 'block';
+  panel.innerHTML = `
+    <div style="padding:8px 10px; background:#eff6ff; border-radius:10px; border:1px solid #2563eb; font-size:12px; display:flex; justify-content:space-between; direction:ltr;">
+      <span>Cost: ${cost.toFixed(2)}</span>
+      <span>Profit: ${profit.toFixed(2)}</span>
     </div>
   `;
 }
 
-function updateTotals(){
-  let totalCost = 0;
-  let totalNewPrice = 0;
-  let totalProfit = 0;
-  
-  SALES_CART.forEach(item => {
-    const cost = (Number(item.cost) || 0) * item.cartQty;
-    const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * item.cartQty;
-    totalCost += cost;
-    totalNewPrice += newPrice;
-    totalProfit += (newPrice - cost);
-  });
-  
-  const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
-  const totalWithTax = totalNewPrice * 1.15;
-  
-  const totalsElement = document.querySelector('.cart-totals');
-  if(totalsElement){
-    totalsElement.innerHTML = `
-      <div class="total-row">
-        <span>إجمالي التكلفة:</span>
-        <span>${totalCost.toFixed(2)}</span>
-      </div>
-      <div class="total-row">
-        <span>إجمالي السعر الجديد:</span>
-        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
-      </div>
-      <div class="total-row">
-        <span>إجمالي الربح:</span>
-        <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">
-          ${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)
-        </span>
-      </div>
-      <div class="total-row">
-        <span>مع الضريبة 15%:</span>
-        <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
-      </div>
-    `;
-  }
-}
-
-function openCart(){
-  if(SALES_CART.length === 0){
-    showNotification("العربة فارغة!");
-    return;
-  }
-  
-  // إعادة تعيين العنصر النشط
-  ACTIVE_CART_ITEM = null;
-  SALES_CART.forEach(item => item.isActive = false);
-  
-  const ov = document.createElement("div");
-  ov.className = "cart-overlay";
-  
-  ov.innerHTML = `<div class="cart-card">
-    <div class="cart-header">
-      <span>🛒 عربة المبيعات</span>
-      <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
-    </div>
-    
-    <div id="activeItemProfitPanel" style="display:none;"></div>
-    
-    <div class="cart-table-wrapper">
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th class="cart-table-header-num">#</th>
-            <th class="cart-table-header-part">الصنف</th>
-            <th class="cart-table-header-desc">الوصف</th>
-            <th class="cart-table-header-qty">الكمية</th>
-            <th class="cart-table-header-price">السعر</th>
-            <th class="cart-table-header-remove"></th>
-          </tr>
-        </thead>
-        <tbody id="cartTableBody">
-          ${SALES_CART.map((item, idx) => {
-            return `
-            <tr class="cart-row" data-part="${item.part}" onclick="selectCartItem('${item.part}'); event.stopPropagation()">
-              <td class="cart-table-num">${idx + 1}</td>
-              <td class="cart-table-part">${item.part}</td>
-              <td class="cart-table-desc">${item.name}</td>
-              <td class="cart-table-qty-cell">
-                <input type="number" class="cart-table-qty-input" value="${item.cartQty}" 
-                       oninput="updateCartQty('${item.part}', this.value)" 
-                       onclick="event.stopPropagation()"
-                       min="1" max="999">
-              </td>
-              <td class="cart-table-price-cell">
-                <input type="number" class="cart-table-price-input" value="${(item.cartNewPrice || item.maxPrice || 0).toFixed(2)}" 
-                       oninput="updateCartNewPrice('${item.part}', this.value)" 
-                       onclick="event.stopPropagation()"
-                       step="0.01" min="0">
-              </td>
-              <td style="text-align:center">
-                <button class="cart-item-remove" onclick="event.stopPropagation(); removeFromCart('${item.part}')">✕</button>
-              </td>
-            </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-    
-    <div class="cart-totals">
-      <!-- سيتم ملؤه بواسطة updateTotals -->
-    </div>
-    
-    <div class="cart-actions">
-      <button class="cart-clear-btn" onclick="clearCart()">مسح العربة</button>
-      <button class="cart-checkout-btn" onclick="checkoutCart()">✓ إنهاء</button>
-    </div>
-  </div>`;
-  
-  document.body.appendChild(ov);
-  
-  // حساب الإجماليات الأولية
-  updateTotals();
-  
-  // تعيين أول عنصر كنشط افتراضيًا
-  if(SALES_CART.length > 0 && !ACTIVE_CART_ITEM){
-    setTimeout(() => {
-      selectCartItem(SALES_CART[0].part);
-    }, 100);
-  }
-}
 
 function clearCart(){
   SALES_CART = [];
