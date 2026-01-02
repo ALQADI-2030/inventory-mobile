@@ -954,18 +954,6 @@ input, textarea, button{
 .cart-table tbody tr{
   border-bottom:1px solid var(--border);
   position:relative;
-  cursor:pointer;
-  transition:background-color 0.2s ease;
-}
-
-.cart-table tbody tr:hover{
-  background-color:#f1f5f9;
-}
-
-.cart-table tbody tr.active{
-  background-color:#e0f2fe !important;
-  border-left:4px solid #2563eb !important;
-  box-shadow:inset 0 0 0 1px #93c5fd;
 }
 
 .cart-table td{
@@ -2187,8 +2175,7 @@ function addToCart(item){
     const newItem = {
       ...item,
       cartQty: 1,
-      cartNewPrice: Number(item.maxPrice) || 0,
-      isActive: false
+      cartNewPrice: Number(item.maxPrice) || 0
     };
     SALES_CART.push(newItem);
     showNotification("✓ تم إضافة الصنف للعربة");
@@ -2413,7 +2400,6 @@ function openCart(){
   
   // إعادة تعيين العنصر النشط
   ACTIVE_CART_ITEM = null;
-  SALES_CART.forEach(item => item.isActive = false);
   
   const ov = document.createElement("div");
   ov.className = "cart-overlay";
@@ -2441,24 +2427,24 @@ function openCart(){
         <tbody id="cartTableBody">
           ${SALES_CART.map((item, idx) => {
             return `
-            <tr class="cart-row" data-part="${item.part}" onclick="selectCartItem('${item.part}'); event.stopPropagation()">
+            <tr class="cart-row" data-part="${item.part}">
               <td class="cart-table-num">${idx + 1}</td>
               <td class="cart-table-part">${item.part}</td>
               <td class="cart-table-desc">${item.name}</td>
               <td class="cart-table-qty-cell">
                 <input type="number" class="cart-table-qty-input" value="${item.cartQty}" 
                        oninput="updateCartQty('${item.part}', this.value)" 
-                       onclick="event.stopPropagation()"
+                       onfocus="selectCartItem('${item.part}')"
                        min="1" max="999">
               </td>
               <td class="cart-table-price-cell">
                 <input type="number" class="cart-table-price-input" value="${(item.cartNewPrice || item.maxPrice || 0).toFixed(2)}" 
                        oninput="updateCartNewPrice('${item.part}', this.value)" 
-                       onclick="event.stopPropagation()"
+                       onfocus="selectCartItem('${item.part}')"
                        step="0.01" min="0">
               </td>
               <td style="text-align:center">
-                <button class="cart-item-remove" onclick="event.stopPropagation(); removeFromCart('${item.part}')">✕</button>
+                <button class="cart-item-remove" onclick="removeFromCart('${item.part}')">✕</button>
               </td>
             </tr>
             `;
