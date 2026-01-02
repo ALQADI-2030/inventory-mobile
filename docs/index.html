@@ -2367,13 +2367,13 @@ function openCart(){
               <td class="cart-table-qty-cell">
                 <input type="number" class="cart-table-qty-input" value="${item.cartQty}" 
                        oninput="updateCartQty('${item.part}', this.value)"
-                       onfocus="selectCartItem('${item.part}')"
+                       onfocus="selectCartItem('${item.part}'); this.select()"
                        min="1" max="999">
               </td>
               <td class="cart-table-price-cell">
                 <input type="number" class="cart-table-price-input" value="${(item.cartNewPrice || item.maxPrice || 0).toFixed(2)}" 
                        oninput="updateCartNewPrice('${item.part}', this.value)"
-                       onfocus="selectCartItem('${item.part}')"
+                       onfocus="selectCartItem('${item.part}'); this.select()"
                        step="0.01" min="0">
               </td>
               <td style="text-align:center">
@@ -2460,13 +2460,30 @@ function sendQuoteToWhatsApp(){
   message += "شكراً لتعاملكم معنا 🙏";
 
   const encodedMessage = encodeURIComponent(message);
-  const whatsappURL = "https://wa.me/?text=" + encodedMessage;
-  window.open(whatsappURL, "_blank");
 
+  // محاولة فتح WhatsApp
+  const whatsappURL = "https://wa.me/?text=" + encodedMessage;
+  const whatsappWindow = window.open(whatsappURL, "_blank");
+
+  // إغلاق السلة
   const overlay = document.querySelector(".cart-overlay");
   if(overlay) overlay.remove();
 
-  showNotification("✓ تم فتح WhatsApp لإرسال التسعيرة");
+  // رسالة للمستخدم
+  showNotification("✓ تم فتح WhatsApp - إذا لم يفتح، استخدم نسخ الرسالة");
+
+  // إضافة زر نسخ للحافظة كـ backup
+  setTimeout(() => {
+    if(confirm("هل تريد نسخ الرسالة للحافظة؟ (في حال لم يفتح WhatsApp)")){
+      const textArea = document.createElement("textarea");
+      textArea.value = message.replace(/\n/g, "\n");
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      showNotification("✓ تم نسخ الرسالة - يمكنك لصقها في أي تطبيق");
+    }
+  }, 1000);
 }
 
 
