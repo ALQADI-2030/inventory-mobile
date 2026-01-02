@@ -2282,6 +2282,8 @@ function updateProfitPanel(){
   `;
 }
 
+
+
 function updateTotals(){
   let totalCost = 0;
   let totalNewPrice = 0;
@@ -2390,7 +2392,7 @@ function openCart(){
     
     <div class="cart-actions">
       <button class="cart-clear-btn" onclick="clearCart()">مسح العربة</button>
-      <button class="cart-checkout-btn" onclick="checkoutCart()">✓ إنهاء</button>
+      <button class="cart-checkout-btn" onclick="sendQuoteToWhatsApp()">📤 إرسال</button>
     </div>
   </div>`;
   
@@ -2419,36 +2421,54 @@ function clearCart(){
   showNotification("تم مسح العربة");
 }
 
-function checkoutCart(){
-  let totalCost = 0;
-  let totalNewPrice = 0;
-  let totalProfit = 0;
-  
+function sendQuoteToWhatsApp(){
+  if(SALES_CART.length === 0){
+    showNotification("العربة فارغة!");
+    return;
+  }
+
+  let totalWithoutTax = 0;
   SALES_CART.forEach(item => {
-    const cost = (Number(item.cost) || 0) * item.cartQty;
-    const newPrice = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0) * item.cartQty;
-    totalCost += cost;
-    totalNewPrice += newPrice;
-    totalProfit += (newPrice - cost);
+    const price = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0);
+    const qty = Number(item.cartQty) || 1;
+    totalWithoutTax += (price * qty);
   });
-  
-  const profitPercent = totalCost > 0 ? (totalProfit / totalCost) * 100 : 0;
-  const totalWithTax = totalNewPrice * 1.15;
-  
-  const message = `✓ تم تسجيل العملية بنجاح!
+  const totalWithTax = totalWithoutTax * 1.15;
 
-  • إجمالي التكلفة: ${totalCost.toFixed(2)}
-  • إجمالي السعر: ${totalNewPrice.toFixed(2)}
-  • إجمالي الربح: ${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)
-  • شامل الضريبة 15%: ${totalWithTax.toFixed(2)}
+  let message = "🏢 *شركة القاضي لقطع غيار السيارات*\n";
+  message += "━━━━━━━━━━━━━━━━━━━━\n\n";
+  message += "*📋 عرض سعر:*\n\n";
 
-  سيتم إرسال الفاتورة للبائع.`;
-  
-  alert(message);
-  
-  // مسح العربة بعد الإنهاء
-  clearCart();
+  SALES_CART.forEach((item, idx) => {
+    const nameParts = (item.name || "").trim().split(/\s+/);
+    const shortName = nameParts.slice(0, 2).join(" ");
+
+    const price = (Number(item.cartNewPrice) || Number(item.maxPrice) || 0);
+    const qty = Number(item.cartQty) || 1;
+    const itemTotal = price * qty;
+
+    message += (idx + 1) + ". *" + item.part + "*\n";
+    message += "   " + shortName + "\n";
+    message += "   الكمية: " + qty + " | السعر: " + price.toFixed(2) + "\n";
+    message += "   الإجمالي: " + itemTotal.toFixed(2) + " ر.س\n\n";
+  });
+
+  message += "━━━━━━━━━━━━━━━━━━━━\n";
+  message += "*الإجمالي قبل الضريبة:* " + totalWithoutTax.toFixed(2) + " ر.س\n";
+  message += "*الإجمالي مع الضريبة (15%):* " + totalWithTax.toFixed(2) + " ر.س\n";
+  message += "━━━━━━━━━━━━━━━━━━━━\n\n";
+  message += "شكراً لتعاملكم معنا 🙏";
+
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappURL = "https://wa.me/?text=" + encodedMessage;
+  window.open(whatsappURL, "_blank");
+
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+
+  showNotification("✓ تم فتح WhatsApp لإرسال التسعيرة");
 }
+
 
 function logoutUser(){
   localStorage.clear();
