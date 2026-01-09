@@ -2525,4 +2525,51 @@ let html5QrCode = null;
 let isScanning = false;
 
 document.getElementById("scanBtn").addEventListener("click", ()=>{
-  if(CURRENT_VIEW !== "inventory")
+{
+  if(CURRENT_VIEW !== "inventory") return;
+  startScan();
+});
+
+function startScan(){
+  if(isScanning) return;
+  
+  const container = document.getElementById("scannerContainer");
+  container.style.display = "block";
+  
+  if(!html5QrCode){
+    html5QrCode = new Html5Qrcode("reader");
+  }
+  
+  isScanning = true;
+  
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
+      document.getElementById("barcode").value = decodedText;
+      playBeep();
+      stopScan();
+      if(CURRENT_VIEW === "inventory"){
+        runSearchInventory();
+      }
+    }
+  ).catch(err => {
+    isScanning = false;
+  });
+}
+
+function stopScan(){
+  if(!html5QrCode || !isScanning) return;
+  
+  html5QrCode.stop().then(()=>{
+    isScanning = false;
+    document.getElementById("scannerContainer").style.display = "none";
+  }).catch(err => {
+    isScanning = false;
+  });
+}
+</script>
+
+</body>
+</html>
+
