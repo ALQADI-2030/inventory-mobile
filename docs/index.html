@@ -2183,23 +2183,10 @@ function addToCart(item){
   }
 }
 
-function removeFromCart(part) {
-  if(ACTIVECARTITEM == part) ACTIVECARTITEM = null;
-  SALESCART = SALESCART.filter(c => c.part != part);
-  updateCartDisplay();
-  runSearchSales();
-  
-  // إذا العربة فاضية، قفل الشاشة
-  if(SALESCART.length === 0) {
-    const overlay = document.querySelector('.cart-overlay');
-    if(overlay) overlay.remove();
-    showNotification("تم إفراغ السلة");
-  } else {
-    // إذا في أصناف، حدث العربة
-    openCart();
+function removeFromCart(part){
+  if(ACTIVE_CART_ITEM === part){
+    ACTIVE_CART_ITEM = null;
   }
-}
-
   SALES_CART = SALES_CART.filter(c => c.part !== part);
   updateCartDisplay();
   runSearchSales();
