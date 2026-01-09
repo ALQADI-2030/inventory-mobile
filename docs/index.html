@@ -6,7 +6,6 @@
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>شركة القاضي</title>
 
-<link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
@@ -87,12 +86,7 @@ input, textarea, button{
   display:flex;
   align-items:center;
   justify-content:center;
-}
-.login-logo img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  display:block;
+  font-size:48px;
 }
 .login-box h3{
   margin:6px 0 4px;
@@ -1103,54 +1097,6 @@ input, textarea, button{
   font-size:12px;
   font-weight:700;
 }
-
-/* Active Item Profit Panel */
-.active-item-panel{
-  padding:10px;
-  background:#eff6ff;
-  border-radius:10px;
-  border:2px solid #2563eb;
-  margin-bottom:10px;
-  display:none;
-}
-
-.active-item-panel-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:8px;
-}
-
-.active-item-panel-header strong{
-  color:#2563eb;
-}
-
-.active-item-panel-badge{
-  font-size:11px;
-  background:#2563eb;
-  color:white;
-  padding:2px 8px;
-  border-radius:10px;
-}
-
-.active-item-panel-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  font-size:12px;
-}
-
-.active-item-panel-cell{
-  background:white;
-  padding:6px;
-  border-radius:6px;
-}
-
-.active-item-panel-footer{
-  margin-top:8px;
-  padding-top:8px;
-  border-top:1px dashed #94a3b8;
-}
 </style>
 </head>
 
@@ -1159,7 +1105,7 @@ input, textarea, button{
 <div id="loginScreen" class="login-screen">
   <div class="login-box">
     <div class="login-logo">
-      <img src="logo.png.gif" alt="">
+      🚗
     </div>
 
     <h3>شركة القاضي لبيع قطع غيار السيارات</h3>
@@ -1314,7 +1260,6 @@ input, textarea, button{
 <audio id="beepAudio">
   <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUAAAAA=" type="audio/wav">
 </audio>
-
 <script>
 document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
@@ -1333,13 +1278,12 @@ let AUTO_REFRESH = null;
 let CURRENT_DETAIL_PART   = null;
 let CURRENT_DETAIL_BRANCH = null;
 let LAST_SYNC_TIME = 0;
-let SYNC_INTERVAL = 30000; // 30 ثانية
+let SYNC_INTERVAL = 30000;
 let JUST_UPDATED = false;
 let SALES_CART = [];
 let ACTIVE_CART_ITEM = null;
 let SALES_LAST_FETCH = 0;
 
-// استرجاع الجلسة
 window.addEventListener("load", () => {
   try {
     const savedUser = localStorage.getItem("stockUser");
@@ -1357,7 +1301,6 @@ window.addEventListener("load", () => {
   } catch (e) {}
 });
 
-/* منع الزووم */
 document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
 let lastTouchEnd = 0;
 document.addEventListener("touchend", function (e) {
@@ -1366,7 +1309,6 @@ document.addEventListener("touchend", function (e) {
   lastTouchEnd = now;
 }, { passive: false });
 
-/* منع السحب للأسفل */
 let lastTouchY = 0;
 let preventPullToRefresh = false;
 function enablePullBlock(){ preventPullToRefresh = true; }
@@ -1384,7 +1326,6 @@ window.addEventListener("touchmove", function(e){
   if(deltaY > 0) e.preventDefault();
 }, {passive:false});
 
-/* صوت */
 function playBeep(){
   const a = document.getElementById("beepAudio");
   if(!a) return;
@@ -1392,7 +1333,6 @@ function playBeep(){
   a.play().catch(()=>{});
 }
 
-/* ترحيب المستخدم */
 function updateGreeting(){
   const greeting = document.getElementById("userGreeting");
   if(greeting){
@@ -1404,19 +1344,13 @@ function updateGreeting(){
   }
 }
 
-// معادلة تنظيف الباركود المحسنة (تتجاهل البادئات وتقص على 10 أرقام)
 function cleanBarcode(text) {
   if (!text) return "";
-  
   let val = String(text).trim();
   if (!val) return "";
-  
-  // الخطوة 1: إزالة الشرطات المائلة من البداية
   while (val.startsWith('/')) {
     val = val.substring(1).trim();
   }
-  
-  // الخطوة 2: إذا كان فيه ؛ (CSV)، استخرج أول جزء فيه أرقام
   if (val.includes(';')) {
     const parts = val.split(';');
     for (const part of parts) {
@@ -1427,20 +1361,14 @@ function cleanBarcode(text) {
       }
     }
   }
-  
-  // الخطوة 3: استخرج حتى أول فراغ
   let core = "";
   for (const char of val) {
     if (char === ' ' || char === '\t') break;
     core += char;
   }
-  
-  // الخطوة 4: إزالة كل الشرطات من البداية
   while (core.startsWith('-')) {
     core = core.substring(1);
   }
-  
-  // الخطوة 5: تجاهل البادئات المعروفة (حرفين + شرطة)
   const knownPrefixes = ['MZ-', 'TO-', 'HO-', 'DA-', 'NS-', 'MS-', 'SU-', 'MI-', 'FU-', 'HY-'];
   for (const prefix of knownPrefixes) {
     if (core.toUpperCase().startsWith(prefix)) {
@@ -1448,41 +1376,30 @@ function cleanBarcode(text) {
       break;
     }
   }
-  
-  // أو إذا كانت البادئة حرفين فقط + شرطة (بدون قائمة)
   if (core.length > 3 && core[2] === '-' && /^[A-Z]{2}/.test(core)) {
     core = core.substring(3);
   }
-  
-  // الخطوة 6: إزالة الشرطات من النهاية
   while (core.endsWith('-')) {
     core = core.substring(0, core.length - 1);
   }
-  
-  // ⭐ الخطوة 7 الجديدة: استخراج أول 10 أرقام فقط
   let digits = "";
   for (const char of core.trim()) {
     if (/\d/.test(char)) {
       digits += char;
-      if (digits.length === 10) break; // توقف بعد 10 أرقام
+      if (digits.length === 10) break;
     }
   }
-  
-  // لو أطول من 10 أرقام → ترجع فارغ (لا تطابق البحث)
   if (digits.length > 10) {
     return "";
   }
-  
   return digits;
 }
 
-// دالة تطبيع رقم الصنف (إزالة الشرطات)
 function normalizePartNumber(partNum) {
   if (!partNum) return "";
   return String(partNum).replace(/-/g, "").toLowerCase();
 }
 
-/* LOGIN */
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
@@ -1580,7 +1497,6 @@ function loadInventoryAfterLogin(){
     });
 }
 
-/* تزامن تلقائي */
 function startAutoSync(){
   if(AUTO_REFRESH) clearInterval(AUTO_REFRESH);
   AUTO_REFRESH = setInterval(()=>{
@@ -1604,7 +1520,6 @@ function autoRefreshData(mode){
       let hasChanges = false;
       
       if(mode === "inventory"){
-        // مقارنة البيانات
         if(d.length !== ALL_DATA.length){
           hasChanges = true;
         } else {
@@ -1660,7 +1575,6 @@ function showUpdateIndicator(){
   }, 3500);
 }
 
-/* تحديث يدوي */
 function refreshCurrentView(){
   const refreshBtn = document.getElementById("refreshBtn");
   refreshBtn.style.transform = "rotate(360deg)";
@@ -1720,20 +1634,17 @@ function openSalesMenu(){
   mainScreen.style.display = "none";
   appScreen.style.display  = "block";
   
-  // عرض البيانات المحفوظة فوراً
   if(SALES_DATA && SALES_DATA.length > 0){
     runSearchSales();
     
-    // تحديث في الخلفية (بدون إزعاج المستخدم)
     const now = Date.now();
-    if(now - SALES_LAST_FETCH > 10000){ // لو مر أكثر من 10 ثواني
+    if(now - SALES_LAST_FETCH > 10000){
       fetch(API + "?mode=sales")
         .then(r => r.json())
         .then(d => {
           if(d && Array.isArray(d)){
             SALES_DATA = d.slice();
             SALES_LAST_FETCH = now;
-            // إعادة رسم النتائج بصمت
             if(CURRENT_VIEW === "sales"){
               runSearchSales();
             }
@@ -1742,7 +1653,6 @@ function openSalesMenu(){
         .catch(() => {});
     }
   } else {
-    // أول مرة فقط: عرض مؤشر التحميل
     const loadingEl = document.getElementById("salesLoading");
     if(loadingEl) loadingEl.style.display = "block";
     
@@ -1763,7 +1673,6 @@ function openSalesMenu(){
   }
 }
 
-/* FILTERS */
 let searchTimer = null;
 document.querySelectorAll(".filter-input").forEach(inp=>{
   inp.addEventListener("input", ()=>{
@@ -1786,7 +1695,6 @@ function clearFilters(){
   if(CURRENT_VIEW === "inventory"){ runSearchInventory(); }else{ runSearchSales(); }
 }
 
-/* ======= بحث المخزون ======= */
 function runSearchInventory(){
   const pc = (pContains.value || "").trim().toLowerCase();
   const pe = (pEnds.value || "").trim().toLowerCase();
@@ -1917,7 +1825,6 @@ function renderInventory(arr){
   box.innerHTML = html;
 }
 
-/* ======= بحث المبيعات ======= */
 function runSearchSales(){
   const pcRaw = (pContains.value || "").trim();
   const pc = normalizePartNumber(pcRaw);
@@ -2006,7 +1913,6 @@ function renderSales(arr){
   box.innerHTML = html;
 }
 
-/* ======= تفاصيل الجرد ======= */
 function openDetail(part, branch){
   if(CURRENT_VIEW !== "inventory") return;
   
@@ -2148,7 +2054,6 @@ function showConflictNotification(msg){
   setTimeout(()=>{ div.remove(); }, 4000);
 }
 
-/* ======= تفاصيل المبيعات ======= */
 function openSalesDetail(item){
   if(CURRENT_VIEW !== "sales") return;
 
@@ -2247,8 +2152,6 @@ function openSalesDetail(item){
     `;
   });
 }
-
-/* ======= السلة (Cart) ======= */
 function addToCartFromDetail(item){
   const priceInput = document.querySelector("#salesPrice");
   const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
@@ -2288,8 +2191,10 @@ function updateCartBadge(){
   const badge = document.getElementById("cartCount");
   if(!badge) return;
   
-  if(SALES_CART.length > 0){
-    badge.textContent = SALES_CART.length;
+  const totalItems = SALES_CART.reduce((sum, item) => sum + item.qty, 0);
+  
+  if(totalItems > 0){
+    badge.textContent = totalItems;
     badge.style.display = "flex";
   } else {
     badge.style.display = "none";
@@ -2297,222 +2202,204 @@ function updateCartBadge(){
 }
 
 function openCart(){
-  const overlay = document.createElement("div");
-  overlay.className = "cart-overlay";
-  overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
-
-  const cartContent = renderCartContent();
-
-  overlay.innerHTML = `
-    <div class="cart-card">
-      <div class="cart-header">
-        <span>🛒 عربة المبيعات (${SALES_CART.length})</span>
-        <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
-      </div>
-      ${cartContent}
-    </div>
-  `;
-  
-  document.body.appendChild(overlay);
-  attachCartListeners(overlay);
-}
-
-function renderCartContent(){
-  if(SALES_CART.length === 0){
-    return '<div class="cart-empty">السلة فارغة</div>';
-  }
-
-  let subtotal = 0;
-  const rows = SALES_CART.map((c, idx) => {
-    const total = c.qty * c.price;
-    subtotal += total;
-    
-    return `
-      <tr data-index="${idx}">
-        <td class="cart-table-num">${idx + 1}</td>
-        <td class="cart-table-part">${c.part}</td>
-        <td class="cart-table-desc">${c.name}</td>
-        <td class="cart-table-qty-cell">
-          <input type="number" class="cart-table-qty-input" value="${c.qty}" min="1" data-index="${idx}">
-        </td>
-        <td class="cart-table-price-cell">
-          <input type="number" class="cart-table-price-input" value="${c.price.toFixed(2)}" step="0.01" min="0" data-index="${idx}">
-        </td>
-        <td style="text-align:center">
-          <button onclick="removeFromCart(${idx})" style="border:none;background:none;color:#dc2626;cursor:pointer;font-size:16px">✕</button>
-        </td>
-      </tr>
-    `;
-  }).join("");
-
-  const tax = subtotal * 0.15;
-  const total = subtotal + tax;
-
-  return `
-    <div class="cart-table-wrapper">
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th class="cart-table-header-num">#</th>
-            <th class="cart-table-header-part">رقم</th>
-            <th class="cart-table-header-desc">الوصف</th>
-            <th class="cart-table-header-qty">كمية</th>
-            <th class="cart-table-header-price">سعر</th>
-            <th class="cart-table-header-remove"></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="cart-totals">
-      <div class="total-row">
-        <span>المجموع الفرعي</span>
-        <span>${subtotal.toFixed(2)} ريال</span>
-      </div>
-      <div class="total-row">
-        <span>الضريبة (15%)</span>
-        <span>${tax.toFixed(2)} ريال</span>
-      </div>
-      <div class="total-row">
-        <span>الإجمالي</span>
-        <span>${total.toFixed(2)} ريال</span>
-      </div>
-    </div>
-
-    <div class="cart-actions">
-      <button class="cart-clear-btn" onclick="clearCart()">مسح السلة</button>
-      <button class="cart-checkout-btn" onclick="sendQuoteToWhatsApp()">إرسال عرض واتساب</button>
-    </div>
-  `;
-}
-
-function attachCartListeners(overlay){
-  overlay.querySelectorAll(".cart-table-qty-input").forEach(inp => {
-    inp.addEventListener("change", (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      const newQty = parseInt(e.target.value) || 1;
-      if(newQty < 1) e.target.value = 1;
-      SALES_CART[idx].qty = Math.max(1, newQty);
-      updateCartTotals(overlay);
-    });
-  });
-
-  overlay.querySelectorAll(".cart-table-price-input").forEach(inp => {
-    inp.addEventListener("change", (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      const newPrice = parseFloat(e.target.value) || 0;
-      if(newPrice < 0) e.target.value = 0;
-      SALES_CART[idx].price = Math.max(0, newPrice);
-      updateCartTotals(overlay);
-    });
-  });
-}
-
-function updateCartTotals(overlay){
-  let subtotal = 0;
-  SALES_CART.forEach(c => {
-    subtotal += c.qty * c.price;
-  });
-
-  const tax = subtotal * 0.15;
-  const total = subtotal + tax;
-
-  const totalsDiv = overlay.querySelector(".cart-totals");
-  if(totalsDiv){
-    totalsDiv.innerHTML = `
-      <div class="total-row">
-        <span>المجموع الفرعي</span>
-        <span>${subtotal.toFixed(2)} ريال</span>
-      </div>
-      <div class="total-row">
-        <span>الضريبة (15%)</span>
-        <span>${tax.toFixed(2)} ريال</span>
-      </div>
-      <div class="total-row">
-        <span>الإجمالي</span>
-        <span>${total.toFixed(2)} ريال</span>
-      </div>
-    `;
-  }
-}
-
-function removeFromCart(idx){
-  SALES_CART.splice(idx, 1);
-  
-  if(SALES_CART.length > 0){
-    ACTIVE_CART_ITEM = SALES_CART[SALES_CART.length - 1];
-  } else {
-    ACTIVE_CART_ITEM = null;
-  }
-  
-  updateCartBadge();
-  
-  const overlay = document.querySelector(".cart-overlay");
-  if(overlay){
-    const wrapper = overlay.querySelector(".cart-card");
-    if(wrapper){
-      wrapper.innerHTML = `
-        <div class="cart-header">
-          <span>🛒 عربة المبيعات (${SALES_CART.length})</span>
-          <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
-        </div>
-        ${renderCartContent()}
-      `;
-      attachCartListeners(overlay);
-    }
-  }
-  
-  runSearchSales();
-}
-
-function clearCart(){
-  if(!confirm("هل تريد مسح السلة بالكامل؟")) return;
-  SALES_CART = [];
-  ACTIVE_CART_ITEM = null;
-  updateCartBadge();
-  document.querySelector(".cart-overlay").remove();
-  runSearchSales();
-  showNotification("تم مسح السلة");
-}
-
-function sendQuoteToWhatsApp(){
   if(SALES_CART.length === 0){
     alert("السلة فارغة");
     return;
   }
 
-  let message = "🛒 *عرض سعر من شركة القاضي*\n\n";
-  message += "━━━━━━━━━━━━━━━━\n\n";
+  const overlay = document.createElement("div");
+  overlay.className = "cart-overlay";
+  overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
 
-  let subtotal = 0;
-  
+  let tableRows = "";
   SALES_CART.forEach((item, idx) => {
-    const priceBeforeTax = item.price;
-    const priceWithTax = priceBeforeTax * 1.15;
-    const itemTotal = item.qty * priceWithTax;
-    subtotal += itemTotal;
-
-    message += `*${idx + 1}. ${item.part}*\n`;
-    message += `${item.name}\n`;
-    message += `الكمية: ${item.qty}\n`;
-    message += `السعر قبل الضريبة: ${priceBeforeTax.toFixed(2)} ريال\n`;
-    message += `السعر شامل الضريبة (15%): ${priceWithTax.toFixed(2)} ريال\n`;
-    message += `الإجمالي: ${itemTotal.toFixed(2)} ريال\n`;
-    message += `\n`;
+    tableRows += `
+      <tr>
+        <td class="cart-table-num">${idx + 1}</td>
+        <td class="cart-table-part">${item.part}</td>
+        <td class="cart-table-desc" title="${item.name}">${item.name}</td>
+        <td class="cart-table-qty-cell">
+          <input type="number" 
+                 class="cart-table-qty-input" 
+                 value="${item.qty}" 
+                 min="1"
+                 onchange="updateCartItemQty(${idx}, this.value)">
+        </td>
+        <td class="cart-table-price-cell">
+          <input type="number" 
+                 class="cart-table-price-input" 
+                 value="${item.price.toFixed(2)}" 
+                 step="0.01"
+                 onchange="updateCartItemPrice(${idx}, this.value)">
+        </td>
+        <td style="text-align:center">
+          <button onclick="removeCartItem(${idx})" 
+                  style="border:none;background:#fee;color:#dc2626;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:14px">
+            🗑️
+          </button>
+        </td>
+      </tr>
+    `;
   });
 
-  const subtotalBeforeTax = SALES_CART.reduce((sum, c) => sum + (c.qty * c.price), 0);
-  const totalTax = subtotalBeforeTax * 0.15;
-  const grandTotal = subtotalBeforeTax + totalTax;
+  const subtotal = SALES_CART.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const totalCost = SALES_CART.reduce((sum, item) => sum + (item.cost * item.qty), 0);
+  const totalProfit = subtotal - totalCost;
+  const vat = subtotal * 0.15;
+  const grandTotal = subtotal + vat;
 
-  message += "━━━━━━━━━━━━━━━━\n\n";
-  message += `*المجموع قبل الضريبة:* ${subtotalBeforeTax.toFixed(2)} ريال\n`;
-  message += `*الضريبة (15%):* ${totalTax.toFixed(2)} ريال\n`;
-  message += `*الإجمالي النهائي:* ${grandTotal.toFixed(2)} ريال\n\n`;
-  message += "شكراً لتعاملكم معنا 🙏";
+  overlay.innerHTML = `
+    <div class="cart-card" onclick="event.stopPropagation()">
+      <div class="cart-header">
+        <span>🛒 عربة المبيعات (${SALES_CART.length} صنف)</span>
+        <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
+      </div>
+
+      <div class="cart-table-wrapper">
+        <table class="cart-table">
+          <thead>
+            <tr>
+              <th class="cart-table-header-num">#</th>
+              <th class="cart-table-header-part">رقم</th>
+              <th class="cart-table-header-desc">الصنف</th>
+              <th class="cart-table-header-qty">كمية</th>
+              <th class="cart-table-header-price">سعر</th>
+              <th class="cart-table-header-remove">حذف</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cart-totals">
+        <div class="total-row">
+          <span>الإجمالي (قبل الضريبة)</span>
+          <span>${subtotal.toFixed(2)} ريال</span>
+        </div>
+        <div class="total-row">
+          <span>ضريبة القيمة المضافة (15%)</span>
+          <span>${vat.toFixed(2)} ريال</span>
+        </div>
+        <div class="total-row">
+          <span>الإجمالي النهائي</span>
+          <span>${grandTotal.toFixed(2)} ريال</span>
+        </div>
+        <div class="total-row" style="border-top:1px dashed rgba(37,99,235,0.3);padding-top:8px;color:#16a34a">
+          <span>صافي الربح</span>
+          <span>${totalProfit.toFixed(2)} ريال</span>
+        </div>
+      </div>
+
+      <div class="cart-actions">
+        <button class="cart-clear-btn" onclick="clearCart()">إفراغ السلة</button>
+        <button class="cart-checkout-btn" onclick="checkoutCart()">إرسال للواتساب 📱</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(overlay);
+}
+
+function updateCartItemQty(idx, value){
+  const qty = parseInt(value) || 1;
+  if(qty < 1) return;
+  
+  SALES_CART[idx].qty = qty;
+  updateCartBadge();
+  
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  openCart();
+}
+
+function updateCartItemPrice(idx, value){
+  const price = parseFloat(value) || 0;
+  if(price < 0) return;
+  
+  SALES_CART[idx].price = price;
+  
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  openCart();
+}
+
+function removeCartItem(idx){
+  SALES_CART.splice(idx, 1);
+  
+  if(SALES_CART.length === 0){
+    ACTIVE_CART_ITEM = null;
+  }
+  
+  updateCartBadge();
+  runSearchSales();
+  
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  
+  if(SALES_CART.length > 0){
+    openCart();
+  } else {
+    showNotification("تم إفراغ السلة");
+  }
+}
+
+function clearCart(){
+  if(!confirm("هل تريد إفراغ السلة؟")) return;
+  
+  SALES_CART = [];
+  ACTIVE_CART_ITEM = null;
+  updateCartBadge();
+  runSearchSales();
+  
+  const overlay = document.querySelector(".cart-overlay");
+  if(overlay) overlay.remove();
+  
+  showNotification("تم إفراغ السلة");
+}
+
+function checkoutCart(){
+  if(SALES_CART.length === 0){
+    alert("السلة فارغة!");
+    return;
+  }
+
+  let message = "*🛒 عرض أسعار - شركة القاضي*\n\n";
+  message += "━━━━━━━━━━━━━━━━━━━━\n\n";
+
+  let subtotal = 0;
+  let totalCost = 0;
+
+  SALES_CART.forEach((item, idx) => {
+    const itemTotal = item.price * item.qty;
+    const itemCost = item.cost * item.qty;
+    const itemProfit = itemTotal - itemCost;
+    
+    subtotal += itemTotal;
+    totalCost += itemCost;
+
+    message += `*${idx + 1}. ${item.name}*\n`;
+    message += `رقم الصنف: ${item.part}\n`;
+    message += `الكمية: ${item.qty}\n`;
+    message += `سعر الوحدة: ${item.price.toFixed(2)} ريال\n`;
+    message += `الإجمالي: ${itemTotal.toFixed(2)} ريال\n`;
+    message += `الربح: ${itemProfit.toFixed(2)} ريال\n`;
+    message += `━━━━━━━━━━━━━━━━━━━━\n\n`;
+  });
+
+  const vat = subtotal * 0.15;
+  const grandTotal = subtotal + vat;
+  const totalProfit = subtotal - totalCost;
+
+  message += "*💰 الملخص المالي*\n\n";
+  message += `الإجمالي (قبل الضريبة): *${subtotal.toFixed(2)} ريال*\n`;
+  message += `ضريبة القيمة المضافة (15%): *${vat.toFixed(2)} ريال*\n`;
+  message += `━━━━━━━━━━━━━━━━━━━━\n`;
+  message += `*الإجمالي النهائي: ${grandTotal.toFixed(2)} ريال*\n\n`;
+  message += `صافي الربح: *${totalProfit.toFixed(2)} ريال* ✅\n\n`;
+  message += `تاريخ العرض: ${new Date().toLocaleString("ar-SA")}\n`;
+  message += `المستخدم: ${CURRENT_USER}`;
 
   const encoded = encodeURIComponent(message);
   const whatsappURL = `https://wa.me/?text=${encoded}`;
@@ -2520,12 +2407,10 @@ function sendQuoteToWhatsApp(){
   window.open(whatsappURL, "_blank");
 }
 
-/* ======= الماسح الضوئي ======= */
 let html5QrCode = null;
 let isScanning = false;
 
-document.getElementById("scanBtn").addEventListener("click", ()=>{
-{
+document.getElementById("scanBtn").addEventListener("click", function(){
   if(CURRENT_VIEW !== "inventory") return;
   startScan();
 });
@@ -2554,7 +2439,10 @@ function startScan(){
       }
     }
   ).catch(err => {
+    console.error("خطأ في تشغيل الكاميرا:", err);
     isScanning = false;
+    container.style.display = "none";
+    alert("فشل فتح الكاميرا. تأكد من الأذونات.");
   });
 }
 
@@ -2565,11 +2453,12 @@ function stopScan(){
     isScanning = false;
     document.getElementById("scannerContainer").style.display = "none";
   }).catch(err => {
+    console.error("خطأ في إيقاف الكاميرا:", err);
     isScanning = false;
+    document.getElementById("scannerContainer").style.display = "none";
   });
 }
 </script>
 
 </body>
 </html>
-
