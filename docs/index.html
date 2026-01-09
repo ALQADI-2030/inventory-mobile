@@ -1736,11 +1736,8 @@ function clearFilters(){
 
 /* ======= بحث المخزون ======= */
 function runSearchInventory(){
- const pcRaw = (pContains.value || "").trim();
-const pc = normalizePartNumber(pcRaw);
-const peRaw = (pEnds.value || "").trim();
-const pe = normalizePartNumber(peRaw);
-
+  const pc = (pContains.value || "").trim().toLowerCase();
+  const pe = (pEnds.value || "").trim().toLowerCase();
   const ns = (nStarts.value || "").trim().toLowerCase();
   const nc = (nContains.value || "").trim().toLowerCase();
   const lfRaw = (locFrom.value || "").trim().toLowerCase();
@@ -1776,19 +1773,8 @@ const pe = normalizePartNumber(peRaw);
     if(state === "diff"    && !(hasCount && !isEqual)) continue;
     if(state === "not"     && hasCount) continue;
 
-   if (pc) {
-  filtered = filtered.filter(r => {
-    const p = normalizePartNumber(r.part);
-    return p.includes(pc);
-  });
-}
-if (pe) {
-  filtered = filtered.filter(r => {
-    const p = normalizePartNumber(r.part);
-    return p.endsWith(pe);
-  });
-}
-
+    if(pc && !p.includes(pc)) continue;
+    if(pe && !p.endsWith(pe)) continue;
     if(ns && !n.startsWith(ns)) continue;
     if(nc && !n.includes(nc)) continue;
 
@@ -1814,9 +1800,7 @@ if (pe) {
 
 /* بحث المبيعات */
 function runSearchSales(){
-  const qRaw = (pContains.value || "").trim();
-const q = normalizePartNumber(qRaw);
-
+  const q          = (pContains.value || "").trim().toLowerCase();
   const nameStarts = (nStarts.value   || "").trim().toLowerCase();
   const nameContains = (nContains.value || "").trim().toLowerCase();
   const branchVal  = (branchFilter.value || "").trim().toLowerCase();
@@ -2216,6 +2200,10 @@ function removeFromCart(part) {
   }
 }
 
+  SALES_CART = SALES_CART.filter(c => c.part !== part);
+  updateCartDisplay();
+  runSearchSales();
+}
 
 function updateCartQty(part, qty){
   const item = SALES_CART.find(c => c.part === part);
