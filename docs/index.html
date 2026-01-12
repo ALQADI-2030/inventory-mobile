@@ -4,10 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>شركة القاضي</title>function updateProfitPanel
+<title>شركة القاضي</title>
 
 <link rel="manifest" href="manifest.json">
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 
 <style>
 :root{
@@ -1284,24 +1283,14 @@ input, textarea, button{
         <input id="locTo"   class="filter-input small" placeholder="إلى">
         <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
           <input id="barcode" class="filter-input small" placeholder="باركود">
-          <button type="button"
-                  id="scanBtn"
-                  style="border:none;background:#2563eb;color:#fff; padding:5px 8px;border-radius:8px;cursor:pointer;">
-            📷
-          </button>
+          
+      
         </div>
       </div>
     </div>
   </div>
 
-  <div id="scannerContainer">
-    <div id="reader" style="width:100%;"></div>
-    <button type="button"
-            onclick="stopScan()"
-            style="width:100%;border:none;background:#eee;padding:6px; font-size:14px;cursor:pointer">
-      إغلاق الكاميرا
-    </button>
-  </div>
+ 
 
   <div id="results"></div>
   <div id="salesLoading"
@@ -1703,7 +1692,6 @@ function openMenu(id){
     CURRENT_VIEW = "inventory";
     document.getElementById("topTitle").textContent = "الجرد المخزني";
     countStateWrap.style.display = "flex";
-    document.getElementById("scanBtn").disabled = false;
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
     runSearchInventory();
@@ -1716,7 +1704,6 @@ function openSalesMenu(){
   CURRENT_VIEW = "sales";
   document.getElementById("topTitle").textContent = "مبيعات";
   countStateWrap.style.display = "none";
-  document.getElementById("scanBtn").disabled = true;
   mainScreen.style.display = "none";
   appScreen.style.display  = "block";
   
@@ -2179,33 +2166,9 @@ function showConflictNotification(msg){
   setTimeout(() => notif.remove(), 4000);
 }
 
-/* CAMERA */
-let html5QrCode = null;
-let isScanning = false;
-document.getElementById("scanBtn").addEventListener("click", startScan);
 
-function startScan(){
-  if(isScanning || CURRENT_VIEW === "sales") return;
-  const container = document.getElementById("scannerContainer");
-  container.style.display = "block";
-  html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: { width: 250, height: 150 } },
-  decodedText => {
-  const clean = normalizeBarcodeInput(decodedText);
-  barcode.value = clean;
-  stopScan();
-  runSearchInventory();
-}
-);
-    }
-  ).catch(() => {
-    alert("تعذر فتح الكاميرا");
-    container.style.display = "none";
-  });
-  isScanning = true;
-}
+ 
+
 
 function stopScan(){
   const container = document.getElementById("scannerContainer");
