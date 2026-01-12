@@ -650,16 +650,6 @@ input, textarea, button{
   box-shadow:0 0 0 1px rgba(37,99,235,0.45);
 }
 
-/* SCANNER */
-#scannerContainer{
-  display:none;
-  max-width:430px;
-  margin:6px auto;
-  background:#020617;
-  border-radius:14px;
-  overflow:hidden;
-  box-shadow:0 10px 28px rgba(15,23,42,0.65);
-}
 
 /* Success notification */
 .success-notify{
@@ -1282,7 +1272,6 @@ input, textarea, button{
         <input id="locFrom" class="filter-input small" placeholder="الموقع من">
         <input id="locTo"   class="filter-input small" placeholder="إلى">
         <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
-          <input id="barcode" class="filter-input small" placeholder="باركود">
           
       
         </div>
@@ -1310,32 +1299,18 @@ input, textarea, button{
    =============================== */
 
 /**
- * يستخرج أول تسلسل رقمي
- * يتجاهل الحروف والرموز
- * يعيد بحد أقصى 10 أرقام
- */
-function normalizeKey(input) {
-  if (!input) return "";
-
-  const text = String(input).trim();
-
-  // أول مجموعة أرقام متصلة
-  const match = text.match(/\d+/);
-  if (!match) return "";
-
-  return match[0].substring(0, 10);
+ /* === SIMPLE PART NORMALIZATION ===
+   - أرقام فقط
+   - يتجاهل الشرطات والحروف
+   - أول 10 أرقام
+*/
+function normalizePart(value) {
+  if (!value) return "";
+  return String(value)
+    .replace(/[^0-9]/g, "")
+    .slice(0, 10);
 }
 
-/**
- * رقم الصنف بدون شرطات
- */
-function normalizePart(part) {
-  if (!part) return "";
-  return String(part).replace(/-/g, "").trim();
-}
-function normalizeBarcodeInput(value) {
-  return normalizeKey(value);
-}
 
 document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
@@ -1424,77 +1399,7 @@ function updateGreeting(){
   }
 }
 
-// معادلة تنظيف الباركود المحسنة (تتجاهل البادئات وتقص على 10 أرقام)
-function cleanBarcode(text) {
-  if (!text) return "";
-  
-  let val = String(text).trim();
-  if (!val) return "";
-  
-  // الخطوة 1: إزالة الشرطات المائلة من البداية
-  while (val.startsWith('/')) {
-    val = val.substring(1).trim();
-  }
-  
-  // الخطوة 2: إذا كان فيه ؛ (CSV)، استخرج أول جزء فيه أرقام
-  if (val.includes(';')) {
-    const parts = val.split(';');
-    for (const part of parts) {
-      const p = part.trim();
-      if (p && /\d/.test(p)) {
-        val = p;
-        break;
-      }
-    }
-  }
-  
-  // الخطوة 3: استخرج حتى أول فراغ
-  let core = "";
-  for (const char of val) {
-    if (char === ' ' || char === '\t') break;
-    core += char;
-  }
-  
-  // الخطوة 4: إزالة كل الشرطات من البداية
-  while (core.startsWith('-')) {
-    core = core.substring(1);
-  }
-  
-  // الخطوة 5: تجاهل البادئات المعروفة (حرفين + شرطة)
-  const knownPrefixes = ['MZ-', 'TO-', 'HO-', 'DA-', 'NS-', 'MS-', 'SU-', 'MI-', 'FU-', 'HY-'];
-  for (const prefix of knownPrefixes) {
-    if (core.toUpperCase().startsWith(prefix)) {
-      core = core.substring(prefix.length);
-      break;
-    }
-  }
-  
-  // أو إذا كانت البادئة حرفين فقط + شرطة (بدون قائمة)
-  if (core.length > 3 && core[2] === '-' && /^[A-Z]{2}/.test(core)) {
-    core = core.substring(3);
-  }
-  
-  // الخطوة 6: إزالة الشرطات من النهاية
-  while (core.endsWith('-')) {
-    core = core.substring(0, core.length - 1);
-  }
-  
-  // ⭐ الخطوة 7 الجديدة: استخراج أول 10 أرقام فقط
-  let digits = "";
-  for (const char of core.trim()) {
-    if (/\d/.test(char)) {
-      digits += char;
-      if (digits.length === 10) break; // توقف بعد 10 أرقام
-    }
-  }
-  
-  // لو أطول من 10 أرقام → ترجع فارغ (لا تطابق البحث)
-  if (digits.length > 10) {
-    return "";
-  }
-  
-  return digits;
-}
+
 
 /* LOGIN */
 function login(){
@@ -1764,9 +1669,7 @@ function runSearchInventory() {
   /* تطبيع المدخلات */
   const partContains = normalizePart(pContains.value);
   const partEnds     = normalizePart(pEnds.value);
-  const barcodeInput = normalizeBarcodeInput(barcode.value);
-barcode.value = barcodeInput;
-
+  
 
   const nameStarts   = (nStarts.value || "").trim().toLowerCase();
   const nameContains = (nContains.value || "").trim().toLowerCase();
@@ -1787,7 +1690,7 @@ barcode.value = barcodeInput;
     const location  = String(r.location || "").toLowerCase();
     const branch    = String(r.branch || "").trim().toLowerCase();
 
-    const itemBarcode = normalizeKey(r.barcode);
+    
 
     /* الفرع */
     if (branchVal !== "*" && branch !== branchVal) continue;
@@ -1811,8 +1714,7 @@ barcode.value = barcodeInput;
     if (nameStarts && !name.startsWith(nameStarts)) continue;
     if (nameContains && !name.includes(nameContains)) continue;
 
-    // الباركود
-    if (barcodeInput && !itemBarcode.includes(barcodeInput)) continue;
+   
 
     // الموقع
     if (locFrom && location < locFrom) continue;
@@ -2170,18 +2072,7 @@ function showConflictNotification(msg){
  
 
 
-function stopScan(){
-  const container = document.getElementById("scannerContainer");
-  container.style.display = "none";
-  if(html5QrCode && isScanning){
-    html5QrCode.stop().then(() => {
-      html5QrCode.clear();
-      isScanning = false;
-    }).catch(() => {
-      isScanning = false;
-    });
-  }
-}
+
 
 /* CART FUNCTIONS */
 function addToCart(item){
@@ -2510,10 +2401,6 @@ function logoutUser(){
   location.reload();
 }
 
-// دالة مساعدة لتطبيع الباركود (إن وجدت)
-function normalizeBarcode(text) {
-  return cleanBarcode(text);
-}
 </script>
 
 </body>
