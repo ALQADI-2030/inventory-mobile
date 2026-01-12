@@ -1712,7 +1712,7 @@ function clearFilters(){
   if(CURRENT_VIEW === "inventory"){ runSearchInventory(); }else{ runSearchSales(); }
 }
 
-/* ======= بحث المخزون ======= */
+/* ======= بحث المخزون (FINAL) ======= */
 function runSearchInventory() {
   const branchVal = (branchFilter.value || "").trim().toLowerCase();
   if (!branchVal) {
@@ -1720,16 +1720,15 @@ function runSearchInventory() {
     return;
   }
 
-  /* تطبيع المدخلات */
-  const partContains = normalizePart(pContains.value);
-  const partEnds     = normalizePart(pEnds.value);
-  
+  // ===== Inputs =====
+  const partContains = (pContains.value || "").trim().toLowerCase();
+  const partEnds     = (pEnds.value || "").trim().toLowerCase();
 
   const nameStarts   = (nStarts.value || "").trim().toLowerCase();
   const nameContains = (nContains.value || "").trim().toLowerCase();
 
-  const locFrom = (locFrom.value || "").trim().toLowerCase();
-  const locTo   = (locTo.value || "").trim().toLowerCase();
+  const locFromVal   = (locFrom.value || "").trim().toLowerCase();
+  const locToVal     = (locTo.value || "").trim().toLowerCase();
 
   const stateEl = document.querySelector('input[name="countState"]:checked');
   const state   = stateEl ? stateEl.value : "all";
@@ -1737,19 +1736,15 @@ function runSearchInventory() {
   const res = [];
 
   for (const r of ALL_DATA) {
-    const partRaw   = String(r.part || "");
-    const partNorm  = normalizePart(partRaw);
+    const partText = String(r.part || "").toLowerCase();
+    const nameText = String(r.name || "").toLowerCase();
+    const location = String(r.location || "").toLowerCase();
+    const branch   = String(r.branch || "").trim().toLowerCase();
 
-    const name      = String(r.name || "").toLowerCase();
-    const location  = String(r.location || "").toLowerCase();
-    const branch    = String(r.branch || "").trim().toLowerCase();
-
-    
-
-    /* الفرع */
+    // الفرع
     if (branchVal !== "*" && branch !== branchVal) continue;
 
-    /* حالة الجرد */
+    // حالة الجرد
     const hasCount = r.lastCountedAt && String(r.lastCountedAt).trim() !== "";
     const qtySys   = Number(r.qty || 0);
     const qtyCnt   = Number(r.lastCountQty || 0);
@@ -1758,23 +1753,18 @@ function runSearchInventory() {
     if (state === "not" && hasCount) continue;
     if (state === "diff" && (!hasCount || qtySys === qtyCnt)) continue;
 
-    /* ===== AND SMART LOGIC ===== */
-
     // رقم الصنف
-    if (partContains && !partNorm.includes(partContains)) continue;
-    if (partEnds && !partNorm.endsWith(partEnds)) continue;
+    if (partContains && !partText.includes(partContains)) continue;
+    if (partEnds && !partText.endsWith(partEnds)) continue;
 
     // الاسم
-    if (nameStarts && !name.startsWith(nameStarts)) continue;
-    if (nameContains && !name.includes(nameContains)) continue;
-
-   
+    if (nameStarts && !nameText.startsWith(nameStarts)) continue;
+    if (nameContains && !nameText.includes(nameContains)) continue;
 
     // الموقع
-    if (locFrom && location < locFrom) continue;
-    if (locTo && location > locTo) continue;
+    if (locFromVal && location < locFromVal) continue;
+    if (locToVal   && location > locToVal) continue;
 
-    /* اجتاز كل الشروط */
     res.push(r);
     if (res.length >= 100) break;
   }
@@ -1784,8 +1774,7 @@ function runSearchInventory() {
 }
 
 
-
-/* بحث المبيعات */
+/* ======= بحث المبيعات (FINAL) ======= */
 function runSearchSales() {
   const branchVal = (branchFilter.value || "").trim().toLowerCase();
   if (!branchVal) {
@@ -1793,21 +1782,21 @@ function runSearchSales() {
     return;
   }
 
-  const partQuery = normalizePart(pContains.value);
-  const nameStart = (nStarts.value || "").trim().toLowerCase();
-  const nameCont  = (nContains.value || "").trim().toLowerCase();
+  const partQuery   = (pContains.value || "").trim().toLowerCase();
+  const nameStart   = (nStarts.value || "").trim().toLowerCase();
+  const nameContain = (nContains.value || "").trim().toLowerCase();
 
   const res = [];
 
   for (const r of SALES_DATA) {
-    const partNorm = normalizePart(r.part);
+    const partText = String(r.part || "").toLowerCase();
     const name     = String(r.name || "").toLowerCase();
     const branch   = String(r.branch || "").trim().toLowerCase();
 
     if (branchVal !== "*" && branch !== branchVal) continue;
-    if (partQuery && !partNorm.includes(partQuery)) continue;
+    if (partQuery && !partText.includes(partQuery)) continue;
     if (nameStart && !name.startsWith(nameStart)) continue;
-    if (nameCont && !name.includes(nameCont)) continue;
+    if (nameContain && !name.includes(nameContain)) continue;
 
     res.push(r);
     if (res.length >= 100) break;
@@ -1815,6 +1804,7 @@ function runSearchSales() {
 
   renderSales(res);
 }
+
 
 
 function fmtDate(d){
