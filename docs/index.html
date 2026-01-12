@@ -1697,6 +1697,13 @@ document.querySelectorAll(".filter-input").forEach(inp=>{
 document.querySelectorAll('input[name="countState"]').forEach(r=>{
   r.addEventListener("change", ()=>{ if(CURRENT_VIEW === "inventory") runSearchInventory(); });
 });
+branchFilter.addEventListener("change", () => {
+  if (CURRENT_VIEW === "inventory") {
+    runSearchInventory();
+  } else if (CURRENT_VIEW === "sales") {
+    runSearchSales();
+  }
+});
 
 function clearFilters(){
   document.querySelectorAll(".filter-input").forEach(i=>{ if(i.id !== "branchFilter"){ i.value = ""; } });
