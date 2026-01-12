@@ -1754,8 +1754,14 @@ function runSearchInventory() {
     if (state === "diff" && (!hasCount || qtySys === qtyCnt)) continue;
 
     // رقم الصنف
-    if (partContains && !partText.includes(partContains)) continue;
-    if (partEnds && !partText.endsWith(partEnds)) continue;
+   // رقم الصنف (ذكي: يتجاهل - والرموز)
+const partDigits = digitsOnly(r.part);          // بيانات الشيت: "04465-02220" -> "0446502220"
+const queryDigits = digitsOnly(partContains);   // إدخال المستخدم: "0446502220" -> "0446502220"
+const endsDigits  = digitsOnly(partEnds);
+
+if (queryDigits && !partDigits.includes(queryDigits)) continue;
+if (endsDigits && !partDigits.endsWith(endsDigits)) continue;
+
 
     // الاسم
     if (nameStarts && !nameText.startsWith(nameStarts)) continue;
@@ -1782,19 +1788,27 @@ function runSearchSales() {
     return;
   }
 
-  const partQuery   = (pContains.value || "").trim().toLowerCase();
+  const partQueryText = (pContains.value || "").trim().toLowerCase();
+  const partQueryDigits = digitsOnly(partQueryText);
+
   const nameStart   = (nStarts.value || "").trim().toLowerCase();
   const nameContain = (nContains.value || "").trim().toLowerCase();
 
   const res = [];
 
   for (const r of SALES_DATA) {
-    const partText = String(r.part || "").toLowerCase();
-    const name     = String(r.name || "").toLowerCase();
-    const branch   = String(r.branch || "").trim().toLowerCase();
+    const partText   = String(r.part || "").toLowerCase();
+    const partDigits = digitsOnly(r.part);
+    const name       = String(r.name || "").toLowerCase();
+    const branch     = String(r.branch || "").trim().toLowerCase();
 
+    // الفرع
     if (branchVal !== "*" && branch !== branchVal) continue;
-    if (partQuery && !partText.includes(partQuery)) continue;
+
+    // رقم الصنف (ذكي: يتجاهل - والرموز)
+    if (partQueryDigits && !partDigits.includes(partQueryDigits)) continue;
+
+    // الاسم
     if (nameStart && !name.startsWith(nameStart)) continue;
     if (nameContain && !name.includes(nameContain)) continue;
 
