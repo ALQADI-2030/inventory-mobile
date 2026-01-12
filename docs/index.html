@@ -1335,7 +1335,7 @@ barcodeInput.addEventListener("input", () => {
     const raw = barcodeInput.value || "";
     
     // يشيل الشرطات والمسافات، يخلي الحروف والأرقام، يأخذ أول 10
-    const cleaned = raw.replace(/[-\s]/g, "").slice(0, 10);
+const cleaned = raw.replace(/[^a-zA-Z0-9]/g, "").slice(0, 10);
 
     if (!cleaned) {
       pContains.value = "";
@@ -1753,9 +1753,11 @@ function runSearchInventory() {
     // رقم الصنف
    // رقم الصنف (ذكي: يتجاهل - والرموز)
 // رقم الصنف (يتجاهل الشرطات والمسافات فقط، يخلي الحروف والأرقام)
-const partClean = String(r.part || "").replace(/[-\s]/g, "").toLowerCase();
-const queryClean = partContains.replace(/[-\s]/g, "");
-const endsClean = partEnds.replace(/[-\s]/g, "");
+// رقم الصنف (يتجاهل كل الرموز: - # $ & / * وغيرها، يخلي حروف وأرقام فقط)
+const partClean = String(r.part || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+const queryClean = partContains.replace(/[^a-zA-Z0-9]/g, "");
+const endsClean = partEnds.replace(/[^a-zA-Z0-9]/g, "");
+
 
 if (queryClean && !partClean.includes(queryClean)) continue;
 if (endsClean && !partClean.endsWith(endsClean)) continue;
@@ -1800,8 +1802,10 @@ function runSearchSales() {
     if (branchVal !== "*" && branch !== branchVal) continue;
 
     // رقم الصنف (يتجاهل الشرطات والمسافات فقط، يخلي الحروف والأرقام)
-    const partClean = String(r.part || "").replace(/[-\s]/g, "").toLowerCase();
-    const queryClean = partQueryText.replace(/[-\s]/g, "");
+    // رقم الصنف (يتجاهل كل الرموز، يخلي حروف وأرقام فقط)
+const partClean = String(r.part || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+const queryClean = partQueryText.replace(/[^a-zA-Z0-9]/g, "");
+
     
     if (queryClean && !partClean.includes(queryClean)) continue;
 
