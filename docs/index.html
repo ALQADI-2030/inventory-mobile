@@ -1344,6 +1344,9 @@ function normalizePart(part) {
   if (!part) return "";
   return String(part).replace(/-/g, "").trim();
 }
+function normalizeBarcodeInput(value) {
+  return normalizeKey(value);
+}
 
 document.getElementById("buildInfo").textContent =
   "آخر تحديث للملف: " +
