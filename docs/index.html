@@ -1329,25 +1329,18 @@ barcodeInput.addEventListener("input", () => {
 
   barcodeTimer = setTimeout(() => {
     const raw = barcodeInput.value || "";
-    const digits = raw.replace(/[^0-9]/g, "");
 
-    if (digits.length === 0) {
+    // نفس منطق "رقم الصنف يحتوي" لكن مع حد 10 أرقام
+    const digits10 = raw.replace(/[^0-9]/g, "").slice(0, 10);
+
+    // لو فاضي → تفريغ البحث
+    if (!digits10) {
       pContains.value = "";
-      pEnds.value = "";
-
-      if (CURRENT_VIEW === "inventory") {
-        runSearchInventory();
-      } else if (CURRENT_VIEW === "sales") {
-        runSearchSales();
-      }
-      return;
+    } else {
+      pContains.value = digits10;
     }
 
-    if (digits.length < 3) return;
-
-    pContains.value = digits.slice(0, 10);
-    pEnds.value = "";
-
+    // تشغيل البحث حسب الشاشة الحالية
     if (CURRENT_VIEW === "inventory") {
       runSearchInventory();
     } else if (CURRENT_VIEW === "sales") {
@@ -1355,6 +1348,7 @@ barcodeInput.addEventListener("input", () => {
     }
   }, 120);
 });
+
 
 
 document.getElementById("buildInfo").textContent =
