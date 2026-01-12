@@ -1304,6 +1304,11 @@ input, textarea, button{
       /* ===============================
    UNIFIED SEARCH NORMALIZATION
    =============================== */
+// دالة مساعدة لاستخراج الأرقام فقط (تستخدم في البحث)
+function digitsOnly(value) {
+  if (!value) return "";
+  return String(value).replace(/[^0-9]/g, "");
+}
 
 /**
  /* === SIMPLE PART NORMALIZATION ===
@@ -1326,21 +1331,18 @@ let barcodeTimer = null;
 
 barcodeInput.addEventListener("input", () => {
   clearTimeout(barcodeTimer);
-
   barcodeTimer = setTimeout(() => {
     const raw = barcodeInput.value || "";
+    
+    // يشيل الشرطات والمسافات، يخلي الحروف والأرقام، يأخذ أول 10
+    const cleaned = raw.replace(/[-\s]/g, "").slice(0, 10);
 
-    // نفس منطق "رقم الصنف يحتوي" لكن مع حد 10 أرقام
-    const digits10 = raw.replace(/[^0-9]/g, "").slice(0, 10);
-
-    // لو فاضي → تفريغ البحث
-    if (!digits10) {
+    if (!cleaned) {
       pContains.value = "";
     } else {
-      pContains.value = digits10;
+      pContains.value = cleaned;
     }
 
-    // تشغيل البحث حسب الشاشة الحالية
     if (CURRENT_VIEW === "inventory") {
       runSearchInventory();
     } else if (CURRENT_VIEW === "sales") {
