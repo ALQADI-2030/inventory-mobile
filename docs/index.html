@@ -1774,7 +1774,9 @@ function runSearchInventory() {
   /* تطبيع المدخلات */
   const partContains = normalizePart(pContains.value);
   const partEnds     = normalizePart(pEnds.value);
-  const barcodeInput = normalizeKey(barcode.value);
+  const barcodeInput = normalizeBarcodeInput(barcode.value);
+barcode.value = barcodeInput;
+
 
   const nameStarts   = (nStarts.value || "").trim().toLowerCase();
   const nameContains = (nContains.value || "").trim().toLowerCase();
@@ -2187,10 +2189,13 @@ function startScan(){
   html5QrCode.start(
     { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 150 } },
-    decodedText => {
-      barcode.value = normalizeBarcode(decodedText);
-      stopScan();
-      runSearchInventory();
+  decodedText => {
+  const clean = normalizeBarcodeInput(decodedText);
+  barcode.value = clean;
+  stopScan();
+  runSearchInventory();
+}
+);
     }
   ).catch(() => {
     alert("تعذر فتح الكاميرا");
