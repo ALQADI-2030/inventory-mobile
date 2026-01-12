@@ -1752,12 +1752,13 @@ function runSearchInventory() {
 
     // رقم الصنف
    // رقم الصنف (ذكي: يتجاهل - والرموز)
-const partDigits = digitsOnly(r.part);          // بيانات الشيت: "04465-02220" -> "0446502220"
-const queryDigits = digitsOnly(partContains);   // إدخال المستخدم: "0446502220" -> "0446502220"
-const endsDigits  = digitsOnly(partEnds);
+// رقم الصنف (يتجاهل الشرطات والمسافات فقط، يخلي الحروف والأرقام)
+const partClean = String(r.part || "").replace(/[-\s]/g, "").toLowerCase();
+const queryClean = partContains.replace(/[-\s]/g, "");
+const endsClean = partEnds.replace(/[-\s]/g, "");
 
-if (queryDigits && !partDigits.includes(queryDigits)) continue;
-if (endsDigits && !partDigits.endsWith(endsDigits)) continue;
+if (queryClean && !partClean.includes(queryClean)) continue;
+if (endsClean && !partClean.endsWith(endsClean)) continue;
 
 
     // الاسم
@@ -1786,24 +1787,23 @@ function runSearchSales() {
   }
 
   const partQueryText = (pContains.value || "").trim().toLowerCase();
-  const partQueryDigits = digitsOnly(partQueryText);
-
   const nameStart   = (nStarts.value || "").trim().toLowerCase();
   const nameContain = (nContains.value || "").trim().toLowerCase();
 
   const res = [];
 
   for (const r of SALES_DATA) {
-    const partText   = String(r.part || "").toLowerCase();
-    const partDigits = digitsOnly(r.part);
     const name       = String(r.name || "").toLowerCase();
     const branch     = String(r.branch || "").trim().toLowerCase();
 
     // الفرع
     if (branchVal !== "*" && branch !== branchVal) continue;
 
-    // رقم الصنف (ذكي: يتجاهل - والرموز)
-    if (partQueryDigits && !partDigits.includes(partQueryDigits)) continue;
+    // رقم الصنف (يتجاهل الشرطات والمسافات فقط، يخلي الحروف والأرقام)
+    const partClean = String(r.part || "").replace(/[-\s]/g, "").toLowerCase();
+    const queryClean = partQueryText.replace(/[-\s]/g, "");
+    
+    if (queryClean && !partClean.includes(queryClean)) continue;
 
     // الاسم
     if (nameStart && !name.startsWith(nameStart)) continue;
@@ -1814,6 +1814,8 @@ function runSearchSales() {
   }
 
   renderSales(res);
+}
+
 }
 
 
