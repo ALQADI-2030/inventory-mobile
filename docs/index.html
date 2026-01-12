@@ -1324,36 +1324,37 @@ function normalizePart(value) {
 
 let barcodeTimer = null;
 
-const barcodeInput = document.getElementById("barcodeInput");
+barcodeInput.addEventListener("input", () => {
+  clearTimeout(barcodeTimer);
 
-if (barcodeInput) {
-  barcodeInput.addEventListener("input", () => {
-    clearTimeout(barcodeTimer);
+  barcodeTimer = setTimeout(() => {
+    const raw = barcodeInput.value || "";
+    const digits = raw.replace(/[^0-9]/g, "");
 
-    barcodeTimer = setTimeout(() => {
-      const raw = barcodeInput.value || "";
-      const digits = raw.replace(/[^0-9]/g, "");
-
-      // تفريغ كامل
-      if (digits.length === 0) {
-        pContains.value = "";
-        pEnds.value = "";
-        runSearchInventory();
-        return;
-      }
-
-      // أقل من 3 أرقام = تجاهل
-      if (digits.length < 3) return;
-
-      // بحث ذكي (3 – 10 أرقام)
-      pContains.value = digits.slice(0, 10);
+    if (digits.length === 0) {
+      pContains.value = "";
       pEnds.value = "";
 
-      runSearchInventory();
-    }, 120);
-  });
-}
+      if (CURRENT_VIEW === "inventory") {
+        runSearchInventory();
+      } else if (CURRENT_VIEW === "sales") {
+        runSearchSales();
+      }
+      return;
+    }
 
+    if (digits.length < 3) return;
+
+    pContains.value = digits.slice(0, 10);
+    pEnds.value = "";
+
+    if (CURRENT_VIEW === "inventory") {
+      runSearchInventory();
+    } else if (CURRENT_VIEW === "sales") {
+      runSearchSales();
+    }
+  }, 120);
+});
 
 
 document.getElementById("buildInfo").textContent =
