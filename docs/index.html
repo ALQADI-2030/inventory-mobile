@@ -1269,9 +1269,16 @@ input, textarea, button{
       </div>
 
       <div class="filter-row">
-        <input id="locFrom" class="filter-input small" placeholder="الموقع من">
-        <input id="locTo"   class="filter-input small" placeholder="إلى">
-        <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
+  <input id="locFrom" class="filter-input small" placeholder="الموقع من">
+  <input id="locTo"   class="filter-input small" placeholder="إلى">
+  <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
+    <input id="barcodeInput"
+           class="filter-input small"
+           placeholder="باركود / رقم الصنف"
+           inputmode="numeric">
+  </div>
+</div>
+
           
       
         </div>
@@ -1310,6 +1317,43 @@ function normalizePart(value) {
     .replace(/[^0-9]/g, "")
     .slice(0, 10);
 }
+
+/* ===============================
+   SMART BARCODE / PART SEARCH
+   =============================== */
+
+let barcodeTimer = null;
+
+const barcodeInput = document.getElementById("barcodeInput");
+
+if (barcodeInput) {
+  barcodeInput.addEventListener("input", () => {
+    clearTimeout(barcodeTimer);
+
+    barcodeTimer = setTimeout(() => {
+      const raw = barcodeInput.value || "";
+      const digits = raw.replace(/[^0-9]/g, "");
+
+      // تفريغ كامل
+      if (digits.length === 0) {
+        pContains.value = "";
+        pEnds.value = "";
+        runSearchInventory();
+        return;
+      }
+
+      // أقل من 3 أرقام = تجاهل
+      if (digits.length < 3) return;
+
+      // بحث ذكي (3 – 10 أرقام)
+      pContains.value = digits.slice(0, 10);
+      pEnds.value = "";
+
+      runSearchInventory();
+    }, 120);
+  });
+}
+
 
 
 document.getElementById("buildInfo").textContent =
@@ -1638,6 +1682,8 @@ function openSalesMenu(){
 /* FILTERS */
 let searchTimer = null;
 document.querySelectorAll(".filter-input").forEach(inp=>{
+  if (inp.id === "barcodeInput") return; // 🔴 استثناء الباركود
+
   inp.addEventListener("input", ()=>{
     clearTimeout(searchTimer);
     searchTimer = setTimeout(()=>{
@@ -1646,6 +1692,7 @@ document.querySelectorAll(".filter-input").forEach(inp=>{
     }, 150);
   });
 });
+
 
 document.querySelectorAll('input[name="countState"]').forEach(r=>{
   r.addEventListener("change", ()=>{ if(CURRENT_VIEW === "inventory") runSearchInventory(); });
