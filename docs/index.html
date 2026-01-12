@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>شركة القاضي</title>function updateProfitPanel
+<title>ط´ط±ظƒط© ط§ظ„ظ‚ط§ط¶ظٹ</title>function updateProfitPanel
 
 <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -513,12 +513,12 @@ input, textarea, button{
   margin-top:4px;
 }
 
-/* مبيعات */
+/* ظ…ط¨ظٹط¹ط§طھ */
 .sales-item .part.ok{
   color:var(--primary);
 }
 
-/* إبراز فرق كبير */
+/* ط¥ط¨ط±ط§ط² ظپط±ظ‚ ظƒط¨ظٹط± */
 .item[style*="border:2px solid"]{
   background:#fff7ed;
 }
@@ -1162,14 +1162,14 @@ input, textarea, button{
       <img src="logo.png.gif" alt="">
     </div>
 
-    <h3>شركة القاضي لبيع قطع غيار السيارات</h3>
-    <p>فضلاً أدخل اسم المستخدم والرقم السري</p>
+    <h3>ط´ط±ظƒط© ط§ظ„ظ‚ط§ط¶ظٹ ظ„ط¨ظٹط¹ ظ‚ط·ط¹ ط؛ظٹط§ط± ط§ظ„ط³ظٹط§ط±ط§طھ</h3>
+    <p>ظپط¶ظ„ط§ظ‹ ط£ط¯ط®ظ„ ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ… ظˆط§ظ„ط±ظ‚ظ… ط§ظ„ط³ط±ظٹ</p>
 
-    <input id="loginUser" placeholder="اسم المستخدم">
-    <input id="loginPass" type="password" placeholder="الرقم السري">
+    <input id="loginUser" placeholder="ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ…">
+    <input id="loginPass" type="password" placeholder="ط§ظ„ط±ظ‚ظ… ط§ظ„ط³ط±ظٹ">
 
-    <button class="login-btn" onclick="login()">دخول</button>
-    <div id="loginLoading">جاري التحقق...</div>
+    <button class="login-btn" onclick="login()">ط¯ط®ظˆظ„</button>
+    <div id="loginLoading">ط¬ط§ط±ظٹ ط§ظ„طھط­ظ‚ظ‚...</div>
     <div id="loginError"></div>
     <div id="buildInfo"></div>
   </div>
@@ -1177,40 +1177,40 @@ input, textarea, button{
 
 <div id="mainScreen">
   <div class="main-card">
-    <button class="main-logout-btn" onclick="logoutUser()">تسجيل خروج</button>
+    <button class="main-logout-btn" onclick="logoutUser()">طھط³ط¬ظٹظ„ ط®ط±ظˆط¬</button>
     
     <div class="main-header">
       <div>
-        <div class="main-title">القائمة الرئيسية</div>
-        <div class="main-sub">اختر العملية المطلوبة</div>
+        <div class="main-title">ط§ظ„ظ‚ط§ط¦ظ…ط© ط§ظ„ط±ط¦ظٹط³ظٹط©</div>
+        <div class="main-sub">ط§ط®طھط± ط§ظ„ط¹ظ…ظ„ظٹط© ط§ظ„ظ…ط·ظ„ظˆط¨ط©</div>
         <div class="main-greeting" id="userGreeting"></div>
       </div>
-      <div class="main-badge">نظام الجرد والمبيعات</div>
+      <div class="main-badge">ظ†ط¸ط§ظ… ط§ظ„ط¬ط±ط¯ ظˆط§ظ„ظ…ط¨ظٹط¹ط§طھ</div>
     </div>
 
     <div class="main-list">
       <button class="main-btn" onclick="openMenu(2)">
         <span class="left">
-          <span class="main-icon">🚗</span>
-          <span>بضاعة شركة تويوتا</span>
+          <span class="main-icon">ًںڑ—</span>
+          <span>ط¨ط¶ط§ط¹ط© ط´ط±ظƒط© طھظˆظٹظˆطھط§</span>
         </span>
-        <span class="main-arrow">›</span>
+        <span class="main-arrow">â€؛</span>
       </button>
 
       <button class="main-btn primary" onclick="openMenu(3)">
         <span class="left">
-          <span class="main-icon">📋</span>
-          <span>الجرد المخزني </span>
+          <span class="main-icon">ًں“‹</span>
+          <span>ط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ط®ط²ظ†ظٹ </span>
         </span>
-        <span class="main-arrow">›</span>
+        <span class="main-arrow">â€؛</span>
       </button>
 
       <button class="main-btn" onclick="openSalesMenu()">
         <span class="left">
-          <span class="main-icon">💰</span>
-          <span>مبيعات</span>
+          <span class="main-icon">ًں’°</span>
+          <span>ظ…ط¨ظٹط¹ط§طھ</span>
         </span>
-        <span class="main-arrow">›</span>
+        <span class="main-arrow">â€؛</span>
       </button>
     </div>
 
@@ -1220,14 +1220,14 @@ input, textarea, button{
 <div id="appScreen">
 
   <div class="top-bar">
-    <div class="top-title" id="topTitle">الجرد المخزني </div>
+    <div class="top-title" id="topTitle">ط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ط®ط²ظ†ظٹ </div>
     <div class="top-actions">
-      <button class="icon-btn small" id="cartBtn" onclick="openCart()" title="عربة المبيعات" style="display:none;position:relative">
-        🛒
+      <button class="icon-btn small" id="cartBtn" onclick="openCart()" title="ط¹ط±ط¨ط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ" style="display:none;position:relative">
+        ًں›’
         <span class="cart-badge" id="cartCount" style="display:none">0</span>
       </button>
-      <button class="icon-btn small" id="refreshBtn" onclick="refreshCurrentView()" title="تحديث يدوي">🔄</button>
-      <button class="icon-btn" onclick="backToMain()">عودة</button>
+      <button class="icon-btn small" id="refreshBtn" onclick="refreshCurrentView()" title="طھط­ط¯ظٹط« ظٹط¯ظˆظٹ">ًں”„</button>
+      <button class="icon-btn" onclick="backToMain()">ط¹ظˆط¯ط©</button>
     </div>
   </div>
 
@@ -1235,59 +1235,59 @@ input, textarea, button{
     <div class="filter-card">
 
       <div class="filter-header">
-        <strong>البحث المتقدم</strong>
-        <button class="clear-btn" onclick="clearFilters()">مسح ✕</button>
+        <strong>ط§ظ„ط¨ط­ط« ط§ظ„ظ…طھظ‚ط¯ظ…</strong>
+        <button class="clear-btn" onclick="clearFilters()">ظ…ط³ط­ âœ•</button>
       </div>
 
       <div class="filter-row" style="margin-bottom:6px">
         <select id="branchFilter" class="filter-input small" required>
-          <option value="" disabled selected>اختر الفرع</option>
-          <option value="*">كل الفروع</option>
-          <option value="مستودع الرئيسي">الفرع الاول</option>
-          <option value="الفرع الثاني">الفرع الثاني</option>
-          <option value="الفرع الثالث">الفرع الثالث</option>
-          <option value="مستودع فرع 3">مستودع فرع 3</option>
+          <option value="" disabled selected>ط§ط®طھط± ط§ظ„ظپط±ط¹</option>
+          <option value="*">ظƒظ„ ط§ظ„ظپط±ظˆط¹</option>
+          <option value="ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ">ط§ظ„ظپط±ط¹ ط§ظ„ط§ظˆظ„</option>
+          <option value="ط§ظ„ظپط±ط¹ ط§ظ„ط«ط§ظ†ظٹ">ط§ظ„ظپط±ط¹ ط§ظ„ط«ط§ظ†ظٹ</option>
+          <option value="ط§ظ„ظپط±ط¹ ط§ظ„ط«ط§ظ„ط«">ط§ظ„ظپط±ط¹ ط§ظ„ط«ط§ظ„ط«</option>
+          <option value="ظ…ط³طھظˆط¯ط¹ ظپط±ط¹ 3">ظ…ط³طھظˆط¯ط¹ ظپط±ط¹ 3</option>
         </select>
       </div>
 
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;font-size:11px" id="countStateWrap">
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="all" checked style="margin:0">
-          <span>الكل</span>
+          <span>ط§ظ„ظƒظ„</span>
         </label>
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="counted" style="margin:0">
-          <span>المجرد</span>
+          <span>ط§ظ„ظ…ط¬ط±ط¯</span>
         </label>
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="diff" style="margin:0">
-          <span>فيه فرق</span>
+          <span>ظپظٹظ‡ ظپط±ظ‚</span>
         </label>
         <label style="display:flex;align-items:center;gap:3px;cursor:pointer">
           <input type="radio" name="countState" value="not" style="margin:0">
-          <span>غير مجرد</span>
+          <span>ط؛ظٹط± ظ…ط¬ط±ط¯</span>
         </label>
       </div>
 
       <div class="filter-row">
-        <input id="pContains" class="filter-input" placeholder="رقم الصنف يحتوي">
-        <input id="pEnds" class="filter-input" placeholder="ينتهي بـ">
+        <input id="pContains" class="filter-input" placeholder="ط±ظ‚ظ… ط§ظ„طµظ†ظپ ظٹط­طھظˆظٹ">
+        <input id="pEnds" class="filter-input" placeholder="ظٹظ†طھظ‡ظٹ ط¨ظ€">
       </div>
 
       <div class="filter-row">
-        <input id="nStarts" class="filter-input" placeholder="اسم يبدأ">
-        <input id="nContains" class="filter-input" placeholder="يحتوي">
+        <input id="nStarts" class="filter-input" placeholder="ط§ط³ظ… ظٹط¨ط¯ط£">
+        <input id="nContains" class="filter-input" placeholder="ظٹط­طھظˆظٹ">
       </div>
 
       <div class="filter-row">
-        <input id="locFrom" class="filter-input small" placeholder="الموقع من">
-        <input id="locTo"   class="filter-input small" placeholder="إلى">
+        <input id="locFrom" class="filter-input small" placeholder="ط§ظ„ظ…ظˆظ‚ط¹ ظ…ظ†">
+        <input id="locTo"   class="filter-input small" placeholder="ط¥ظ„ظ‰">
         <div style="display:flex;gap:4px;flex:1 1 30%;align-items:center">
-          <input id="barcode" class="filter-input small" placeholder="باركود">
+          <input id="barcode" class="filter-input small" placeholder="ط¨ط§ط±ظƒظˆط¯">
           <button type="button"
                   id="scanBtn"
                   style="border:none;background:#2563eb;color:#fff; padding:5px 8px;border-radius:8px;cursor:pointer;">
-            📷
+            ًں“·
           </button>
         </div>
       </div>
@@ -1299,14 +1299,14 @@ input, textarea, button{
     <button type="button"
             onclick="stopScan()"
             style="width:100%;border:none;background:#eee;padding:6px; font-size:14px;cursor:pointer">
-      إغلاق الكاميرا
+      ط¥ط؛ظ„ط§ظ‚ ط§ظ„ظƒط§ظ…ظٹط±ط§
     </button>
   </div>
 
   <div id="results"></div>
   <div id="salesLoading"
        style="display:none;text-align:center;font-size:13px;color:#6b7280;margin:8px 0;">
-    جاري تحميل بيانات المبيعات...
+    ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط¨ظٹط¹ط§طھ...
   </div>
 
 </div>
@@ -1317,7 +1317,7 @@ input, textarea, button{
 
 <script>
 document.getElementById("buildInfo").textContent =
-  "آخر تحديث للملف: " +
+  "ط¢ط®ط± طھط­ط¯ظٹط« ظ„ظ„ظ…ظ„ظپ: " +
   new Date(document.lastModified).toLocaleString("ar-SA");
 
 let CURRENT_VIEW = "inventory";
@@ -1333,12 +1333,12 @@ let AUTO_REFRESH = null;
 let CURRENT_DETAIL_PART   = null;
 let CURRENT_DETAIL_BRANCH = null;
 let LAST_SYNC_TIME = 0;
-let SYNC_INTERVAL = 30000; // 30 ثانية
+let SYNC_INTERVAL = 30000; // 30 ط«ط§ظ†ظٹط©
 let JUST_UPDATED = false;
 let SALES_CART = [];
 let ACTIVE_CART_ITEM = null;
 
-// استرجاع الجلسة
+// ط§ط³طھط±ط¬ط§ط¹ ط§ظ„ط¬ظ„ط³ط©
 window.addEventListener("load", () => {
   try {
     const savedUser = localStorage.getItem("stockUser");
@@ -1356,7 +1356,7 @@ window.addEventListener("load", () => {
   } catch (e) {}
 });
 
-/* منع الزووم */
+/* ظ…ظ†ط¹ ط§ظ„ط²ظˆظˆظ… */
 document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
 let lastTouchEnd = 0;
 document.addEventListener("touchend", function (e) {
@@ -1365,7 +1365,7 @@ document.addEventListener("touchend", function (e) {
   lastTouchEnd = now;
 }, { passive: false });
 
-/* منع السحب للأسفل */
+/* ظ…ظ†ط¹ ط§ظ„ط³ط­ط¨ ظ„ظ„ط£ط³ظپظ„ */
 let lastTouchY = 0;
 let preventPullToRefresh = false;
 function enablePullBlock(){ preventPullToRefresh = true; }
@@ -1383,7 +1383,7 @@ window.addEventListener("touchmove", function(e){
   if(deltaY > 0) e.preventDefault();
 }, {passive:false});
 
-/* صوت */
+/* طµظˆطھ */
 function playBeep(){
   const a = document.getElementById("beepAudio");
   if(!a) return;
@@ -1391,31 +1391,31 @@ function playBeep(){
   a.play().catch(()=>{});
 }
 
-/* ترحيب المستخدم */
+/* طھط±ط­ظٹط¨ ط§ظ„ظ…ط³طھط®ط¯ظ… */
 function updateGreeting(){
   const greeting = document.getElementById("userGreeting");
   if(greeting){
     const hour = new Date().getHours();
-    let greeting_text = "صباح الخير";
-    if(hour >= 12 && hour < 18) greeting_text = "مساء الخير";
-    if(hour >= 18) greeting_text = "مساء الخير";
+    let greeting_text = "طµط¨ط§ط­ ط§ظ„ط®ظٹط±";
+    if(hour >= 12 && hour < 18) greeting_text = "ظ…ط³ط§ط، ط§ظ„ط®ظٹط±";
+    if(hour >= 18) greeting_text = "ظ…ط³ط§ط، ط§ظ„ط®ظٹط±";
     greeting.textContent = greeting_text + " " + CURRENT_USER;
   }
 }
 
-// معادلة تنظيف الباركود المحسنة (تتجاهل البادئات وتقص على 10 أرقام)
+// ظ…ط¹ط§ط¯ظ„ط© طھظ†ط¸ظٹظپ ط§ظ„ط¨ط§ط±ظƒظˆط¯ ط§ظ„ظ…ط­ط³ظ†ط© (طھطھط¬ط§ظ‡ظ„ ط§ظ„ط¨ط§ط¯ط¦ط§طھ ظˆطھظ‚طµ ط¹ظ„ظ‰ 10 ط£ط±ظ‚ط§ظ…)
 function cleanBarcode(text) {
   if (!text) return "";
   
   let val = String(text).trim();
   if (!val) return "";
   
-  // الخطوة 1: إزالة الشرطات المائلة من البداية
+  // ط§ظ„ط®ط·ظˆط© 1: ط¥ط²ط§ظ„ط© ط§ظ„ط´ط±ط·ط§طھ ط§ظ„ظ…ط§ط¦ظ„ط© ظ…ظ† ط§ظ„ط¨ط¯ط§ظٹط©
   while (val.startsWith('/')) {
     val = val.substring(1).trim();
   }
   
-  // الخطوة 2: إذا كان فيه ؛ (CSV)، استخرج أول جزء فيه أرقام
+  // ط§ظ„ط®ط·ظˆط© 2: ط¥ط°ط§ ظƒط§ظ† ظپظٹظ‡ ط› (CSV)طŒ ط§ط³طھط®ط±ط¬ ط£ظˆظ„ ط¬ط²ط، ظپظٹظ‡ ط£ط±ظ‚ط§ظ…
   if (val.includes(';')) {
     const parts = val.split(';');
     for (const part of parts) {
@@ -1427,19 +1427,19 @@ function cleanBarcode(text) {
     }
   }
   
-  // الخطوة 3: استخرج حتى أول فراغ
+  // ط§ظ„ط®ط·ظˆط© 3: ط§ط³طھط®ط±ط¬ ط­طھظ‰ ط£ظˆظ„ ظپط±ط§ط؛
   let core = "";
   for (const char of val) {
     if (char === ' ' || char === '\t') break;
     core += char;
   }
   
-  // الخطوة 4: إزالة كل الشرطات من البداية
+  // ط§ظ„ط®ط·ظˆط© 4: ط¥ط²ط§ظ„ط© ظƒظ„ ط§ظ„ط´ط±ط·ط§طھ ظ…ظ† ط§ظ„ط¨ط¯ط§ظٹط©
   while (core.startsWith('-')) {
     core = core.substring(1);
   }
   
-  // الخطوة 5: تجاهل البادئات المعروفة (حرفين + شرطة)
+  // ط§ظ„ط®ط·ظˆط© 5: طھط¬ط§ظ‡ظ„ ط§ظ„ط¨ط§ط¯ط¦ط§طھ ط§ظ„ظ…ط¹ط±ظˆظپط© (ط­ط±ظپظٹظ† + ط´ط±ط·ط©)
   const knownPrefixes = ['MZ-', 'TO-', 'HO-', 'DA-', 'NS-', 'MS-', 'SU-', 'MI-', 'FU-', 'HY-'];
   for (const prefix of knownPrefixes) {
     if (core.toUpperCase().startsWith(prefix)) {
@@ -1448,26 +1448,26 @@ function cleanBarcode(text) {
     }
   }
   
-  // أو إذا كانت البادئة حرفين فقط + شرطة (بدون قائمة)
+  // ط£ظˆ ط¥ط°ط§ ظƒط§ظ†طھ ط§ظ„ط¨ط§ط¯ط¦ط© ط­ط±ظپظٹظ† ظپظ‚ط· + ط´ط±ط·ط© (ط¨ط¯ظˆظ† ظ‚ط§ط¦ظ…ط©)
   if (core.length > 3 && core[2] === '-' && /^[A-Z]{2}/.test(core)) {
     core = core.substring(3);
   }
   
-  // الخطوة 6: إزالة الشرطات من النهاية
+  // ط§ظ„ط®ط·ظˆط© 6: ط¥ط²ط§ظ„ط© ط§ظ„ط´ط±ط·ط§طھ ظ…ظ† ط§ظ„ظ†ظ‡ط§ظٹط©
   while (core.endsWith('-')) {
     core = core.substring(0, core.length - 1);
   }
   
-  // ⭐ الخطوة 7 الجديدة: استخراج أول 10 أرقام فقط
+  // â­گ ط§ظ„ط®ط·ظˆط© 7 ط§ظ„ط¬ط¯ظٹط¯ط©: ط§ط³طھط®ط±ط§ط¬ ط£ظˆظ„ 10 ط£ط±ظ‚ط§ظ… ظپظ‚ط·
   let digits = "";
   for (const char of core.trim()) {
     if (/\d/.test(char)) {
       digits += char;
-      if (digits.length === 10) break; // توقف بعد 10 أرقام
+      if (digits.length === 10) break; // طھظˆظ‚ظپ ط¨ط¹ط¯ 10 ط£ط±ظ‚ط§ظ…
     }
   }
   
-  // لو أطول من 10 أرقام → ترجع فارغ (لا تطابق البحث)
+  // ظ„ظˆ ط£ط·ظˆظ„ ظ…ظ† 10 ط£ط±ظ‚ط§ظ… â†’ طھط±ط¬ط¹ ظپط§ط±ط؛ (ظ„ط§ طھط·ط§ط¨ظ‚ ط§ظ„ط¨ط­ط«)
   if (digits.length > 10) {
     return "";
   }
@@ -1479,13 +1479,13 @@ function cleanBarcode(text) {
 function login(){
   loginError.textContent="";
   loginLoading.style.display="block";
-  loginLoading.textContent = "جاري التحقق من البيانات...";
+  loginLoading.textContent = "ط¬ط§ط±ظٹ ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط¨ظٹط§ظ†ط§طھ...";
   const user = loginUser.value.trim();
   const pass = loginPass.value.trim();
 
   if(!user || !pass){
     loginLoading.style.display="none";
-    loginError.textContent="فضلاً أدخل اسم المستخدم والرقم السري";
+    loginError.textContent="ظپط¶ظ„ط§ظ‹ ط£ط¯ط®ظ„ ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ… ظˆط§ظ„ط±ظ‚ظ… ط§ظ„ط³ط±ظٹ";
     return;
   }
 
@@ -1498,7 +1498,7 @@ function login(){
   .then(res=>{
     if(!res.ok){
       loginLoading.style.display="none";
-      loginError.textContent = res.error || "فشل تسجيل الدخول";
+      loginError.textContent = res.error || "ظپط´ظ„ طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„";
       return;
     }
     CURRENT_USER = res.user && res.user.name ? res.user.name : user;
@@ -1508,12 +1508,12 @@ function login(){
       localStorage.setItem("stockRole", CURRENT_ROLE);
     } catch (e) {}
     enablePullBlock();
-    loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
+    loginLoading.textContent = "ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط®ط²ظˆظ† 0%...";
     loadInventoryAfterLogin();
   })
   .catch(()=>{
     loginLoading.style.display="none";
-    loginError.textContent="تعذر الاتصال بالسيرفر";
+    loginError.textContent="طھط¹ط°ط± ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط³ظٹط±ظپط±";
   });
 }
 
@@ -1526,11 +1526,11 @@ function backToMain(){
 function loadInventoryAfterLogin(){
   let progress = 0;
   loginLoading.style.display = "block";
-  loginLoading.textContent = "جاري تحميل بيانات المخزون 0%...";
+  loginLoading.textContent = "ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط®ط²ظˆظ† 0%...";
   loadingInterval = setInterval(()=>{
     if(progress < 95){
       progress += 3;
-      loginLoading.textContent = "جاري تحميل بيانات المخزون " + progress + "%...";
+      loginLoading.textContent = "ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط®ط²ظˆظ† " + progress + "%...";
     }
   }, 150);
   fetch(API + "?mode=inventory")
@@ -1540,7 +1540,7 @@ function loadInventoryAfterLogin(){
       SALES_DATA = Array.isArray(ALL_DATA) ? ALL_DATA.slice() : [];
       LAST_SYNC_TIME = Date.now();
       if(loadingInterval) clearInterval(loadingInterval);
-      loginLoading.textContent = "جاري تحميل بيانات المخزون 100%...";
+      loginLoading.textContent = "ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط®ط²ظˆظ† 100%...";
       setTimeout(()=>{
         loginScreen.style.display="none";
         loginLoading.style.display="none";
@@ -1552,11 +1552,11 @@ function loadInventoryAfterLogin(){
     .catch(() => {
       if(loadingInterval) clearInterval(loadingInterval);
       loginLoading.style.display="none";
-      loginError.textContent = "فشل تحميل بيانات المخزون";
+      loginError.textContent = "ظپط´ظ„ طھط­ظ…ظٹظ„ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط®ط²ظˆظ†";
     });
 }
 
-/* تزامن تلقائي */
+/* طھط²ط§ظ…ظ† طھظ„ظ‚ط§ط¦ظٹ */
 function startAutoSync(){
   if(AUTO_REFRESH) clearInterval(AUTO_REFRESH);
   AUTO_REFRESH = setInterval(()=>{
@@ -1580,7 +1580,7 @@ function autoRefreshData(mode){
       let hasChanges = false;
       
       if(mode === "inventory"){
-        // مقارنة البيانات
+        // ظ…ظ‚ط§ط±ظ†ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ
         if(d.length !== ALL_DATA.length){
           hasChanges = true;
         } else {
@@ -1627,7 +1627,7 @@ function showUpdateIndicator(){
   
   const badge = document.createElement("div");
   badge.className = "update-badge";
-  badge.textContent = "✓ تم تحديث البيانات";
+  badge.textContent = "âœ“ طھظ… طھط­ط¯ظٹط« ط§ظ„ط¨ظٹط§ظ†ط§طھ";
   document.body.appendChild(badge);
   
   setTimeout(()=>{
@@ -1636,7 +1636,7 @@ function showUpdateIndicator(){
   }, 3500);
 }
 
-/* تحديث يدوي */
+/* طھط­ط¯ظٹط« ظٹط¯ظˆظٹ */
 function refreshCurrentView(){
   const refreshBtn = document.getElementById("refreshBtn");
   refreshBtn.style.transform = "rotate(360deg)";
@@ -1654,7 +1654,7 @@ function refreshCurrentView(){
         ALL_DATA = d.slice();
         runSearchInventory();
       }
-      showNotification("تم تحديث البيانات بنجاح");
+      showNotification("طھظ… طھط­ط¯ظٹط« ط§ظ„ط¨ظٹط§ظ†ط§طھ ط¨ظ†ط¬ط§ط­");
       setTimeout(() => {
         refreshBtn.style.transform = "rotate(0deg)";
       }, 600);
@@ -1669,26 +1669,26 @@ function refreshCurrentView(){
 function openMenu(id){
   if(id === 3){
     CURRENT_VIEW = "inventory";
-    document.getElementById("topTitle").textContent = "الجرد المخزني";
+    document.getElementById("topTitle").textContent = "ط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ط®ط²ظ†ظٹ";
     countStateWrap.style.display = "flex";
     document.getElementById("scanBtn").disabled = false;
     mainScreen.style.display = "none";
     appScreen.style.display  = "block";
     runSearchInventory();
   }else{
-    alert("هذه القائمة لم تفعل");
+    alert("ظ‡ط°ظ‡ ط§ظ„ظ‚ط§ط¦ظ…ط© ظ„ظ… طھظپط¹ظ„");
   }
 }
 
 function openSalesMenu(){
   CURRENT_VIEW = "sales";
-  document.getElementById("topTitle").textContent = "مبيعات";
+  document.getElementById("topTitle").textContent = "ظ…ط¨ظٹط¹ط§طھ";
   countStateWrap.style.display = "none";
   document.getElementById("scanBtn").disabled = true;
   mainScreen.style.display = "none";
   appScreen.style.display  = "block";
   
-  // تحميل سريع من الذاكرة أولاً
+  // طھط­ظ…ظٹظ„ ط³ط±ظٹط¹ ظ…ظ† ط§ظ„ط°ط§ظƒط±ط© ط£ظˆظ„ط§ظ‹
   if(SALES_DATA && SALES_DATA.length > 0){
     runSearchSales();
   } else {
@@ -1734,7 +1734,7 @@ function clearFilters(){
   if(CURRENT_VIEW === "inventory"){ runSearchInventory(); }else{ runSearchSales(); }
 }
 
-/* ======= بحث المخزون ======= */
+/* ======= ط¨ط­ط« ط§ظ„ظ…ط®ط²ظˆظ† ======= */
 function runSearchInventory(){
   const pc = (pContains.value || "").trim().toLowerCase();
   const pe = (pEnds.value || "").trim().toLowerCase();
@@ -1798,7 +1798,7 @@ function runSearchInventory(){
   renderInventory(res);
 }
 
-/* بحث المبيعات */
+/* ط¨ط­ط« ط§ظ„ظ…ط¨ظٹط¹ط§طھ */
 function runSearchSales(){
   const q          = (pContains.value || "").trim().toLowerCase();
   const nameStarts = (nStarts.value   || "").trim().toLowerCase();
@@ -1845,22 +1845,22 @@ function renderInventory(data){
       const diffAbs = Math.abs(qtySysNum - qtyCountNum);
       if(qtySysNum === qtyCountNum){
         cls += " ok";
-        status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
+        status = `âœ“ طھظ… ط§ظ„ط¬ط±ط¯ (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
-        status = `${diffAbs >= 5 ? "🚨":"⚠"} فرق ${diffAbs} | جرد: ${qtyCountNum} | نهائي: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
+        status = `${diffAbs >= 5 ? "ًںڑ¨":"âڑ "} ظپط±ظ‚ ${diffAbs} | ط¬ط±ط¯: ${qtyCountNum} | ظ†ظ‡ط§ط¦ظٹ: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
       }
     }else{
-      status = "لم يجرد";
+      status = "ظ„ظ… ظٹط¬ط±ط¯";
     }
     const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5 ? "border:2px solid #f97316;background:#fff7ed;" : "";
     return `<div class="item" style="${itemStyle}">
-      <div class="part-row"><div class="${cls}">${r.part ?? ""}</div><div class="location"><b>الموقع:</b> ${r.location ?? ""}</div></div>
+      <div class="part-row"><div class="${cls}">${r.part ?? ""}</div><div class="location"><b>ط§ظ„ظ…ظˆظ‚ط¹:</b> ${r.location ?? ""}</div></div>
       <div class="name">${r.name ?? ""}</div>
-      <div class="meta"><span>النهائية: <b>${qtySysNum}</b></span> | <span>الجرد: <b>${qtyCountNum || 0}</b></span></div>
+      <div class="meta"><span>ط§ظ„ظ†ظ‡ط§ط¦ظٹط©: <b>${qtySysNum}</b></span> | <span>ط§ظ„ط¬ط±ط¯: <b>${qtyCountNum || 0}</b></span></div>
       <div class="status">${status}</div>
       <div style="display:flex;justify-content:flex-end;margin-top:6px">
-        <button onclick='openDetail(${JSON.stringify(r.part ?? "")})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">✏️ تعديل</button>
+        <button onclick='openDetail(${JSON.stringify(r.part ?? "")})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">âœڈï¸ڈ طھط¹ط¯ظٹظ„</button>
       </div>
     </div>`;
   }).join("");
@@ -1870,16 +1870,16 @@ function renderSales(data){
   results.innerHTML = data.map(r=>{
     const availCls = r.qty > 0 ? "ok" : "warn";
     const inCart = SALES_CART.find(c => c.part === r.part);
-    const btnText = inCart ? "✓ في العربة" : "➕ أضف";
+    const btnText = inCart ? "âœ“ ظپظٹ ط§ظ„ط¹ط±ط¨ط©" : "â‍• ط£ط¶ظپ";
     const btnDisabled = inCart ? "disabled" : "";
     const btnBg = inCart ? "#16a34a" : "#2563eb";
     return `<div class="item sales-item">
-      <div class="part-row"><div class="part ${availCls}">${r.part}</div><div class="location"><b>الفرع:</b> ${r.branch || ""}</div></div>
+      <div class="part-row"><div class="part ${availCls}">${r.part}</div><div class="location"><b>ط§ظ„ظپط±ط¹:</b> ${r.branch || ""}</div></div>
       <div class="name">${r.name}</div>
-      <div class="meta"><span>الكمية: ${r.qty}</span> | <span>التكلفة: ${r.cost}</span> | <span>السعر: ${r.maxPrice}</span></div>
+      <div class="meta"><span>ط§ظ„ظƒظ…ظٹط©: ${r.qty}</span> | <span>ط§ظ„طھظƒظ„ظپط©: ${r.cost}</span> | <span>ط§ظ„ط³ط¹ط±: ${r.maxPrice}</span></div>
       <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:6px">
         <button onclick='addToCart(${JSON.stringify(r)})' ${btnDisabled} style="border:none;background:${btnBg};color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;opacity:${inCart ? 0.6 : 1}">${btnText}</button>
-        <button onclick='openSalesDetail(${JSON.stringify(r)})' style="border:none;background:#7c3aed;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px">📋 تفصيل</button>
+        <button onclick='openSalesDetail(${JSON.stringify(r)})' style="border:none;background:#7c3aed;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px">ًں“‹ طھظپطµظٹظ„</button>
       </div>
     </div>`;
   }).join("");
@@ -1899,21 +1899,21 @@ function openDetail(part){
   const ov = document.createElement("div");
   ov.className = "detail-overlay";
   ov.innerHTML = `<div class="detail-card">
-      <div class="detail-header"><span>تعديل الصنف</span><button class="detail-close" onclick="this.closest('.detail-overlay').remove()">✕</button></div>
-      <div class="detail-label">رقم الصنف: <b>${r.part}</b></div>
-      <div class="detail-label">اسم الصنف: <b>${r.name}</b></div>
-      <div class="detail-label">الموقع الجديد</div>
+      <div class="detail-header"><span>طھط¹ط¯ظٹظ„ ط§ظ„طµظ†ظپ</span><button class="detail-close" onclick="this.closest('.detail-overlay').remove()">âœ•</button></div>
+      <div class="detail-label">ط±ظ‚ظ… ط§ظ„طµظ†ظپ: <b>${r.part}</b></div>
+      <div class="detail-label">ط§ط³ظ… ط§ظ„طµظ†ظپ: <b>${r.name}</b></div>
+      <div class="detail-label">ط§ظ„ظ…ظˆظ‚ط¹ ط§ظ„ط¬ط¯ظٹط¯</div>
       <input id="newLoc" value="${r.countLocation || ''}" data-original="${(r.countLocation || '')}" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);margin-top:4px">
-      <div class="detail-label">كمية الجرد</div>
+      <div class="detail-label">ظƒظ…ظٹط© ط§ظ„ط¬ط±ط¯</div>
       <div class="detail-qty-box">
         <button onclick="chg(-1);updateDetailSaveState()">&minus;</button>
-        <input id="cq" type="number" value="${r.lastCountQty ?? ''}" data-original="${r.lastCountQty ?? ''}" placeholder="أدخل الكمية">
+        <input id="cq" type="number" value="${r.lastCountQty ?? ''}" data-original="${r.lastCountQty ?? ''}" placeholder="ط£ط¯ط®ظ„ ط§ظ„ظƒظ…ظٹط©">
         <button onclick="chg(1);updateDetailSaveState()">+</button>
       </div>
-      <div class="detail-label">الكمية متوفرة: <b>${r.qty}</b></div>
-      <div class="detail-label">ملاحظات</div>
+      <div class="detail-label">ط§ظ„ظƒظ…ظٹط© ظ…طھظˆظپط±ط©: <b>${r.qty}</b></div>
+      <div class="detail-label">ظ…ظ„ط§ط­ط¸ط§طھ</div>
       <textarea id="note" data-original="${(r.note || '')}" style="width:100%;min-height:60px;border-radius:8px;border:1px solid var(--border);padding:6px;">${r.note || ''}</textarea>
-      <button id="detailSaveBtn" class="detail-save" disabled style="opacity:0.5;cursor:not-allowed" onclick="saveCount('${String(r.part)}', ${r.qty})">حفظ التعديل</button>
+      <button id="detailSaveBtn" class="detail-save" disabled style="opacity:0.5;cursor:not-allowed" onclick="saveCount('${String(r.part)}', ${r.qty})">ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„</button>
     </div>`;
   document.body.appendChild(ov);
   ["newLoc","cq","note"].forEach(id=>document.getElementById(id).addEventListener("input", updateDetailSaveState));
@@ -1930,64 +1930,64 @@ function openSalesDetail(item){
   
   ov.innerHTML = `<div class="sales-detail-card">
     <div class="sales-detail-header">
-      <span>📋 تفاصيل الصنف</span>
-      <button class="sales-detail-close" onclick="this.closest('.sales-detail-overlay').remove()">✕</button>
+      <span>ًں“‹ طھظپط§طµظٹظ„ ط§ظ„طµظ†ظپ</span>
+      <button class="sales-detail-close" onclick="this.closest('.sales-detail-overlay').remove()">âœ•</button>
     </div>
     
     <div class="info-row">
-      <span class="info-label">رقم الصنف:</span>
+      <span class="info-label">ط±ظ‚ظ… ط§ظ„طµظ†ظپ:</span>
       <span class="info-value">${item.part}</span>
     </div>
     
     <div class="info-row">
-      <span class="info-label">اسم الصنف:</span>
+      <span class="info-label">ط§ط³ظ… ط§ظ„طµظ†ظپ:</span>
       <span class="info-value">${item.name}</span>
     </div>
     
     <div class="info-row">
-      <span class="info-label">الفرع:</span>
+      <span class="info-label">ط§ظ„ظپط±ط¹:</span>
       <span class="info-value">${item.branch || "---"}</span>
     </div>
     
     <div class="info-row">
-      <span class="info-label">الكمية المتوفرة:</span>
+      <span class="info-label">ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…طھظˆظپط±ط©:</span>
       <span class="info-value">${item.qty}</span>
     </div>
     
     <div class="info-row">
-      <span class="info-label">التكلفة:</span>
+      <span class="info-label">ط§ظ„طھظƒظ„ظپط©:</span>
       <span class="info-value">${cost.toFixed(2)}</span>
     </div>
     
     <div class="info-row">
-      <span class="info-label">السعر الحالي:</span>
+      <span class="info-label">ط§ظ„ط³ط¹ط± ط§ظ„ط­ط§ظ„ظٹ:</span>
       <span class="info-value">${maxPrice.toFixed(2)}</span>
     </div>
     
     <div class="price-section">
-      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">💰 حساب السعر الجديد</div>
+      <div style="font-weight:700;color:var(--primary);margin-bottom:10px">ًں’° ط­ط³ط§ط¨ ط§ظ„ط³ط¹ط± ط§ظ„ط¬ط¯ظٹط¯</div>
       
       <div class="price-input-group">
-        <label>السعر الجديد</label>
-        <input type="number" id="newPrice" placeholder="أدخل السعر الجديد" step="0.01" oninput="calculatePriceMetrics(${cost})">
+        <label>ط§ظ„ط³ط¹ط± ط§ظ„ط¬ط¯ظٹط¯</label>
+        <input type="number" id="newPrice" placeholder="ط£ط¯ط®ظ„ ط§ظ„ط³ط¹ط± ط§ظ„ط¬ط¯ظٹط¯" step="0.01" oninput="calculatePriceMetrics(${cost})">
       </div>
       
       <div id="priceCalcResults" style="display:none" class="calc-results">
         <div class="calc-row">
-          <span class="calc-label">الربح (السعر - التكلفة):</span>
+          <span class="calc-label">ط§ظ„ط±ط¨ط­ (ط§ظ„ط³ط¹ط± - ط§ظ„طھظƒظ„ظپط©):</span>
           <span class="calc-value" id="profitValue">0.00</span>
         </div>
         <div class="calc-row">
-          <span class="calc-label">نسبة الربح %:</span>
+          <span class="calc-label">ظ†ط³ط¨ط© ط§ظ„ط±ط¨ط­ %:</span>
           <span class="calc-value" id="profitPercentValue">0.00 %</span>
         </div>
         <div class="calc-row">
-          <span class="calc-label">الإجمالي شامل 15% ضريبة:</span>
+          <span class="calc-label">ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط´ط§ظ…ظ„ 15% ط¶ط±ظٹط¨ط©:</span>
           <span class="calc-value" id="totalWithTaxValue">0.00</span>
         </div>
       </div>
       
-      <div id="noPriceCalc" class="no-calc">أدخل السعر الجديد لحساب الأرباح والضرائب</div>
+      <div id="noPriceCalc" class="no-calc">ط£ط¯ط®ظ„ ط§ظ„ط³ط¹ط± ط§ظ„ط¬ط¯ظٹط¯ ظ„ط­ط³ط§ط¨ ط§ظ„ط£ط±ط¨ط§ط­ ظˆط§ظ„ط¶ط±ط§ط¦ط¨</div>
     </div>
   </div>`;
   
@@ -2007,13 +2007,13 @@ function calculatePriceMetrics(cost){
   document.getElementById("noPriceCalc").style.display = "none";
   document.getElementById("priceCalcResults").style.display = "block";
   
-  // حساب الربح
+  // ط­ط³ط§ط¨ ط§ظ„ط±ط¨ط­
   const profit = newPrice - cost;
   
-  // حساب نسبة الربح
+  // ط­ط³ط§ط¨ ظ†ط³ط¨ط© ط§ظ„ط±ط¨ط­
   const profitPercent = cost > 0 ? (profit / cost) * 100 : 0;
   
-  // الإجمالي شامل الضريبة
+  // ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط´ط§ظ…ظ„ ط§ظ„ط¶ط±ظٹط¨ط©
   const totalWithTax = newPrice * 1.15;
   
   document.getElementById("profitValue").textContent = profit.toFixed(2);
@@ -2060,7 +2060,7 @@ function saveCount(part, systemQty){
   );
 
   if(!r){
-    alert("حدث خطأ: لم يتم العثور على الصنف في الذاكرة");
+    alert("ط­ط¯ط« ط®ط·ط£: ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„طµظ†ظپ ظپظٹ ط§ظ„ط°ط§ظƒط±ط©");
     return;
   }
 
@@ -2088,7 +2088,7 @@ function saveCount(part, systemQty){
   .then(res => res.json())
   .then(data => {
     if (data.ok){
-      // تحديث فوري في الذاكرة
+      // طھط­ط¯ظٹط« ظپظˆط±ظٹ ظپظٹ ط§ظ„ط°ط§ظƒط±ط©
       r.lastCountedAt = new Date().toISOString();
       r.lastCountQty  = Number(cqVal);
       r.note          = noteVal;
@@ -2096,27 +2096,27 @@ function saveCount(part, systemQty){
       r.countLocation = locVal;
       r.version       = data.version || currentVersion + 1;
 
-      // تحديث العرض فوراً مع تزامن جديد
+      // طھط­ط¯ظٹط« ط§ظ„ط¹ط±ط¶ ظپظˆط±ط§ظ‹ ظ…ط¹ طھط²ط§ظ…ظ† ط¬ط¯ظٹط¯
       LAST_SYNC_TIME = Date.now();
       runSearchInventory();
       playBeep();
-      showNotification("✓ تم حفظ التعديل بنجاح");
+      showNotification("âœ“ طھظ… ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ ط¨ظ†ط¬ط§ط­");
       showUpdateIndicator();
     } else {
       if (data.conflict){
-        // تضارب: مستخدم آخر عدل نفس الصنف
-        showConflictNotification(data.error || "تم تعديل الصنف من مستخدم آخر (من " + (data.conflictUser || "؟") + ")");
+        // طھط¶ط§ط±ط¨: ظ…ط³طھط®ط¯ظ… ط¢ط®ط± ط¹ط¯ظ„ ظ†ظپط³ ط§ظ„طµظ†ظپ
+        showConflictNotification(data.error || "طھظ… طھط¹ط¯ظٹظ„ ط§ظ„طµظ†ظپ ظ…ظ† ظ…ط³طھط®ط¯ظ… ط¢ط®ط± (ظ…ظ† " + (data.conflictUser || "طں") + ")");
         setTimeout(()=>{
           runSearchInventory();
         }, 1500);
       } else {
-        alert(data.error || "فشل الحفظ");
+        alert(data.error || "ظپط´ظ„ ط§ظ„ط­ظپط¸");
       }
     }
   })
   .catch(err => {
     console.error(err);
-    alert("خطأ في الاتصال أثناء الحفظ، سيتم تحديث البيانات");
+    alert("ط®ط·ط£ ظپظٹ ط§ظ„ط§طھطµط§ظ„ ط£ط«ظ†ط§ط، ط§ظ„ط­ظپط¸طŒ ط³ظٹطھظ… طھط­ط¯ظٹط« ط§ظ„ط¨ظٹط§ظ†ط§طھ");
     runSearchInventory();
   });
 }
@@ -2124,7 +2124,7 @@ function saveCount(part, systemQty){
 function showConflictNotification(msg){
   const notif = document.createElement("div");
   notif.className = "conflict-notify";
-  notif.innerHTML = `⚠️ ${msg}`;
+  notif.innerHTML = `âڑ ï¸ڈ ${msg}`;
   document.body.appendChild(notif);
   setTimeout(() => notif.remove(), 4000);
 }
@@ -2148,7 +2148,7 @@ function startScan(){
       runSearchInventory();
     }
   ).catch(() => {
-    alert("تعذر فتح الكاميرا");
+    alert("طھط¹ط°ط± ظپطھط­ ط§ظ„ظƒط§ظ…ظٹط±ط§");
     container.style.display = "none";
   });
   isScanning = true;
@@ -2177,7 +2177,7 @@ function addToCart(item){
       cartNewPrice: Number(item.maxPrice) || 0
     };
     SALES_CART.push(newItem);
-    showNotification("✓ تم إضافة الصنف للعربة");
+    showNotification("âœ“ طھظ… ط¥ط¶ط§ظپط© ط§ظ„طµظ†ظپ ظ„ظ„ط¹ط±ط¨ط©");
     updateCartDisplay();
     runSearchSales();
   }
@@ -2276,8 +2276,8 @@ function updateProfitPanel(){
   profitPanel.innerHTML = `
     <div style="padding:4px 8px;background:#e0f2fe;border-radius:6px;margin-bottom:6px;font-size:11px;display:flex;justify-content:space-between;align-items:center;gap:8px">
       <span style="color:#0369a1;font-weight:600">${activeItem.part}</span>
-      <span style="white-space:nowrap">التكلفة: <strong>${profitData.cost.toFixed(2)}</strong></span>
-      <span style="white-space:nowrap">الربح: <strong style="color:${profit >= 0 ? '#16a34a' : '#dc2626'}">${profit.toFixed(2)}</strong></span>
+      <span style="white-space:nowrap">ط§ظ„طھظƒظ„ظپط©: <strong>${profitData.cost.toFixed(2)}</strong></span>
+      <span style="white-space:nowrap">ط§ظ„ط±ط¨ط­: <strong style="color:${profit >= 0 ? '#16a34a' : '#dc2626'}">${profit.toFixed(2)}</strong></span>
     </div>
   `;
 }
@@ -2304,21 +2304,21 @@ function updateTotals(){
   if(totalsElement){
     totalsElement.innerHTML = `
       <div class="total-row">
-        <span>إجمالي التكلفة:</span>
+        <span>ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„طھظƒظ„ظپط©:</span>
         <span>${totalCost.toFixed(2)}</span>
       </div>
       <div class="total-row">
-        <span>إجمالي السعر الجديد:</span>
+        <span>ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط³ط¹ط± ط§ظ„ط¬ط¯ظٹط¯:</span>
         <span style="color:var(--primary);font-weight:700;direction:ltr">${totalNewPrice.toFixed(2)}</span>
       </div>
       <div class="total-row">
-        <span>إجمالي الربح:</span>
+        <span>ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط±ط¨ط­:</span>
         <span style="color:${totalProfit >= 0 ? '#16a34a' : '#dc2626'};font-weight:700;direction:ltr">
           ${totalProfit.toFixed(2)} (${profitPercent.toFixed(1)}%)
         </span>
       </div>
       <div class="total-row">
-        <span>مع الضريبة 15%:</span>
+        <span>ظ…ط¹ ط§ظ„ط¶ط±ظٹط¨ط© 15%:</span>
         <span style="color:var(--primary);font-weight:700;direction:ltr">${totalWithTax.toFixed(2)}</span>
       </div>
     `;
@@ -2327,11 +2327,11 @@ function updateTotals(){
 
 function openCart(){
   if(SALES_CART.length === 0){
-    showNotification("العربة فارغة!");
+    showNotification("ط§ظ„ط¹ط±ط¨ط© ظپط§ط±ط؛ط©!");
     return;
   }
   
-  // إعادة تعيين العنصر النشط
+  // ط¥ط¹ط§ط¯ط© طھط¹ظٹظٹظ† ط§ظ„ط¹ظ†طµط± ط§ظ„ظ†ط´ط·
   ACTIVE_CART_ITEM = null;
   
   const ov = document.createElement("div");
@@ -2339,8 +2339,8 @@ function openCart(){
   
   ov.innerHTML = `<div class="cart-card">
     <div class="cart-header">
-      <span>🛒 عربة المبيعات</span>
-      <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">✕</button>
+      <span>ًں›’ ط¹ط±ط¨ط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ</span>
+      <button class="cart-close" onclick="this.closest('.cart-overlay').remove()">âœ•</button>
     </div>
     
     <div id="activeItemProfitPanel" style="display:none;"></div>
@@ -2350,10 +2350,10 @@ function openCart(){
         <thead>
           <tr>
             <th class="cart-table-header-num">#</th>
-            <th class="cart-table-header-part">الصنف</th>
-            <th class="cart-table-header-desc">الوصف</th>
-            <th class="cart-table-header-qty">الكمية</th>
-            <th class="cart-table-header-price">السعر</th>
+            <th class="cart-table-header-part">ط§ظ„طµظ†ظپ</th>
+            <th class="cart-table-header-desc">ط§ظ„ظˆطµظپ</th>
+            <th class="cart-table-header-qty">ط§ظ„ظƒظ…ظٹط©</th>
+            <th class="cart-table-header-price">ط§ظ„ط³ط¹ط±</th>
             <th class="cart-table-header-remove"></th>
           </tr>
         </thead>
@@ -2377,7 +2377,7 @@ function openCart(){
                        step="0.01" min="0">
               </td>
               <td style="text-align:center">
-                <button class="cart-item-remove" onclick="removeFromCart('${item.part}')">✕</button>
+                <button class="cart-item-remove" onclick="removeFromCart('${item.part}')">âœ•</button>
               </td>
             </tr>
             `;
@@ -2387,21 +2387,21 @@ function openCart(){
     </div>
     
     <div class="cart-totals">
-      <!-- سيتم ملؤه بواسطة updateTotals -->
+      <!-- ط³ظٹطھظ… ظ…ظ„ط¤ظ‡ ط¨ظˆط§ط³ط·ط© updateTotals -->
     </div>
     
     <div class="cart-actions">
-      <button class="cart-clear-btn" onclick="clearCart()">مسح العربة</button>
-      <button class="cart-checkout-btn" onclick="sendQuoteToWhatsApp()">📤 إرسال</button>
+      <button class="cart-clear-btn" onclick="clearCart()">ظ…ط³ط­ ط§ظ„ط¹ط±ط¨ط©</button>
+      <button class="cart-checkout-btn" onclick="sendQuoteToWhatsApp()">ًں“¤ ط¥ط±ط³ط§ظ„</button>
     </div>
   </div>`;
   
   document.body.appendChild(ov);
   
-  // حساب الإجماليات الأولية
+  // ط­ط³ط§ط¨ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹط§طھ ط§ظ„ط£ظˆظ„ظٹط©
   updateTotals();
   
-  // تعيين أول عنصر كنشط افتراضيًا
+  // طھط¹ظٹظٹظ† ط£ظˆظ„ ط¹ظ†طµط± ظƒظ†ط´ط· ط§ظپطھط±ط§ط¶ظٹظ‹ط§
   if(SALES_CART.length > 0 && !ACTIVE_CART_ITEM){
     setTimeout(() => {
       selectCartItem(SALES_CART[0].part);
@@ -2418,12 +2418,12 @@ function clearCart(){
   if(overlay) overlay.remove();
   
   runSearchSales();
-  showNotification("تم مسح العربة");
+  showNotification("طھظ… ظ…ط³ط­ ط§ظ„ط¹ط±ط¨ط©");
 }
 
 function sendQuoteToWhatsApp(){
   if(SALES_CART.length === 0){
-    showNotification("العربة فارغة!");
+    showNotification("ط§ظ„ط¹ط±ط¨ط© ظپط§ط±ط؛ط©!");
     return;
   }
 
@@ -2435,9 +2435,9 @@ function sendQuoteToWhatsApp(){
   });
   const totalWithTax = totalWithoutTax * 1.15;
 
-  let message = "🏢 *شركة القاضي لقطع غيار السيارات*\n";
-  message += "━━━━━━━━━━━━━━━━━━━━\n\n";
-  message += "*📋 عرض سعر:*\n\n";
+  let message = "ًںڈ¢ *ط´ط±ظƒط© ط§ظ„ظ‚ط§ط¶ظٹ ظ„ظ‚ط·ط¹ ط؛ظٹط§ط± ط§ظ„ط³ظٹط§ط±ط§طھ*\n";
+  message += "â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\n\n";
+  message += "*ًں“‹ ط¹ط±ط¶ ط³ط¹ط±:*\n\n";
 
   SALES_CART.forEach((item, idx) => {
     const nameParts = (item.name || "").trim().split(/\s+/);
@@ -2449,39 +2449,39 @@ function sendQuoteToWhatsApp(){
 
     message += (idx + 1) + ". *" + item.part + "*\n";
     message += "   " + shortName + "\n";
-    message += "   الكمية: " + qty + " | السعر: " + price.toFixed(2) + "\n";
-    message += "   الإجمالي: " + itemTotal.toFixed(2) + " ر.س\n\n";
+    message += "   ط§ظ„ظƒظ…ظٹط©: " + qty + " | ط§ظ„ط³ط¹ط±: " + price.toFixed(2) + "\n";
+    message += "   ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ: " + itemTotal.toFixed(2) + " ط±.ط³\n\n";
   });
 
-  message += "━━━━━━━━━━━━━━━━━━━━\n";
-  message += "*الإجمالي قبل الضريبة:* " + totalWithoutTax.toFixed(2) + " ر.س\n";
-  message += "*الإجمالي مع الضريبة (15%):* " + totalWithTax.toFixed(2) + " ر.س\n";
-  message += "━━━━━━━━━━━━━━━━━━━━\n\n";
-  message += "شكراً لتعاملكم معنا 🙏";
+  message += "â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\n";
+  message += "*ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ظ‚ط¨ظ„ ط§ظ„ط¶ط±ظٹط¨ط©:* " + totalWithoutTax.toFixed(2) + " ط±.ط³\n";
+  message += "*ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ظ…ط¹ ط§ظ„ط¶ط±ظٹط¨ط© (15%):* " + totalWithTax.toFixed(2) + " ط±.ط³\n";
+  message += "â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\n\n";
+  message += "ط´ظƒط±ط§ظ‹ ظ„طھط¹ط§ظ…ظ„ظƒظ… ظ…ط¹ظ†ط§ ًں™ڈ";
 
   const encodedMessage = encodeURIComponent(message);
 
-  // محاولة فتح WhatsApp
+  // ظ…ط­ط§ظˆظ„ط© ظپطھط­ WhatsApp
   const whatsappURL = "https://wa.me/?text=" + encodedMessage;
   const whatsappWindow = window.open(whatsappURL, "_blank");
 
-  // إغلاق السلة
+  // ط¥ط؛ظ„ط§ظ‚ ط§ظ„ط³ظ„ط©
   const overlay = document.querySelector(".cart-overlay");
   if(overlay) overlay.remove();
 
-  // رسالة للمستخدم
-  showNotification("✓ تم فتح WhatsApp - إذا لم يفتح، استخدم نسخ الرسالة");
+  // ط±ط³ط§ظ„ط© ظ„ظ„ظ…ط³طھط®ط¯ظ…
+  showNotification("âœ“ طھظ… ظپطھط­ WhatsApp - ط¥ط°ط§ ظ„ظ… ظٹظپطھط­طŒ ط§ط³طھط®ط¯ظ… ظ†ط³ط® ط§ظ„ط±ط³ط§ظ„ط©");
 
-  // إضافة زر نسخ للحافظة كـ backup
+  // ط¥ط¶ط§ظپط© ط²ط± ظ†ط³ط® ظ„ظ„ط­ط§ظپط¸ط© ظƒظ€ backup
   setTimeout(() => {
-    if(confirm("هل تريد نسخ الرسالة للحافظة؟ (في حال لم يفتح WhatsApp)")){
+    if(confirm("ظ‡ظ„ طھط±ظٹط¯ ظ†ط³ط® ط§ظ„ط±ط³ط§ظ„ط© ظ„ظ„ط­ط§ظپط¸ط©طں (ظپظٹ ط­ط§ظ„ ظ„ظ… ظٹظپطھط­ WhatsApp)")){
       const textArea = document.createElement("textarea");
       textArea.value = message.replace(/\n/g, "\n");
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand("copy");
       document.body.removeChild(textArea);
-      showNotification("✓ تم نسخ الرسالة - يمكنك لصقها في أي تطبيق");
+      showNotification("âœ“ طھظ… ظ†ط³ط® ط§ظ„ط±ط³ط§ظ„ط© - ظٹظ…ظƒظ†ظƒ ظ„طµظ‚ظ‡ط§ ظپظٹ ط£ظٹ طھط·ط¨ظٹظ‚");
     }
   }, 1000);
 }
@@ -2494,7 +2494,7 @@ function logoutUser(){
   location.reload();
 }
 
-// دالة مساعدة لتطبيع الباركود (إن وجدت)
+// ط¯ط§ظ„ط© ظ…ط³ط§ط¹ط¯ط© ظ„طھط·ط¨ظٹط¹ ط§ظ„ط¨ط§ط±ظƒظˆط¯ (ط¥ظ† ظˆط¬ط¯طھ)
 function normalizeBarcode(text) {
   return cleanBarcode(text);
 }
