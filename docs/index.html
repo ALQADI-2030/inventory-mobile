@@ -1847,7 +1847,7 @@ function renderInventory(data){
         status = `✓ تم الجرد (${fmtDate(r.lastCountedAt)}) - ${r.countedBy || ""}`;
       }else{
         cls += " warn";
-        status = `${diffAbs >= 5 ? "🚨":"⚠"} فرق ${diffAbs} | جرد: ${qtyCountNum} | نهائي: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
+        status = `${diffAbs >= 5 ? "🚨":"⚠"} فرق ${diffAbs} | جرد: ${qtyCountNum} | المتوفرة: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
       }
     }else{
       status = "لم يجرد";
@@ -1856,7 +1856,7 @@ function renderInventory(data){
     return `<div class="item" style="${itemStyle}">
       <div class="part-row"><div class="${cls}">${r.part ?? ""}</div><div class="location"><b>الموقع:</b> ${r.location ?? ""}</div></div>
       <div class="name">${r.name ?? ""}</div>
-      <div class="meta"><span>النهائية: <b>${qtySysNum}</b></span> | <span>الجرد: <b>${qtyCountNum || 0}</b></span></div>
+      <div class="meta"><span>المتوفرة: <b>${qtySysNum}</b></span> | <span>الجرد: <b>${qtyCountNum || 0}</b></span></div>
       <div class="status">${status}</div>
       <div style="display:flex;justify-content:flex-end;margin-top:6px">
         <button onclick='openDetail(${JSON.stringify(r.part ?? "")})' style="border:none;background:#2563eb;color:#fff;padding:6px 12px;border-radius:8px;cursor:pointer">✏️ تعديل</button>
