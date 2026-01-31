@@ -1233,7 +1233,7 @@ input, textarea, button{
           <option value="" disabled selected>اختر الفرع</option>
           <option value="*">كل الفروع</option>
           <option value="فرع الرياض">فرع الرياض</option>
-          <option value="لم يجرد">لم يجرد</option>
+          <option value="تأكيد">تأكيد</option>
           <option value="الفرع الثالث">الفرع الثالث</option>
           <option value="مستودع فرع 3">مستودع فرع 3</option>
         </select>
@@ -1850,7 +1850,7 @@ function renderInventory(data){
         status = `${diffAbs >= 5 ? "🚨":"⚠"} فرق ${diffAbs} | جرد: ${qtyCountNum} | المتوفرة: ${qtySysNum} | ${fmtDate(r.lastCountedAt)}`;
       }
     }else{
-      status = "لم يجرد";
+      status = "تأكيد";
     }
     const itemStyle = hasCount && Math.abs(qtySysNum - qtyCountNum) >= 5 ? "border:2px solid #f97316;background:#fff7ed;" : "";
     return `<div class="item" style="${itemStyle}">
